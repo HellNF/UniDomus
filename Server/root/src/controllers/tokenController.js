@@ -1,5 +1,6 @@
 const { getDatabase } = require('../database/connection');
 const { isEmailSuccessfullyConfirmed } = require('../database/databaseQueries');
+const { UTENTE_COLLECTION_NAME, TOKEN_COLLECTION_NAME } = require('../database/collectionNames');
 
 /**
  * Controller function for token confirmation.
@@ -13,8 +14,8 @@ async function confirmToken(req, res) {
         try {
             // Update the 'attivo' field in the 'utente' collection for the user with the given _id
             const db = getDatabase(); // Get the database instance
-            const utenteCollection = db.collection('Utente'); // Access the collection
-            const tokenCollection = db.collection('tokens'); // Access the token collection
+            const utenteCollection = db.collection(UTENTE_COLLECTION_NAME); // Access the collection
+            const tokenCollection = db.collection(TOKEN_COLLECTION_NAME); // Access the token collection
 
             // Update 'attivo' field to true
             const result = await utenteCollection.updateOne(

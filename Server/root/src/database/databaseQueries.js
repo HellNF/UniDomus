@@ -1,5 +1,7 @@
 // Import the getDatabase function from connection.js
 const { getDatabase } = require('./connection');
+const { UTENTE_COLLECTION_NAME, TOKEN_COLLECTION_NAME } = require('./collectionNames');
+
 
 /**
  * Checks if the provided email address is already registered in the database.
@@ -8,7 +10,7 @@ const { getDatabase } = require('./connection');
  */
 async function isEmailAlreadyRegistered(email) {
     const db = getDatabase(); // Obtain the database instance
-    const collection = db.collection('Utente'); // Access the collection
+    const collection = db.collection(UTENTE_COLLECTION_NAME); // Access the collection
     const result = await collection.findOne({ email });
     return result !== null;
 }
@@ -20,7 +22,7 @@ async function isEmailAlreadyRegistered(email) {
  */
 async function isUsernameAlreadyTaken(username) {
     const db = getDatabase(); // Obtain the database instance
-    const collection = db.collection('Utente'); // Access the collection
+    const collection = db.collection(UTENTE_COLLECTION_NAME); // Access the collection
     const result = await collection.findOne({ username });
     return result !== null;
 }
@@ -32,7 +34,7 @@ async function isUsernameAlreadyTaken(username) {
  */
 async function isEmailPendingRegistration(email) {
     const db = getDatabase(); // Obtain the database instance
-    const collection = db.collection('Utente'); // Access the collection
+    const collection = db.collection(UTENTE_COLLECTION_NAME); // Access the collection
     const user = await collection.findOne({ email });
     return user && user.attivo === false;
 }
@@ -44,7 +46,7 @@ async function isEmailPendingRegistration(email) {
  */
 async function isEmailSuccessfullyConfirmed(token) {
     const db = getDatabase(); // Obtain the database instance
-    const collection = db.collection('tokens'); // Access the token collection
+    const collection = db.collection(TOKEN_COLLECTION_NAME); // Access the token collection
     const result = await collection.findOne({ token });
     if (result) {
         return result.id; // Return the _id of the user

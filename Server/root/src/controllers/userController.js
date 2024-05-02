@@ -1,6 +1,7 @@
 // controllers/userController.js
 
 const { getDatabase } = require('../database/connection'); // Import the getDatabase function
+const { UTENTE_COLLECTION_NAME } = require('../database/collectionNames');
 const { isEmailValid, isStrongPassword, isUsernameValid } = require('../validators/validationFunctions');
 const { isEmailAlreadyRegistered, isUsernameAlreadyTaken,isEmailPendingRegistration } = require('../database/databaseQueries');
 
@@ -55,14 +56,14 @@ async function registerUser(req, res) {
     // Check if any validation failed
     const errors = Object.values(validationResult).filter(value => value === "not valid" || value === "already registered" || value === "not confirmed" || value === "already taken");
     if (errors.length > 0) {
-        validationResult.message = "insuccess";
+        validationResult.message = "error";
         return res.status(400).json(validationResult);
     }
 
     try {
         // Insert user into the database
         const db = getDatabase(); // Get the database instance
-        const utenteCollection = db.collection('Utente'); // Access the collection
+        const utenteCollection = db.collection(UTENTE_COLLECTION_NAME); // Access the collection
         const result = await utenteCollection.insertOne({
             email,
             password,
