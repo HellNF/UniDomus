@@ -19,7 +19,8 @@ function isStrongPassword(password) {
  * @returns {boolean} - True if the username is valid, otherwise false.
  */
 function isUsernameValid(username) {
-    return !(username.length < 3 || username.length > 20);
+    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+    return !(username.length < 3 || username.length > 20) && !specialCharRegex.test(username);
 }
 
 /**
