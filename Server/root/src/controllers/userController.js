@@ -1,6 +1,10 @@
+// controllers/userController.js
+
 const UserModel = require('../models/userModel');
+const TokenModel = require('../models/tokenModel'); // Import the Token model
 const { isEmailValid, isStrongPassword, isUsernameValid } = require('../validators/validationFunctions');
-const {isEmailAlreadyRegistered,isUsernameAlreadyTaken,isEmailPendingRegistration} = require('../database/databaseQueries');
+const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistration } = require('../database/databaseQueries');
+const { generateRandomToken } = require('../utils/tokenUtils'); // Import the function to generate random token
 
 /**
  * Controller function for user registration.
@@ -50,7 +54,13 @@ async function registerUser(req, res) {
 
     try {
         // Create user
-        await UserModel.create({ email, password, username, attivo: false });
+        const newUser = await UserModel.create({ email, password, username, attivo: false });
+
+        // Generate random token
+        const token = generateRandomToken(30);
+
+        // Insert token into token collection
+        await TokenModel.create({ token, idUtente: newUser._id });
 
         return res.status(200).json({ message: "success" });
     } catch (error) {

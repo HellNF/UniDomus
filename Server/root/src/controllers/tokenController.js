@@ -1,6 +1,7 @@
 // controllers/tokenController.js
 
 const Token = require('../models/tokenModel');
+const User = require('../models/userModel');
 const { isEmailSuccessfullyConfirmed } = require('../database/databaseQueries');
 
 /**
@@ -14,12 +15,13 @@ async function confirmToken(req, res) {
     if (userId) {
         try {
             // Update the 'attivo' field in the 'utente' collection for the user with the given _id
-            const user = await Token.findOneAndUpdate(
-                { userId }, // Filter by userId
-                { $set: { attivo: true } } // Update 'attivo' field to true
+            const updatedUser = await User.findByIdAndUpdate(
+                userId,
+                { $set: { attivo: true } },
+                { new: true } // Return the modified document
             );
 
-            if (user) {
+            if (updatedUser) {
                 // If update is successful, remove the token from the 'tokens' collection
                 const deletedToken = await Token.findOneAndDelete({ token });
 

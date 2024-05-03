@@ -1,8 +1,7 @@
-// models/tokenModel.js
+// tokenModel.js
 
 const mongoose = require('mongoose');
 
-// Define the schema for the token collection
 const tokenSchema = new mongoose.Schema({
     token: {
         type: String,
@@ -20,5 +19,4 @@ const tokenSchema = new mongoose.Schema({
     }
 });
 
-// Create and export the Token model
-module.exports = mongoose.model('Token', tokenSchema,'tokens');
+module.exports = mongoose.model('Token', tokenSchema, 'tokens');

@@ -39,11 +39,10 @@ async function isEmailPendingRegistration(email) {
 async function isEmailSuccessfullyConfirmed(token) {
     const tokenEntry = await Token.findOne({ token });
     if (tokenEntry) {
-        return tokenEntry.userId; // Return the user ID
+        return tokenEntry.idUtente.toString(); // Return the user ID as a string
     }
     return null; // Return null if token is invalid
 }
-
 // Export database query functions
 module.exports = {
     isEmailAlreadyRegistered,
