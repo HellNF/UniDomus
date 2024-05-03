@@ -1,18 +1,84 @@
-const mailgun = require("mailgun-js");
+
 require('dotenv').config()
-const DOMAIN = "sandbox424a23048d794460b17dcd91029a4a73.mailgun.org";
-const mg = mailgun({apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN});
-const data = {
-	from: "Mailgun Sandbox <postmaster@sandbox424a23048d794460b17dcd91029a4a73.mailgun.org>",
-	to: "nicolofadiga@gmail.com",
-	subject: "Hello",
-	text: "Testing some Mailgun awesomness!"
+const sgMail = require('@sendgrid/mail');
+
+/**
+ * Sends an email.
+ * @param {string} to - The recipient's email address.
+ * @param {string} subject - The subject of the email.
+ * @param {string} text - The plain text content of the email.
+ * @param {string} html - The html content of the email.
+ */
+async function sendEmail(to, subject, text,html=`<strong>${text}</strong>`) {
+    const sgMail = require('@sendgrid/mail')
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+    const msg = {
+        to: to, // Change to your recipient
+        from: 'freezer.spa@gmail.com', // Change to your verified sender
+        subject: subject,
+        text: text,
+        html: html,
+        }
+    
+    try {
+        await sgMail.send(msg);
+        console.log('Email sent successfully!');
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+}
+
+
+
+/**
+ * Sends confermation email.
+ * @param {string} recipientEmail - The recipient's email address.
+ * @param {string} confirmationLink - The confermation link.
+ */
+
+async function sendConfirmationEmail(recipientEmail, confirmationLink) {
+  // Set SendGrid API Key securely using environment variable
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const msg = {
+    to: recipientEmail,
+    from: 'freezer.spa@gmail.com', // Change to your verified sender
+    subject: 'Verify your email address for UniDomus',
+    text: `Hi there!
+
+    Thank you for signing up with UniDomus. To verify your email address and activate your account, please click on the following link:
+
+    ${confirmationLink}
+
+    This link will expire within 24 hours.
+
+    Sincerely,
+    The UniDomus Team`,
+    html: `
+    <strong>Hi there!</strong><br>
+
+    <p>Thank you for signing up with UniDomus. To verify your email address and activate your account, please click on the following link:</p>
+
+    <a href="${confirmationLink}">${confirmationLink}</a>
+
+    <p>This link will expire within 24 hours.</p>
+
+    <p>Sincerely,</p>
+    <p>The UniDomus Team</p>
+    `,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log('Email sent successfully!');
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}
+
+
+module.exports={
+  sendEmail,
+  sendConfirmationEmail
 };
-mg.messages().send(data, function (error, body) {
-	console.log(body);
-});
 
-// You can see a record of this email in your logs: https://app.mailgun.com/app/logs.
-
-// You can send up to 300 emails/day from this sandbox server.
-// Next, you should add your own domain so you can send 10000 emails/month for free.
