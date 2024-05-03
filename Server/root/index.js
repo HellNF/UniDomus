@@ -2,6 +2,7 @@
 
 const express = require('express');
 const app = express();
+const cors =require('cors')
 const PORT = process.env.PORT || 5050; // Set the port to either the environment port or 5050
 
 // Middleware
@@ -9,7 +10,9 @@ app.use(express.json());
 
 // Import MongoDB connection function and Mongoose instance
 const { connectToMongoDB, mongoose } = require('./src/database/connection');
-
+app.use(cors({
+  origin: "*", //allow access form any address --no restrictions
+}))
 // Import routes
 const userRoutes = require('./src/routes/userRoutes');
 const tokenRoutes = require('./src/routes/tokenRoutes');
