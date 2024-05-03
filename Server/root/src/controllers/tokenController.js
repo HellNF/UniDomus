@@ -1,6 +1,7 @@
-const { getDatabase } = require('../database/connection');
+// controllers/tokenController.js
+
+const Token = require('../models/tokenModel');
 const { isEmailSuccessfullyConfirmed } = require('../database/databaseQueries');
-const { UTENTE_COLLECTION_NAME, TOKEN_COLLECTION_NAME } = require('../database/collectionNames');
 
 /**
  * Controller function for token confirmation.
@@ -13,21 +14,16 @@ async function confirmToken(req, res) {
     if (userId) {
         try {
             // Update the 'attivo' field in the 'utente' collection for the user with the given _id
-            const db = getDatabase(); // Get the database instance
-            const utenteCollection = db.collection(UTENTE_COLLECTION_NAME); // Access the collection
-            const tokenCollection = db.collection(TOKEN_COLLECTION_NAME); // Access the token collection
-
-            // Update 'attivo' field to true
-            const result = await utenteCollection.updateOne(
-                { _id: userId }, // Filter by _id
+            const user = await Token.findOneAndUpdate(
+                { userId }, // Filter by userId
                 { $set: { attivo: true } } // Update 'attivo' field to true
             );
 
-            if (result.modifiedCount > 0) {
+            if (user) {
                 // If update is successful, remove the token from the 'tokens' collection
-                const tokenDeleteResult = await tokenCollection.deleteOne({ token });
+                const deletedToken = await Token.findOneAndDelete({ token });
 
-                if (tokenDeleteResult.deletedCount > 0) {
+                if (deletedToken) {
                     return res.status(200).json({ message: "success" });
                 } else {
                     // If token deletion fails, return an error

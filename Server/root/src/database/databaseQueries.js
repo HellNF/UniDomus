@@ -1,7 +1,5 @@
-// Import the getDatabase function from connection.js
-const { getDatabase } = require('./connection');
-const { UTENTE_COLLECTION_NAME, TOKEN_COLLECTION_NAME } = require('./collectionNames');
-
+const User = require('../models/userModel');
+const Token = require('../models/tokenModel');
 
 /**
  * Checks if the provided email address is already registered in the database.
@@ -9,10 +7,8 @@ const { UTENTE_COLLECTION_NAME, TOKEN_COLLECTION_NAME } = require('./collectionN
  * @returns {Promise<boolean>} - A promise that resolves to true if the email is already registered, otherwise false.
  */
 async function isEmailAlreadyRegistered(email) {
-    const db = getDatabase(); // Obtain the database instance
-    const collection = db.collection(UTENTE_COLLECTION_NAME); // Access the collection
-    const result = await collection.findOne({ email });
-    return result !== null;
+    const user = await User.findOne({ email });
+    return user !== null;
 }
 
 /**
@@ -21,10 +17,8 @@ async function isEmailAlreadyRegistered(email) {
  * @returns {Promise<boolean>} - A promise that resolves to true if the username is already taken, otherwise false.
  */
 async function isUsernameAlreadyTaken(username) {
-    const db = getDatabase(); // Obtain the database instance
-    const collection = db.collection(UTENTE_COLLECTION_NAME); // Access the collection
-    const result = await collection.findOne({ username });
-    return result !== null;
+    const user = await User.findOne({ username });
+    return user !== null;
 }
 
 /**
@@ -33,9 +27,7 @@ async function isUsernameAlreadyTaken(username) {
  * @returns {Promise<boolean>} - A promise that resolves to true if the email is pending registration, otherwise false.
  */
 async function isEmailPendingRegistration(email) {
-    const db = getDatabase(); // Obtain the database instance
-    const collection = db.collection(UTENTE_COLLECTION_NAME); // Access the collection
-    const user = await collection.findOne({ email });
+    const user = await User.findOne({ email });
     return user && user.attivo === false;
 }
 
@@ -45,11 +37,9 @@ async function isEmailPendingRegistration(email) {
  * @returns {Promise<string|null>} - A promise that resolves to the user ID if the token is valid, otherwise null.
  */
 async function isEmailSuccessfullyConfirmed(token) {
-    const db = getDatabase(); // Obtain the database instance
-    const collection = db.collection(TOKEN_COLLECTION_NAME); // Access the token collection
-    const result = await collection.findOne({ token });
-    if (result) {
-        return result.id; // Return the _id of the user
+    const tokenEntry = await Token.findOne({ token });
+    if (tokenEntry) {
+        return tokenEntry.userId; // Return the user ID
     }
     return null; // Return null if token is invalid
 }
