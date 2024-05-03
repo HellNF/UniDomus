@@ -8,9 +8,9 @@ const tokenSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    userId: {
+    idUtente: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Reference to the User model
+        ref: 'Utente', // Reference to the User model
         required: true
     },
     createdAt: {
@@ -21,4 +21,4 @@ const tokenSchema = new mongoose.Schema({
 });
 
 // Create and export the Token model
-module.exports = mongoose.model('Token', tokenSchema);
+module.exports = mongoose.model('Token', tokenSchema,'tokens');
