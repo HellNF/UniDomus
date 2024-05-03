@@ -1,9 +1,10 @@
 // controllers/userController.js
 
-const { getDatabase } = require('../database/connection'); // Import the getDatabase function
-const { UTENTE_COLLECTION_NAME } = require('../database/collectionNames');
+const UserModel = require('../models/userModel');
+const TokenModel = require('../models/tokenModel'); // Import the Token model
 const { isEmailValid, isStrongPassword, isUsernameValid } = require('../validators/validationFunctions');
-const { isEmailAlreadyRegistered, isUsernameAlreadyTaken,isEmailPendingRegistration } = require('../database/databaseQueries');
+const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistration } = require('../database/databaseQueries');
+const { generateRandomToken } = require('../utils/tokenUtils'); // Import the function to generate random token
 
 /**
  * Controller function for user registration.
@@ -12,73 +13,58 @@ const { isEmailAlreadyRegistered, isUsernameAlreadyTaken,isEmailPendingRegistrat
  */
 async function registerUser(req, res) {
     const { email, password, username } = req.body;
-    let validationResult = {
-        message: "success",
-        email: "valid",
-        password: "valid",
-        username: "valid",
-        pending_registration: "no"
-    };
+    const errors = [];
 
-    // Check email
+    // Validate email
     if (!isEmailValid(email)) {
-        validationResult.email = "not valid";
+        errors.push({ field: "email", message: "Invalid email" });
     }
 
-    // Check password
+    // Validate password
     if (!isStrongPassword(password)) {
-        validationResult.password = "not valid";
+        errors.push({ field: "password", message: "Weak password" });
     }
 
-    // Check username
+    // Validate username
     if (!isUsernameValid(username)) {
-        validationResult.username = "not valid";
+        errors.push({ field: "username", message: "Invalid username" });
     }
 
     // Check if email is already registered
     const isEmailRegistered = await isEmailAlreadyRegistered(email);
     if (isEmailRegistered) {
-        validationResult.email = "already registered";
-    }
-
-    // Check if email is pending registration
-    const isEmailPending = await isEmailPendingRegistration(email);
-    if (isEmailPending) {
-        validationResult.pending_registration = "yes";
+        errors.push({ field: "email", message: "Email already registered" });
     }
 
     // Check if username is already taken
     const isUsernameTaken = await isUsernameAlreadyTaken(username);
     if (isUsernameTaken) {
-        validationResult.username = "already taken";
+        errors.push({ field: "username", message: "Username already taken" });
     }
 
-    // Check if any validation failed
-    const errors = Object.values(validationResult).filter(value => value === "not valid" || value === "already registered" || value === "not confirmed" || value === "already taken");
+    // Check if email is pending registration
+    const isEmailPending = await isEmailPendingRegistration(email);
+    if (isEmailPending) {
+        errors.push({ field: "email", message: "Email pending registration" });
+    }
+
     if (errors.length > 0) {
-        validationResult.message = "error";
-        return res.status(400).json(validationResult);
+        return res.status(400).json({ message: "error", errors });
     }
 
     try {
-        // Insert user into the database
-        const db = getDatabase(); // Get the database instance
-        const utenteCollection = db.collection(UTENTE_COLLECTION_NAME); // Access the collection
-        const result = await utenteCollection.insertOne({
-            email,
-            password,
-            username,
-            attivo: false // Set 'attivo' to false for new user
-        });
-        if (result.insertedId) {
-            // Send success response after successful insertion
-            return res.status(200).json(validationResult);
-        } else {
-            // Send error response if user insertion fails
-            return res.status(500).json({ message: "error", reason: "Failed to insert user into database" });
-        }
+        // Create user
+        const newUser = await UserModel.create({ email, password, username, attivo: false });
+
+        // Generate random token
+        const token = generateRandomToken(30);
+
+        // Insert token into token collection
+        await TokenModel.create({ token, idUtente: newUser._id });
+
+        return res.status(200).json({ message: "success" });
     } catch (error) {
-        console.error("Error inserting user into database:", error);
+        console.error("Error registering user:", error);
         return res.status(500).json({ message: "error", reason: "Internal server error" });
     }
 }
