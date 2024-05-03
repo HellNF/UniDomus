@@ -11,11 +11,6 @@ const tokenSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Utente', // Reference to the User model
         required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-        expires: 3600 // Set expiration time to 1 hour (in seconds)
     }
 });
 
