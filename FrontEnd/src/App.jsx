@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import Navbar from './components/Navbar';
+import Homepage from './components/Homepage';
 import LoginForm from './components/LoginForm'; // Import the LoginForm component
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
     <>
       <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} /> {/* Pass isLoggedIn state and logout function to Navbar */}
       {/* Render the LoginForm component */}
-      <LoginForm onLogin={handleLogin} />
+      <Homepage></Homepage>
     </>
   );
 }
