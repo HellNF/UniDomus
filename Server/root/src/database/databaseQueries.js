@@ -1,4 +1,4 @@
-const User = require('../models/userModel');
+const User = require('../models/utentiModel');
 const Token = require('../models/tokenModel');
 
 /**
