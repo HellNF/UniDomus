@@ -1,8 +1,10 @@
 
 import UniDomusLogo from "/UniDomusLogo.png"
-import { useState } from "react"
+import { useState} from "react"
+import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../constant";
 export default function RegistrationForm() {
+  const navigate = useNavigate();
     const [formData, setFormData]= useState({
       "username":"",
       "email":"",
@@ -22,8 +24,9 @@ export default function RegistrationForm() {
     }
 
     function handleSubmit(e){
-      const navigate = useNavigate();
       e.preventDefault();
+      
+      
       const bodyForm={
         username: formData.username,
         email: formData.email,
@@ -40,10 +43,12 @@ export default function RegistrationForm() {
          
         
         if(res.ok){
-          navigate("localhost:5173/");
+          console.log("ciao")
+          navigate('/');
         }
         else{
           if(res.status=="400"){
+            setFormData({username: "", email: "", password :""})
             res.json().then((json)=>{const errors=json.errors;
               errors.map((element)=>{
                 setFormDataErr({
@@ -96,6 +101,7 @@ export default function RegistrationForm() {
                     onChange={handleChangeInput}
                     className="block w-full rounded-md border-0 py-1.5 text-center text-gray-950 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-700 sm:text-sm sm:leading-6"
                   />
+                  {formDataErr.usernameErr && <p className="text-red-600 text-xs mt-1">{formDataErr.usernameErr}</p>}
                 </div>
               </div>
               <div>
@@ -112,8 +118,9 @@ export default function RegistrationForm() {
                     placeholder={formDataErr.emailErr}
                     value={formData.email}
                     onChange={handleChangeInput}
-                    className="block w-full rounded-md border-0 py-1.5 text-center text-gray-950 shadow-sm ring-1 ring-inset ring-gray-300 {formDataErr.emailErr=='' ? 'placeholder-red-700 ' :''}focus:ring-2 focus:ring-inset focus:ring-blue-700 sm:text-sm sm:leading-6 " 
+                    className="block w-full rounded-md border-0 py-1.5 text-center text-gray-950 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-700 sm:text-sm sm:leading-6 " 
                   />
+                  {formDataErr.emailErr && <p className="text-red-600 text-xs mt-1">{formDataErr.emailErr}</p>}
                 </div>
               </div>
   
@@ -139,6 +146,7 @@ export default function RegistrationForm() {
                     onChange={handleChangeInput}
                     className="block w-full rounded-md border-0 py-1.5 text-gray-950 text-center shadow-sm ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-700 sm:text-sm sm:leading-6"
                   />
+                  {formDataErr.passwordErr && <p className="text-red-600 text-xs mt-1">{formDataErr.passwordErr}</p>}
                 </div>
               </div>
   
