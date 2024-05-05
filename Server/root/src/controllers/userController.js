@@ -5,6 +5,7 @@ const TokenModel = require('../models/tokenModel'); // Import the Token model
 const { isEmailValid, isStrongPassword, isUsernameValid } = require('../validators/validationFunctions');
 const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistration } = require('../database/databaseQueries');
 const { generateRandomToken } = require('../utils/tokenUtils'); // Import the function to generate random token
+const { sendConfirmationEmail } = require('../services/emailService'); // Import the function to send confirmation email
 
 /**
  * Controller function for user registration.
@@ -16,7 +17,6 @@ async function registerUser(req, res) {
     const errors = [];
     const nome = "nome";
     const cognome = "cognome";
-
 
     // Validate email
     if (!isEmailValid(email)) {
@@ -64,7 +64,13 @@ async function registerUser(req, res) {
 
         // Insert token into token collection
         await TokenModel.create({ token, userID: newUser._id });
-        
+
+        // Construct confirmation link
+        const base_url = process.env.BASE_URL || "http://localhost:5050";
+        const confirmationLink = `${base_url}/api/tokens/token/${token}`;
+
+        // Send confirmation email
+        await sendConfirmationEmail(email, confirmationLink);
 
         return res.status(200).json({ message: "success" });
     } catch (error) {
