@@ -16,13 +16,16 @@ app.use(cors({
 // Import routes
 const userRoutes = require('./src/routes/userRoutes');
 const tokenRoutes = require('./src/routes/tokenRoutes');
+const tokenChecker = require('./src/middleware/tokenChecker');
 
 // Connect to MongoDB
 connectToMongoDB()
   .then(() => {
     // Use routes
+    
     app.use('/api/users', userRoutes);
     app.use('/api/tokens', tokenRoutes);
+    //app.use('/api/users/...',tokenChecker);
 
     // Start the server
     const server = app.listen(PORT, () => {
