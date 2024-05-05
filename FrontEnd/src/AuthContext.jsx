@@ -1,24 +1,39 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 // Create the AuthContext
 const AuthContext = createContext();
 
 // Create a provider component
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [sessionToken, setSessionToken] = useState(null);
 
-  const login = () => {
-    // Implement your login logic here
-    setIsLoggedIn(true);
+  // Check if session token exists in local storage on component mount
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setSessionToken(storedToken);
+    }
+  }, []);
+
+  // Function to handle user login with session token
+  const login = (token) => {
+    setSessionToken(token);
+    // Store session token in local storage
+    localStorage.setItem('token', token);
   };
 
+  // Function to handle user logout
   const logout = () => {
-    // Implement your logout logic here
-    setIsLoggedIn(false);
+    setSessionToken(null);
+    // Remove session token from local storage
+    localStorage.removeItem('token');
   };
+
+  // Derive isLoggedIn state based on the presence of sessionToken
+  const isLoggedIn = !!sessionToken;
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, sessionToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
