@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useHistory for programmatic navigation
+import { useNavigate } from "react-router-dom";
 import UniDomusLogo from "/UniDomusLogo.png";
 import { API_BASE_URL } from "../constant";
 import { useAuth } from "../AuthContext";
 
 export default function LoginForm() {
-  const { login } = useAuth();
+  const { login } = useAuth(); 
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   });
-  const navigate = useNavigate(); // Initialize useHistory hook
+  const navigate = useNavigate();
 
   function handleChangeInput(e) {
     const { name, value } = e.target;
@@ -27,21 +27,36 @@ export default function LoginForm() {
       password: formData.password
     };
 
-    fetch(`${API_BASE_URL}users/login`, {
+    fetch(`${API_BASE_URL}/users/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(bodyForm)
     })
-    .then(res => res.json())
+    .then(res => {
+      if (res.ok) {
+        return res.json();
+      } else if (res.status === 400) {
+        throw new Error("Invalid email or password");
+      } else if (res.status === 500) {
+        throw new Error("Internal server error. Please try again later.");
+      } else {
+        throw new Error("An unexpected error occurred");
+      }
+    })
     .then(data => {
       console.log(data);
-      login();
-      // Redirect to the homepage after successful login
+      // Extract session token from the server response and login with it
+      const { token } = data;
+      login(token);
       navigate('/');
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+      console.error('Error:', error.message);
+      // Display error message to the user
+      alert(error.message);
+    });
   }
 
   return (
