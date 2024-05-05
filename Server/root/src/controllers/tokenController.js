@@ -10,7 +10,7 @@ const { isEmailSuccessfullyConfirmed } = require('../database/databaseQueries');
  * @param {Response} res - The Express response object.
  */
 async function confirmToken(req, res) {
-    const { token } = req.body;
+    const { token } = req.params; // Extract token from request parameters
     const userId = await isEmailSuccessfullyConfirmed(token);
     if (userId) {
         try {
@@ -40,7 +40,18 @@ async function confirmToken(req, res) {
             return res.status(500).json({ message: "error", reason: "Internal server error" });
         }
     } else {
-        return res.status(400).json({ message: "error", reason: "Invalid token" });
+        // If token is invalid or expired, return an appropriate error message
+        if (!token) {
+            return res.status(400).json({ message: "error", reason: "Token not provided" });
+        } else {
+            // Check if the token is expired
+            const tokenEntry = await Token.findOne({ token });
+            if (tokenEntry && tokenEntry.expirationDate < Date.now()) {
+                return res.status(400).json({ message: "error", reason: "Expired token" });
+            } else {
+                return res.status(400).json({ message: "error", reason: "Invalid token" });
+            }
+        }
     }
 }
 

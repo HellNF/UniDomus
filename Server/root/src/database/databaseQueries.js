@@ -32,16 +32,19 @@ async function isEmailPendingRegistration(email) {
 }
 
 /**
- * Checks if the provided token is valid and corresponds to a user ID in the database.
+ * Checks if the provided token is valid and corresponds to a user ID in the database,
+ * and if it is not expired.
  * @param {string} token - The token to check.
- * @returns {Promise<string|null>} - A promise that resolves to the user ID if the token is valid, otherwise null.
+ * @returns {Promise<string|null>} - A promise that resolves to the user ID if the token is valid and not expired, otherwise null.
  */
 async function isEmailSuccessfullyConfirmed(token) {
     const tokenEntry = await Token.findOne({ token });
-    if (tokenEntry) {
-        return tokenEntry.userID.toString(); // Return the user ID as a string
+
+    if (tokenEntry && tokenEntry.expirationDate > Date.now()) {
+        return tokenEntry.userID.toString(); // Return the user ID as a string if token is valid and not expired
     }
-    return null; // Return null if token is invalid
+
+    return null; // Return null if token is invalid or expired
 }
 // Export database query functions
 module.exports = {

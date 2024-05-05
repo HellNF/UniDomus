@@ -64,6 +64,7 @@ async function registerUser(req, res) {
 
         // Insert token into token collection
         await TokenModel.create({ token, userID: newUser._id });
+        
 
         return res.status(200).json({ message: "success" });
     } catch (error) {
