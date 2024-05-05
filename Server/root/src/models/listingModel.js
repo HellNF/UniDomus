@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
 
-// schema per la collezione "Inserzioni"
+// schema per la collezione "listings"
 
-const schemaInserzioni = new mongoose.Schema({
-  //oggetto indirizzo contenuto all'interno di inserzioni
-  indirizzo: {
-    via: {
+const listingSchema = new mongoose.Schema({
+  //oggetto indirizzo contenuto all'interno di linstings
+  address: {
+    street: {
         type: String,
         required: true,
         minlength: 3,
         maxlength: 50
     },
-    citta: {
+    city: {
         type: String,
         required: true,
         minlength: 3,
@@ -29,26 +29,26 @@ const schemaInserzioni = new mongoose.Schema({
           message: props => `${props.value} invalid CAP.`
         }
       },
-      numCivico: {
+      houseN: {
         type: String,
         required: true,
         minlength: 1,
         maxlength: 5
       },
-      provincia: {
+      province: {
         type: String,
         required: true,
         minlength: 2, //la provincia va indicata come diminutivo (Milano = MI)
         maxlength: 2
       },
-    stato: {
+    country: {
         type: String,
         required: true,
         minlength: 3,
         maxlength: 50
     }
   },
-  foto: {
+  photos: {
     type: [String],
     validate: { // Verifica che l'array abbia al massimo 10 elementi
       validator: function(arr) {
@@ -57,15 +57,15 @@ const schemaInserzioni = new mongoose.Schema({
       message: props => `Too much element (foto)`
     }
   },
-  idInserzionista: {
+  publisherID: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'utenti' // Riferimento alla collezione "Utenti"
+    ref: 'user' // Riferimento alla collezione "user"
   },
-  idInquilini: {
+  tenantsID: {
     type: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'utenti' //Riferimento a utenti
+      ref: 'user' //Riferimento a "user"
     }],
     validate: {
       validator: function(arr) {// Verifica che l'array abbia massimo 12 elementi
@@ -74,34 +74,34 @@ const schemaInserzioni = new mongoose.Schema({
       message: props => `Too much element (idInquilini)`
     }
   },
-  tipologia: {
+  typology: {
     type: String,
     required: true,
     maxlength: 30 
   },
-  descrizione: {
+  description: {
     type: String,
     maxlength: 1000 
   },
-  prezzo: {
+  price: {
     type: Number,
     min: 10, 
     max: 10000 
   },
-  metratura: {
+  floorArea: {
     type: Number,
     min: 1, 
     max: 10000 
   },
-  disponibilita: String, 
-  dataPubblicazione: {
+  availability: String, 
+  publicationDate: {
     type: Date,
     default: () => Date.now()  + (2 * 60 * 60 * 1000),
     immutable: true
   }
 });
 
-// Creazione del modello "Inserzioni" basato sullo schema
-const Inserzione = mongoose.model('inserzione', schemaInserzioni,'inserzioni');
+// Creazione del modello "listings" basato sullo schema
+const listing = mongoose.model('listing', listingSchema);
 
-module.exports = Inserzione;
+module.exports = listing;

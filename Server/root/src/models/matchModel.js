@@ -2,53 +2,53 @@ const mongoose = require('mongoose');
 
 // schema per la collezione "matches"
 
-const schemaMatches = new mongoose.Schema({
-  idRichiedente: {
+const matchSchema = new mongoose.Schema({
+  requesterID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'utenti', // Riferimento alla collezione "utenti"
+    ref: 'user', // Riferimento alla collezione "user"
     required: true
   },
-  idRicevente: {
+  receiverID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'utenti', // Riferimento alla collezione "utenti"
+    ref: 'user', // Riferimento alla collezione "user"
     required: true
   },
-  dataRichiesta: {
+  requestDate: {
     type: Date,
     default: () => Date.now()  + (2 * 60 * 60 * 1000),
     mutable: false
   },
-  dataConferma: {
+  confirmationDate: {
     type: Date,
   },
-  statoMatch: {
+  matchState: {
     type: String,
     enum: ['in attesa', 'accettato', 'rifiutato'], // Possibili valori per lo stato del match
     default: 'in attesa'
   },
-  tipoMatch: {
+  matchType: {
     type: String,
     enum: ['match inquilino', 'match appartamento'], // Possibili tipi di match
     required: true
   },
-  messaggi: [{
-    testo: {
+  messages: [{
+    text: {
       type: String,
       required: true
     },
-    data: {
+    date: {
       type: Date,
       default: () => Date.now()  + (2 * 60 * 60 * 1000),
     },
-    idUtente: {
+    userID: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'utenti' // Riferimento alla collezione "utenti"
+      ref: 'user' // Riferimento alla collezione "user"
     }
   }]
 });
 
 // Creazione del modello "matches" basato sullo schema
-const Match = mongoose.model('matches', schemaMatches);
+const Match = mongoose.model('matches', matchSchema);
 
 module.exports = Match;

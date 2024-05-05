@@ -1,7 +1,7 @@
 // controllers/tokenController.js
 
 const Token = require('../models/tokenModel');
-const User = require('../models/utentiModel');
+const User = require('../models/userModel');
 const { isEmailSuccessfullyConfirmed } = require('../database/databaseQueries');
 
 /**

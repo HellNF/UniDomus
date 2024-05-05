@@ -2,19 +2,19 @@ const mongoose = require("mongoose")
 
 // schema per la collezione "utenti"
 
-const schemaUtenti = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
         minLength: 2,
         maxLength: 20
     },
-    nome :{
+    name :{
         type: String,
         minLength: 2,
         maxLength: 30
     },
-    cognome :{
+    surname :{
         type: String,
         minLength: 2,
         maxLength: 30
@@ -43,7 +43,7 @@ const schemaUtenti = new mongoose.Schema({
           message: props => `${props.value}: invalid password`
         }
     },
-    dataDiNascita:{
+    birthDate:{
         type: Date,     
         validate: { //verifica che la data inserita non sia una data futura
             validator: function(date) {
@@ -52,32 +52,32 @@ const schemaUtenti = new mongoose.Schema({
             message: props => `invalid date`
         }
     },
-    dataCreazione:{
+    creationDate:{
         type: Date,
         default: () => Date.now()  + (2 * 60 * 60 * 1000),
         mutable: false,
     },
-    dataUltimoAggiornamento:{
+    lastUpdate:{
       type: Date
     },
-    abitudini: {
+    habits: {
         type: [String],
         default: [],
         validate: { //verifica che l'array contenga massimo 20 elementi
           validator: function(arr) { 
             return arr.length <= 20;
           },
-          message: props => `Too much elements (abitudini)`
+          message: props => `Too much elements (habits)`
         }
       },
-      interessi: {
+      hobbies: {
         type: [String],
         default: [],
         validate: { //verifica che l'array contenga massimo 20 elementi
           validator: function(arr) {
             return arr.length <= 20;
           },
-          message: props => `Too much elements (interessi)`
+          message: props => `Too much elements (hobbies)`
         }
       },
       proPic: { //verifica che l'array contenga massimo 5 elementi
@@ -90,20 +90,20 @@ const schemaUtenti = new mongoose.Schema({
           message: props => `Too much elements (proPic)`
         }
       },
-      statoAttivita: {
+      activityStatus: {
         type: String,
         enum: ['attivo', 'attivo recentemente', 'inattivo'],
         default: 'attivo'
       },
-      attivo:{
+      active:{
         type: Boolean,
         default: false
       },
-      inserzioniID: {
+      listingID: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'inserzioni' //riferimento alla collezione "inserzioni"
+        ref: 'listings' //riferimento alla collezione "inserzioni"
       },
-      listaMatchID: {
+      matchListID: {
         type: [{
           type: mongoose.Schema.Types.ObjectId,
           ref: 'matches' //riferimento alla collezione "matches"
@@ -113,5 +113,5 @@ const schemaUtenti = new mongoose.Schema({
 })
 
 // Creazione del modello "utenti" basato sullo schema
-const Utente = mongoose.model('utente', schemaUtenti, 'utenti');
-module.exports = Utente;
+const User = mongoose.model('user', userSchema);
+module.exports = User;
