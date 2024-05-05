@@ -9,29 +9,24 @@ export const AuthProvider = ({ children }) => {
 
   // Check if session token exists in local storage on component mount
   useEffect(() => {
-    const storedToken = localStorage.getItem('sessionToken');
+    const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setSessionToken(storedToken);
     }
   }, []);
 
-  /**
-   * Function to handle user login with session token.
-   * @param {string} token - The session token received from the server upon successful authentication.
-   */
+  // Function to handle user login with session token
   const login = (token) => {
     setSessionToken(token);
     // Store session token in local storage
-    localStorage.setItem('sessionToken', token);
+    localStorage.setItem('token', token);
   };
 
-  /**
-   * Function to handle user logout.
-   */
+  // Function to handle user logout
   const logout = () => {
     setSessionToken(null);
     // Remove session token from local storage
-    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('token');
   };
 
   // Derive isLoggedIn state based on the presence of sessionToken

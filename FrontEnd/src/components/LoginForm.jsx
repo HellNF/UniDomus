@@ -46,15 +46,12 @@ export default function LoginForm() {
       }
     })
     .then(data => {
-      console.log(data);
-      // Extract session token from the server response and login with it
-      const { token } = data;
-      login(token);
+      // Store JWT in local storage
+      login(data.token); // Assume server sends token as { token: 'jwt_token' }
       navigate('/');
     })
     .catch(error => {
       console.error('Error:', error.message);
-      // Display error message to the user
       alert(error.message);
     });
   }
