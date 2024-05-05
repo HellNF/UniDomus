@@ -1,7 +1,7 @@
 
 import UniDomusLogo from "/UniDomusLogo.png"
 import { useState } from "react"
-import { redirect } from "react-router-dom";
+import { API_BASE_URL } from "../constant";
 export default function RegistrationForm() {
     const [formData, setFormData]= useState({
       "username":"",
@@ -29,7 +29,7 @@ export default function RegistrationForm() {
         email: formData.email,
         password: formData.password
       }
-      fetch("http://localhost:5050/api/users/registrazione",{
+      fetch(`${API_BASE_URL}users/registrazione`,{
           method: 'POST',
           headers:{
             'Content-Type': 'application/json'

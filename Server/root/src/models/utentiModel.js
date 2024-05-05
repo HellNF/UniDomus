@@ -11,13 +11,11 @@ const schemaUtenti = new mongoose.Schema({
     },
     nome :{
         type: String,
-        required: true,
         minLength: 2,
         maxLength: 30
     },
     cognome :{
         type: String,
-        required: true,
         minLength: 2,
         maxLength: 30
     },
