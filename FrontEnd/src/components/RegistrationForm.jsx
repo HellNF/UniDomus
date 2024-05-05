@@ -1,10 +1,17 @@
+
 import UniDomusLogo from "/UniDomusLogo.png"
 import { useState } from "react"
+import { redirect } from "react-router-dom";
 export default function RegistrationForm() {
     const [formData, setFormData]= useState({
       "username":"",
       "email":"",
       "password":""
+    })
+    const [formDataErr, setFormDataErr]= useState({
+      "usernameErr":"",
+      "emailErr":"",
+      "passwordErr":""
     })
     function handleChangeInput(e){
       const { name, value } = e.target;
@@ -15,6 +22,7 @@ export default function RegistrationForm() {
     }
 
     function handleSubmit(e){
+      const navigate = useNavigate();
       e.preventDefault();
       const bodyForm={
         username: formData.username,
@@ -28,8 +36,32 @@ export default function RegistrationForm() {
           },
           body: JSON.stringify(bodyForm)
       })
-      .then((res)=>JSON.parse(res))
-      .then((res)=>console.log(res))
+      .then((res)=>{
+         
+        
+        if(res.ok){
+          navigate("localhost:5173/");
+        }
+        else{
+          if(res.status=="400"){
+            res.json().then((json)=>{const errors=json.errors;
+              errors.map((element)=>{
+                setFormDataErr({
+                  ...formDataErr,
+                  [`${element.field}Err`]: element.message
+                })
+              })})
+              
+              
+          }
+          else if(res.status=="500"){
+            res.json().then((json)=>{alert(`${json.message}: ${json.reason}`)})
+            
+          }
+        }
+          
+      }
+      ).catch((e)=>console.log(e))
     }
 
     return (
@@ -77,9 +109,10 @@ export default function RegistrationForm() {
                     type="email"
                     autoComplete="email"
                     required
+                    placeholder={formDataErr.emailErr}
                     value={formData.email}
                     onChange={handleChangeInput}
-                    className="block w-full rounded-md border-0 py-1.5 text-center text-gray-950 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-700 sm:text-sm sm:leading-6"
+                    className="block w-full rounded-md border-0 py-1.5 text-center text-gray-950 shadow-sm ring-1 ring-inset ring-gray-300 {formDataErr.emailErr=='' ? 'placeholder-red-700 ' :''}focus:ring-2 focus:ring-inset focus:ring-blue-700 sm:text-sm sm:leading-6 " 
                   />
                 </div>
               </div>
@@ -124,5 +157,4 @@ export default function RegistrationForm() {
         </div>
       </>
     )
-}
-  
+  }
