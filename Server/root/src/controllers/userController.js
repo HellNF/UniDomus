@@ -3,7 +3,7 @@
 const UserModel = require('../models/userModel');
 const TokenModel = require('../models/tokenModel'); // Import the Token model
 const { isEmailValid, isStrongPassword, isUsernameValid } = require('../validators/validationFunctions');
-const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistration } = require('../database/databaseQueries');
+const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistration, isPasswordCorrect } = require('../database/databaseQueries');
 const { generateRandomToken } = require('../utils/tokenUtils'); // Import the function to generate random token
 const { sendConfirmationEmail } = require('../services/emailService'); // Import the function to send confirmation email
 
@@ -79,7 +79,36 @@ async function registerUser(req, res) {
     }
 }
 
+async function authenticateUser(req, res) {
+    const { email, password} = req.body;
+    const errors = [];
+
+    // Check if email is already registered
+    const isEmailRegistered = await isEmailAlreadyRegistered(email);
+    if (!isEmailRegistered) {
+        //console.error("", error);
+        return res.status(500).json({field: "email", message: "error", reason: "Email not found" });
+    }
+    const isPwdCorrect = await isPasswordCorrect(email,password);
+    if(!isPwdCorrect){
+        //console.error("", error);
+        return res.status(500).json({field: "password", message: "error", reason: "Wrong password" });
+    }
+    // user authenticated -> create a token
+    /*var payload = { email: user.email, id: user._id, other_data: encrypted_in_the_token }
+    var options = { expiresIn: 86400 } // expires in 24 hours
+    var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
+    res.json({ success: true, message: 'Enjoy your token!'
+    ,
+    token: token, email: user.email, id: user._id, self: "api/v1/" + user._id
+    });*/
+
+    return res.status(200).json({ message: "success" });
+    
+}
+
 // Export controller functions
 module.exports = {
-    registerUser
+    registerUser,
+    authenticateUser
 };

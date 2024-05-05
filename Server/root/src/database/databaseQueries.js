@@ -46,10 +46,24 @@ async function isEmailSuccessfullyConfirmed(token) {
 
     return null; // Return null if token is invalid or expired
 }
+
+/**
+ * Checks if the provided password is correct for the provided email  
+ * @param {string} password - The password  to check.
+ * @param {string} email - The email associated with the password.
+ * @returns {Promise<boolean>} - A promise that resolves to true if the password exists, otherwise false.
+ */
+async function isPasswordCorrect(email,password) {
+    const user = await User.findOne({ email,password });
+    return user !== null;
+}
+
+
 // Export database query functions
 module.exports = {
     isEmailAlreadyRegistered,
     isUsernameAlreadyTaken,
     isEmailPendingRegistration,
-    isEmailSuccessfullyConfirmed
+    isEmailSuccessfullyConfirmed,
+    isPasswordCorrect
 };
