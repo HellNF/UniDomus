@@ -1,16 +1,17 @@
-import { useState } from 'react'
-import './App.css'
-import Navbar from './components/Navbar'
+import React from 'react';
+import { useAuth } from './AuthContext'; // Import the useAuth hook
+import Navbar from './components/Navbar';
+import Homepage from './components/Homepage';
 
 function App() {
-  
+  const { isLoggedIn } = useAuth(); // Access authentication state using useAuth hook
 
   return (
-    <>
-      <Navbar></Navbar>
-      
-    </>
-  )
+    <div className="App">
+      <Navbar />
+      <Homepage />
+    </div>
+  );
 }
 
-export default App
+export default App;
