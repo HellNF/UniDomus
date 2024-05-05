@@ -1,14 +1,16 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useHistory for programmatic navigation
 import UniDomusLogo from "/UniDomusLogo.png";
-import { API_BASE_URL } from "../constant"; // Import the API_BASE_URL constant
-import { useAuth } from "../AuthContext"; // Import the useAuth hook
+import { API_BASE_URL } from "../constant";
+import { useAuth } from "../AuthContext";
 
 export default function LoginForm() {
-  const { login } = useAuth(); // Access the login function from AuthContext
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   });
+  const navigate = useNavigate(); // Initialize useHistory hook
 
   function handleChangeInput(e) {
     const { name, value } = e.target;
@@ -24,10 +26,8 @@ export default function LoginForm() {
       email: formData.email,
       password: formData.password
     };
-   
-    
-    // Send form data to backend for login
-    fetch(`${API_BASE_URL}/users/login`, {
+
+    fetch(`${API_BASE_URL}users/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -36,11 +36,10 @@ export default function LoginForm() {
     })
     .then(res => res.json())
     .then(data => {
-      // Handle response from backend
       console.log(data);
-      // Call the login function from AuthContext upon successful login
-      alert("login");
       login();
+      // Redirect to the homepage after successful login
+      navigate('/');
     })
     .catch(error => console.error('Error:', error));
   }

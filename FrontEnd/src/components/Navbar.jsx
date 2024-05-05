@@ -11,7 +11,7 @@ function Navbar() {
         <img  src={"/UniDomusLogo.png"} alt="UniDomus Logo" className="w-16" />
       </div>
       <div className="object-center flex flex-row text-center">
-        <Link className="m-4 p-4 hover:text-blue-400"><p>Home</p></Link>
+        <Link to="/" className="m-4 p-4 hover:text-blue-400"><p>Home</p></Link>
         <Link className="m-4 p-4 hover:text-blue-400"><p>Trova appartamento</p></Link>
         <Link className="m-4 p-4 hover:text-blue-400"><p>Trova coinquilino</p></Link>
       </div>
