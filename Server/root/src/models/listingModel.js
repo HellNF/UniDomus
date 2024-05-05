@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
-// schema per la collezione "listings"
+// schema for the collection "listings"
 
 const listingSchema = new mongoose.Schema({
-  //oggetto indirizzo contenuto all'interno di linstings
+  //object address contained within linstings
   address: {
     street: {
         type: String,
@@ -22,14 +22,14 @@ const listingSchema = new mongoose.Schema({
         required: true,
         minlength: 5,
         maxlength: 5,
-        validate: { //verifica che il CAP contenga solo cifre
+        validate: { //verify that the CAP contains only digits
           validator: function(v) {
             return /^\d{5}$/.test(v); 
           },
           message: props => `${props.value} invalid CAP.`
         }
       },
-      houseN: {
+      houseNum: {
         type: String,
         required: true,
         minlength: 1,
@@ -38,7 +38,7 @@ const listingSchema = new mongoose.Schema({
       province: {
         type: String,
         required: true,
-        minlength: 2, //la provincia va indicata come diminutivo (Milano = MI)
+        minlength: 2, //the province should be indicated as diminutive (Milan = MI)
         maxlength: 2
       },
     country: {
@@ -50,28 +50,28 @@ const listingSchema = new mongoose.Schema({
   },
   photos: {
     type: [String],
-    validate: { // Verifica che l'array abbia al massimo 10 elementi
+    validate: { // Ensure that the array contains up to 10 items
       validator: function(arr) {
         return arr.length <= 10;
       },
-      message: props => `Too much element (foto)`
+      message: props => `Too much element (photos)`
     }
   },
   publisherID: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'user' // Riferimento alla collezione "user"
+    ref: 'user' // Reference to the collection "user"
   },
   tenantsID: {
     type: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'user' //Riferimento a "user"
+      ref: 'user' //Reference to the collection "user"
     }],
     validate: {
-      validator: function(arr) {// Verifica che l'array abbia massimo 12 elementi
+      validator: function(arr) {// Ensure that the array contains up to 12 items
         return arr.length <= 12;
       },
-      message: props => `Too much element (idInquilini)`
+      message: props => `Too much element (tenantsID)`
     }
   },
   typology: {

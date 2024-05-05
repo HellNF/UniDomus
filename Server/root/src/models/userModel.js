@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 
-// schema per la collezione "utenti"
+//scheme for the collection "users"
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -34,8 +34,8 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        /*verifica che la password sia lunga almeno 8 caratteri, che ci sia almeno una 
-        maiuscola, una minuscola ed un carattere speciale (@$!%*?&) */
+        /*verify that the password is at least 8 characters long, that there is at least one 
+        uppercase, one lowercase and one special character (@$!%*?&)*/
         validate: { 
           validator: function(v) {
             return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(v);
@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
     },
     birthDate:{
         type: Date,     
-        validate: { //verifica che la data inserita non sia una data futura
+        validate: { //verify that the date entered is not a future date
             validator: function(date) {
                 return date <= new Date() ;
             },
@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema({
     habits: {
         type: [String],
         default: [],
-        validate: { //verifica che l'array contenga massimo 20 elementi
+        validate: { //verify that the array contains up to 20 elements
           validator: function(arr) { 
             return arr.length <= 20;
           },
@@ -73,14 +73,14 @@ const userSchema = new mongoose.Schema({
       hobbies: {
         type: [String],
         default: [],
-        validate: { //verifica che l'array contenga massimo 20 elementi
+        validate: { //verify that the array contains up to 20 elements
           validator: function(arr) {
             return arr.length <= 20;
           },
           message: props => `Too much elements (hobbies)`
         }
       },
-      proPic: { //verifica che l'array contenga massimo 5 elementi
+      proPic: { //verify that the array contains up to 5 elements
         type: [String],
         default: [],
         validate: {
@@ -101,17 +101,17 @@ const userSchema = new mongoose.Schema({
       },
       listingID: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'listings' //riferimento alla collezione "inserzioni"
+        ref: 'listings' //reference to the collection "listings"
       },
       matchListID: {
         type: [{
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'matches' //riferimento alla collezione "matches"
+          ref: 'matches' //reference to the collection "matches"
         }],
         default: []
       }
 })
 
-// Creazione del modello "utenti" basato sullo schema
+// Creation of the "users" model based on the schema
 const User = mongoose.model('user', userSchema);
 module.exports = User;

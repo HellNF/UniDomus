@@ -21,7 +21,7 @@ const matchSchema = new mongoose.Schema({
   confirmationDate: {
     type: Date,
   },
-  matchState: {
+  matchStatus: {
     type: String,
     enum: ['in attesa', 'accettato', 'rifiutato'], // Possibili valori per lo stato del match
     default: 'in attesa'

@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
-// schema per la collezione "tokens"
+//schema for the collection "tokens"
 const tokenSchema = new mongoose.Schema({
   userID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user', // Riferimento alla collezione degli user
+    ref: 'user', // Reference to the user collection
     required: true
   },
   token: {
@@ -16,13 +16,13 @@ const tokenSchema = new mongoose.Schema({
   expirationDate: {
     type: Date,
     default: function() {
-      // Imposta la data di scadenza a un'ora dalla creazione del token
+      //Ensure that the expiration date is set to one hour after the token creation.
       return Date.now()  + (2 * 60 * 60 * 1000); 
     }
   }
 });
 
-// Creazione del modello "tokens" basato sullo schema
+// Creation of the "tokens" model based on the schema
 const Token = mongoose.model('tokens', tokenSchema);
 
 module.exports = Token;
