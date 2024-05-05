@@ -39,7 +39,7 @@ async function isEmailPendingRegistration(email) {
 async function isEmailSuccessfullyConfirmed(token) {
     const tokenEntry = await Token.findOne({ token });
     if (tokenEntry) {
-        return tokenEntry.idUtente.toString(); // Return the user ID as a string
+        return tokenEntry.userID.toString(); // Return the user ID as a string
     }
     return null; // Return null if token is invalid
 }
