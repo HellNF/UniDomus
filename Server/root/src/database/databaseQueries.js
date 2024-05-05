@@ -55,6 +55,17 @@ async function isPasswordCorrect(email,password) {
     return user !== null;
 }
 
+/**
+ * Returns the user whose email is provided   
+ * @param {string} email - The user’s email to return.
+ * @returns {Promise<object>} - A promise returns the user corresponding to the email provided.
+ */
+async function getUserByEmail(email) {
+    let user = await User.findOne({ email: email }).exec()
+    return user;
+}
+
+
 
 // Export database query functions
 module.exports = {
@@ -62,5 +73,6 @@ module.exports = {
     isUsernameAlreadyTaken,
     isEmailPendingRegistration,
     isEmailSuccessfullyConfirmed,
-    isPasswordCorrect
+    isPasswordCorrect,
+    getUserByEmail
 };
