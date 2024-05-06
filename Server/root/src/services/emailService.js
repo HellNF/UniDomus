@@ -10,8 +10,8 @@ const sgMail = require('@sendgrid/mail');
  * @param {string} html - The html content of the email.
  */
 async function sendEmail(to, subject, text,html=`<strong>${text}</strong>`) {
-    const sgMail = require('@sendgrid/mail')
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+    const sgMail = require('@sendgrid/mail');
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
         to: to, // Change to your recipient
         from: 'freezer.spa@gmail.com', // Change to your verified sender
@@ -39,7 +39,8 @@ async function sendEmail(to, subject, text,html=`<strong>${text}</strong>`) {
 async function sendConfirmationEmail(recipientEmail, confirmationLink) {
   // Set SendGrid API Key securely using environment variable
 
-  const SENDGRID_API_KEY=process.env.SENDGRID_API_KEY ;
+  const SENDGRID_API_KEY=process.env.SENDGRID_API_KEY;
+
   sgMail.setApiKey(SENDGRID_API_KEY);
 
   const msg = {

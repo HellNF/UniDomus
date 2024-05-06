@@ -17,7 +17,7 @@ async function confirmToken(req, res) {
             // Update the 'attivo' field in the 'utente' collection for the user with the given _id
             const updatedUser = await User.findByIdAndUpdate(
                 userId,
-                { $set: { attivo: true } },
+                { $set: { active: true } },
                 { new: true } // Return the modified document
             );
 
