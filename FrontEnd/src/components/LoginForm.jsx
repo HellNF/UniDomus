@@ -27,7 +27,7 @@ export default function LoginForm() {
       password: formData.password
     };
 
-    fetch(`${API_BASE_URL}/users/login`, {
+    fetch(`${API_BASE_URL}/users/authentication`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
