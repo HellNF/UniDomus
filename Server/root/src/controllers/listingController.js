@@ -1,31 +1,45 @@
-// listingController.js
-
 const Listing = require('../models/listingModel');
 
-/**
- * Controller for retrieving list of listings
- * @param {Request} req - The Express request object.
- * @param {Response} res - The Express response object.
- */
 async function listings(req, res) {
     try {
-        // Fetch all listings from the database
-        const allListings = await Listing.find();
+        // Step 1: Parse query parameters
+        let query = {};
+        const { priceMin, priceMax, typology, city, floorAreaMin, floorAreaMax } = req.query;
 
-        // If no listings found, return an empty array
-        if (!allListings || allListings.length === 0) {
-            return res.status(404).json({ message: "No listings found" });
+        // Step 2: Construct the query object
+        if (priceMin || priceMax) {
+            query.price = {};
+            if (priceMin) query.price.$gte = Number(priceMin);
+            if (priceMax) query.price.$lte = Number(priceMax);
+        }
+        if (floorAreaMin || floorAreaMax) {
+            query.floorArea = {};
+            if (floorAreaMin) query.floorArea.$gte = Number(floorAreaMin);
+            if (floorAreaMax) query.floorArea.$lte = Number(floorAreaMax);
+        }
+        if (typology) {
+            query.typology = typology;
+        }
+        if (city) {
+            query['address.city'] = city;
         }
 
-        // Return the list of listings
-        return res.status(200).json({ listings: allListings });
+        // Step 3: Execute the query with filters
+        const listings = await Listing.find(query);
+
+        if (!listings.length) {
+            console.log("Filtered query returned no listings.");
+            return res.status(200).json({ listings: [] });
+        }
+
+        console.log("Filtered listings retrieved successfully.");
+        return res.status(200).json({ listings: listings });
     } catch (error) {
-        console.error("Error retrieving listings:", error);
+        console.error("Error retrieving listings with filters:", error);
         return res.status(500).json({ message: "Error retrieving listings", error: error.message });
     }
 }
 
-// Export controller functions
 module.exports = {
     listings
 };
