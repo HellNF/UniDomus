@@ -33,7 +33,7 @@ export default function RegistrationForm() {
         email: formData.email,
         password: formData.password
       }
-      fetch(`${API_BASE_URL}users/registrazione`,{
+      fetch(`${API_BASE_URL}users/registration`,{
           method: 'POST',
           headers:{
             'Content-Type': 'application/json'
