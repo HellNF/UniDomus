@@ -1,6 +1,7 @@
 
 import UniDomusLogo from "/UniDomusLogo.png"
 import { useState} from "react"
+import PopoverInfo from "./PopoverInfo.jsx";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../constant";
 export default function RegistrationForm() {
@@ -90,6 +91,7 @@ export default function RegistrationForm() {
                 <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
                   Username
                 </label>
+                
                 <div className="mt-2">
                   <input
                     id="username"
@@ -126,9 +128,13 @@ export default function RegistrationForm() {
   
               <div>
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                    Password
-                  </label>
+                  <div className="flex flex-row justify-between">
+                    <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                      Password
+                    </label>
+                    <PopoverInfo className="mx-4 p-3" btnContent="i" title="Password costraints"  description={<ul className="list-disc"><li>Minimum length of 8 characters</li><li>Must contain at least one uppercase letter.</li><li>Must contain at least one number.</li><li>Must contain at least one special character.</li></ul>} ></PopoverInfo>
+                  </div>
+                  
                   <div className="text-sm">
                     <a href="#" className="font-semibold text-blue-950 hover:text-blue-700">
                       Forgot password?
@@ -159,6 +165,9 @@ export default function RegistrationForm() {
                 </button>
               </div>
             </form>
+            <div>
+            
+            </div>
   
             
           </div>
