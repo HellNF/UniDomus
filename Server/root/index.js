@@ -16,7 +16,8 @@ app.use(cors({
 // Import routes
 const userRoutes = require('./src/routes/userRoutes');
 const tokenRoutes = require('./src/routes/tokenRoutes');
-const tokenChecker = require('./src/middleware/tokenChecker');
+const listingRoutes=require('./src/routes/listingRoutes');
+
 
 // Connect to MongoDB
 connectToMongoDB()
@@ -25,7 +26,7 @@ connectToMongoDB()
     
     app.use('/api/users', userRoutes);
     app.use('/api/tokens', tokenRoutes);
-    //app.use('/api/users/...',tokenChecker);
+    app.use('/api/listing', listingRoutes);
 
     // Start the server
     const server = app.listen(PORT, () => {
