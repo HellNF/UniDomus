@@ -89,21 +89,33 @@ async function registerUser(req, res) {
 async function authenticateUser(req, res) {
     const { email, password} = req.body;
 
-    //check if the email/password pair exists
-    let user = await getUserByEmail(email);
-    if (!user) return res.json({success:false,message:'User not found'})
-    if (user.password!=password) return res.json({success:false,message:'Wrong password'})
+    try {
+        // Find the user by email
+        const user = await getUserByEmail(email);
 
-    // user authenticated -> create a token
-    var payload = { email: user.email, id: user._id }
-    var options = { expiresIn: 86400 } // expires in 24 hours
-    var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
+        // If no user found, return error
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'User not found' });
+        }
 
-    return res.status(200).json({ success: true, message: 'Token returned',
-        token: token, email: user.email, id: user._id, self: "api/users/authentication/" + user._id
-    });
+        // Validate the password
+        const isPasswordValid = await user.isValidPassword(password);
+
+        // If password is invalid, return error
+        if (!isPasswordValid) {
+            return res.status(401).json({ success: false, message: 'Wrong password' });
+        }
+
+         // user authenticated -> create a token
+        var payload = { email: user.email, id: user._id }
+        var options = { expiresIn: 86400 } // expires in 24 hours
+        var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
+        return res.status(200).json({ success: true, message: 'Token returned',token: token, email: user.email, id: user._id, self: "api/users/authentication/" + user._id});
+    } catch (error) {
+        console.error("Error authenticating user:", error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
 }
-
 // Export controller functions
 module.exports = {
     registerUser,
