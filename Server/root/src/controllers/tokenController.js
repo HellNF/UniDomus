@@ -1,5 +1,5 @@
 // controllers/tokenController.js
-
+require('dotenv').config({ path: '../../.env' });
 const Token = require('../models/tokenModel');
 const User = require('../models/userModel');
 const { isEmailSuccessfullyConfirmed } = require('../database/databaseQueries');
@@ -26,7 +26,8 @@ async function confirmToken(req, res) {
                 const deletedToken = await Token.findOneAndDelete({ token });
 
                 if (deletedToken) {
-                    return res.status(200).json({ message: "success" });
+                    // Redirect to a success page if the token is confirmed and deleted
+                    return res.redirect(`${process.env.FRONTEND_BASE}/login`);  // Change '/success-page-url' to the URL of your success page
                 } else {
                     // If token deletion fails, return an error
                     return res.status(500).json({ message: "error", reason: "Failed to delete token" });
