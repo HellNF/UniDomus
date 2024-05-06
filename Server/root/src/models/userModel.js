@@ -1,7 +1,7 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
-//scheme for the collection "users"
-
+// Define your user schema
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -9,109 +9,141 @@ const userSchema = new mongoose.Schema({
         minLength: 2,
         maxLength: 20
     },
-    name :{
+    name: {
         type: String,
         minLength: 2,
         maxLength: 30
     },
-    surname :{
+    surname: {
         type: String,
         minLength: 2,
         maxLength: 30
     },
-    email :{
+    email: {
         type: String,
         required: true,
         minLength: 5,
         maxLength: 50,
         validate: {
-          validator: function(v) {
-              return /\S+@\S+\.\S+/.test(v); 
-          },
-          message: props => `${props.value} invalid email`
-      }
+            validator: function (v) {
+                return /\S+@\S+\.\S+/.test(v);
+            },
+            message: props => `${props.value} invalid email`
+        }
     },
     password: {
         type: String,
         required: true,
-        /*verify that the password is at least 8 characters long, that there is at least one 
-        uppercase, one lowercase and one special character (@$!%*?&)*/
-        validate: { 
-          validator: function(v) {
-            return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(v);
-          },
-          message: props => `${props.value}: invalid password`
+        validate: {
+            validator: function (v) {
+                return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(v);
+            },
+            message: props => `${props.value}: invalid password`
         }
     },
-    birthDate:{
-        type: Date,     
-        validate: { //verify that the date entered is not a future date
-            validator: function(date) {
-                return date <= new Date() ;
+    birthDate: {
+        type: Date,
+        validate: {
+            validator: function (date) {
+                return date <= new Date();
             },
             message: props => `invalid date`
         }
     },
-    creationDate:{
+    creationDate: {
         type: Date,
-        default: () => Date.now()  + (2 * 60 * 60 * 1000),
+        default: () => Date.now() + (2 * 60 * 60 * 1000),
         mutable: false,
     },
-    lastUpdate:{
-      type: Date
+    lastUpdate: {
+        type: Date
     },
     habits: {
         type: [String],
         default: [],
-        validate: { //verify that the array contains up to 20 elements
-          validator: function(arr) { 
-            return arr.length <= 20;
-          },
-          message: props => `Too much elements (habits)`
+        validate: {
+            validator: function (arr) {
+                return arr.length <= 20;
+            },
+            message: props => `Too much elements (habits)`
         }
-      },
-      hobbies: {
-        type: [String],
-        default: [],
-        validate: { //verify that the array contains up to 20 elements
-          validator: function(arr) {
-            return arr.length <= 20;
-          },
-          message: props => `Too much elements (hobbies)`
-        }
-      },
-      proPic: { //verify that the array contains up to 5 elements
+    },
+    hobbies: {
         type: [String],
         default: [],
         validate: {
-          validator: function(arr) {
-            return arr.length <= 5;
-          },
-          message: props => `Too much elements (proPic)`
+            validator: function (arr) {
+                return arr.length <= 20;
+            },
+            message: props => `Too much elements (hobbies)`
         }
-      },
-      activityStatus: {
+    },
+    proPic: {
+        type: [String],
+        default: [],
+        validate: {
+            validator: function (arr) {
+                return arr.length <= 5;
+            },
+            message: props => `Too much elements (proPic)`
+        }
+    },
+    activityStatus: {
         type: String,
         enum: ['attivo', 'attivo recentemente', 'inattivo'],
         default: 'attivo'
-      },
-      active:{
+    },
+    active: {
         type: Boolean,
         default: false
-      },
-      listingID: {
+    },
+    listingID: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'listings' //reference to the collection "listings"
-      },
-      matchListID: {
+        ref: 'listings'
+    },
+    matchListID: {
         type: [{
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'matches' //reference to the collection "matches"
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'matches'
         }],
         default: []
-      }
-})
+    }
+});
 
-// Creation of the "users" model based on the schema
-const User = mongoose.model('user', userSchema);
+// Pre-save hook to hash the password before saving
+userSchema.pre('save', async function (next) {
+    // Only hash the password if it's new or modified
+    if (!this.isModified('password')) {
+        return next();
+    }
+
+    try {
+        // Generate a salt with a cost factor of 10
+        const salt = await bcrypt.genSalt(10);
+
+        // Hash the password using the generated salt
+        const hashedPassword = await bcrypt.hash(this.password, salt);
+
+        // Replace the plain-text password with the hashed password
+        this.password = hashedPassword;
+
+        // Call next to continue saving the user
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Method to compare provided password with stored hashed password
+userSchema.methods.isValidPassword = async function (password) {
+  try {
+      // Use bcrypt to compare the provided password with the hashed password stored in the database
+      return await bcrypt.compare(password, this.password);
+  } catch (error) {
+      throw new Error(error);
+  }
+};
+
+// Create your UserModel
+const User = mongoose.model('User', userSchema);
 module.exports = User;
