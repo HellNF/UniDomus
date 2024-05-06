@@ -79,7 +79,6 @@ async function sendConfirmationEmail(recipientEmail, confirmationLink) {
   }
 }
 
-sendConfirmationEmail("albibalbi715@gmail.com", "suca")
 module.exports={
   sendEmail,
   sendConfirmationEmail
