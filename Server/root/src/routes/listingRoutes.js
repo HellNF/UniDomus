@@ -7,7 +7,7 @@ router.use(bodyParser.urlencoded({ extended: false }));
 
 
 
-router.post('/listing', listings);
+router.get('/',listings);
 
 
 // Export router

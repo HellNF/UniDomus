@@ -26,7 +26,7 @@ connectToMongoDB()
     
     app.use('/api/users', userRoutes);
     app.use('/api/tokens', tokenRoutes);
-    app.use('/api/tokens', listingRoutes);
+    app.use('/api/listing', listingRoutes);
 
     // Start the server
     const server = app.listen(PORT, () => {
