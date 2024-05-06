@@ -1,5 +1,5 @@
 //services/emailService.js
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: '../../.env' });
 const sgMail = require('@sendgrid/mail');
 
 /**
@@ -78,7 +78,7 @@ async function sendConfirmationEmail(recipientEmail, confirmationLink) {
   }
 }
 
-
+sendConfirmationEmail("albibalbi715@gmail.com", "suca")
 module.exports={
   sendEmail,
   sendConfirmationEmail
