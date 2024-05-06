@@ -40,6 +40,7 @@ async function sendConfirmationEmail(recipientEmail, confirmationLink) {
   // Set SendGrid API Key securely using environment variable
 
   const SENDGRID_API_KEY=process.env.SENDGRID_API_KEY;
+
   sgMail.setApiKey(SENDGRID_API_KEY);
 
   const msg = {
@@ -78,7 +79,7 @@ async function sendConfirmationEmail(recipientEmail, confirmationLink) {
   }
 }
 
-
+sendConfirmationEmail("albibalbi715@gmail.com", "suca")
 module.exports={
   sendEmail,
   sendConfirmationEmail
