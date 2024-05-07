@@ -134,8 +134,39 @@ router.use(bodyParser.urlencoded({ extended: false }));
 // Define routes for user registration
 router.post('/registration', registerUser);
 
-//Define routes for user authentication
 
+/**
+ * @swagger
+ * /api/users/authentication:
+ *   post:
+ *     summary: Authenticate user
+ *     description: Authenticate user with provided credentials and return an access token.
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *             required:
+ *               - email
+ *               - password
+ *     responses:
+ *       '200':
+ *         description: User authenticated successfully and access token generated.
+ *       '400':
+ *         description: Bad request or validation error.
+ *       '401':
+ *         description: Unauthorized - Invalid credentials.
+ *       '500':
+ *         description: Internal server error occurred.
+ */
+//Define routes for user authentication
 router.post('/authentication', authenticateUser);
 
 
