@@ -85,6 +85,7 @@ const listingSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
+    required,
     min: 10, 
     max: 10000 
   },
@@ -93,7 +94,10 @@ const listingSchema = new mongoose.Schema({
     min: 1, 
     max: 10000 
   },
-  availability: String, 
+  availability: {
+    type: String,
+    maxLength: 250
+  },
   publicationDate: {
     type: Date,
     default: () => Date.now()  + (2 * 60 * 60 * 1000),
