@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 const cors =require('cors')
 const PORT = process.env.PORT || 5050; // Set the port to either the environment port or 5050
-
+const tokenChecker= require('./src/middleware/tokenChecker')
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 

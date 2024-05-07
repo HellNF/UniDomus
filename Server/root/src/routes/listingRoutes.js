@@ -135,8 +135,7 @@ const Listing = require('../models/listingModel');
 
 router.get('/',listings);
 
-
-router.get('/add',addListing)
+router.post('/add',addListing)
 
 /**
  * @swagger
