@@ -8,12 +8,14 @@ import { PhotoIcon } from '@heroicons/react/24/solid'
 export default function AddListingForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    "street": "",
-    "city": "",
-    "cap": "",
-    "houseNum": "",
-    "province": "",
-    "country": "",
+    "address": {
+      "street": "",
+      "city": "",
+      "cap": "",
+      "houseNum": "",
+      "province": "",
+      "country": "",
+    },
     "typology": "",
     "description": "",
     "price": "",
@@ -21,12 +23,14 @@ export default function AddListingForm() {
     "availability":""
   })
   const [formDataErr, setFormDataErr] = useState({
-    "streetErr": "",
-    "cityErr": "",
-    "capErr": "",
-    "houseNumErr": "",
-    "provinceErr": "",
-    "countryErr": "",
+    "addressErr": {
+      "streetErr": "",
+      "cityErr": "",
+      "capErr": "",
+      "houseNumErr": "",
+      "provinceErr": "",
+      "countryErr": "",
+    },
     "typologyErr": "",
     "descriptionErr": "",
     "priceErr": "",
@@ -45,12 +49,12 @@ export default function AddListingForm() {
     e.preventDefault();
 
     const bodyForm = {
+      country: formData.country,
       street: formData.street,
       city: formData.city,
       cap: formData.cap,
       houseNum: formData.houseNum,
       province: formData.province,
-      country: formData.country,
       typology: formData.typology,
       description: formData.description,
       price: formData.price,
@@ -66,7 +70,7 @@ export default function AddListingForm() {
       body: JSON.stringify(bodyForm)
     })
       .then((res) => {
-
+        console.log("bella");
 
         if (res.ok) {
           console.log("ciao")
