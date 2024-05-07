@@ -1,5 +1,5 @@
 // Additional test cases for validation functions
-const { isEmailValid, isStrongPassword, isUsernameValid } = require('../validators/validationFunctions');
+const { isEmailValid, isStrongPassword, isUsernameValid, isPasswordValid } = require('../validators/validationFunctions');
 describe('Validation Functions', () => {
 
 
@@ -19,7 +19,7 @@ describe('Validation Functions', () => {
   // Test cases for isStrongPassword function
   describe('isStrongPassword', () => {
     it('should return true for a strong password', () => {
-      const strongPassword = 'Abc123!@#';
+      const strongPassword = 'Abc123!@';
       expect(isStrongPassword(strongPassword)).toBe(true);
     });
 
@@ -62,20 +62,20 @@ describe('Validation Functions', () => {
     });
   
     // Test cases for isStrongPassword function
-    describe('isStrongPassword', () => {
+    describe('isPasswordValid', () => {
       it('should return false for a password with less than 8 characters', () => {
         const shortPassword = 'Abc123!';
-        expect(isStrongPassword(shortPassword)).toBe(false);
+        expect(isPasswordValid(shortPassword)).toBe(false);
       });
   
       it('should return false for a password without uppercase letters', () => {
-        const passwordWithoutUpperCase = 'abc123!@#';
-        expect(isStrongPassword(passwordWithoutUpperCase)).toBe(false);
+        const passwordWithoutUpperCase = 'abc123!@';
+        expect(isPasswordValid(passwordWithoutUpperCase)).toBe(false);
       });
   
       it('should return false for a password without special characters', () => {
         const passwordWithoutSpecialChars = 'Abc12345';
-        expect(isStrongPassword(passwordWithoutSpecialChars)).toBe(false);
+        expect(isPasswordValid(passwordWithoutSpecialChars)).toBe(false);
       });
   
     });

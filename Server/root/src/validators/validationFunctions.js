@@ -7,11 +7,13 @@
  */
 function isStrongPassword(password) {
     const digitRegex = /\d/;
-    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+    const specialCharRegex = /[@$!%*?&\-_.]/;
     const lowerCaseRegex = /[a-z]/;
     const upperCaseRegex = /[A-Z]/;
+    
     return password.length >= 8 && digitRegex.test(password) && specialCharRegex.test(password) && lowerCaseRegex.test(password) && upperCaseRegex.test(password);
 }
+
 
 /**
  * Checks if the provided username is valid.
@@ -32,6 +34,23 @@ function isEmailValid(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 }
+/**
+ * Checks if the provided password is valid.
+ * @param {string} password - The password to check.
+ * @returns {boolean} - True if the password is valid and strong, otherwise false.
+ */
+function isPasswordValid(password) {
+ 
+    const invalidCharRegex = /[~+=^#:;'"]/;
+    
+    if (invalidCharRegex.test(password) || !isStrongPassword(password)) {
+        return false;
+    }
+    
+    return true;
+}
+
+
 
 
 // Export validation functions
@@ -39,4 +58,5 @@ module.exports = {
     isStrongPassword,
     isUsernameValid,
     isEmailValid,
+    isPasswordValid
 };
