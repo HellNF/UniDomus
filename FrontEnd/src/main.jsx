@@ -6,6 +6,7 @@ import './index.css'
 import { AuthProvider } from './AuthContext'; // Import the AuthProvide
 import Registration from "./pages/Registration.jsx"
 import Login from "./pages/Login.jsx"
+import EditProfile from './pages/EditProfile.jsx'
 
 const router= createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router= createBrowserRouter([
   {
     path: "/login",
     element: <Login></Login> 
+  },
+  {
+    path: "/editprofile",
+    element: <EditProfile></EditProfile> 
   },
   {
     path: "/",
