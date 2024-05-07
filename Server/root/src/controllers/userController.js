@@ -2,13 +2,14 @@
 
 const UserModel = require('../models/userModel');
 const TokenModel = require('../models/tokenModel'); // Import the Token model
-const { isEmailValid, isUsernameValid , isPasswordValid} = require('../validators/validationFunctions');
+const { isEmailValid, isUsernameValid, isPasswordValid } = require('../validators/validationFunctions');
 const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistration, isPasswordCorrect, getUserByEmail } = require('../database/databaseQueries');
 const { generateRandomToken } = require('../utils/tokenUtils'); // Import the function to generate random token
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 require('dotenv').config() //to use environment variables
 const { sendConfirmationEmail } = require('../services/emailService'); // Import the function to send confirmation email
 const { hobbiesEnum, habitsEnum } = require('./../models/enums');
+const User = require('../models/userModel');
 
 /**
  * Controller function for user registration.
@@ -18,7 +19,7 @@ const { hobbiesEnum, habitsEnum } = require('./../models/enums');
 async function registerUser(req, res) {
     const { email, password, username } = req.body;
     const errors = [];
-    
+
 
     // Validate email
     if (!isEmailValid(email)) {
@@ -87,7 +88,7 @@ async function registerUser(req, res) {
  * @param {Response} res - The Express response object.
  */
 async function authenticateUser(req, res) {
-    const { email, password} = req.body;
+    const { email, password } = req.body;
 
     try {
         // Find the user by email
@@ -106,11 +107,11 @@ async function authenticateUser(req, res) {
             return res.status(401).json({ success: false, message: 'Wrong password' });
         }
 
-         // user authenticated -> create a token
+        // user authenticated -> create a token
         var payload = { email: user.email, id: user._id }
         var options = { expiresIn: 86400 } // expires in 24 hours
         var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
-        return res.status(200).json({ success: true, message: 'Token returned',token: token, email: user.email, id: user._id, self: "api/users/authentication/" + user._id});
+        return res.status(200).json({ success: true, message: 'Token returned', token: token, email: user.email, id: user._id, self: "api/users/authentication/" + user._id });
     } catch (error) {
         console.error("Error authenticating user:", error);
         return res.status(500).json({ success: false, message: 'Internal server error' });
@@ -129,9 +130,50 @@ async function getTags(req, res) {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+async function getUserById(req, res) {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id);
+        
+        if (!user) {
+            console.log("User not found.");
+            return res.status(400).json({ message: "User not found" });
+        }
+        
+        console.log("User retrieved successfully.");
+        return res.status(200).json({ user: user });
+    } catch (error) {
+        console.error("Error retrieving user:", error);
+        return res.status(500).json({ message: "Error retrieving user", error: error.message });
+    }
+}
+const updateUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+
+        // Update the user document with all fields provided in the request body
+        const user = await User.findByIdAndUpdate(id, updates, { new: true });
+
+        if (!user) {
+            console.log("User not found.");
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        console.log("User updated successfully.");
+        return res.status(200).json({ user });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        return res.status(500).json({ message: "Error updating user", error: error.message });
+    }
+};
+
+
 // Export controller functions
 module.exports = {
     registerUser,
     authenticateUser,
-    getTags
+    getTags,
+    getUserById,
+    updateUserById
 };
