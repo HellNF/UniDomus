@@ -8,6 +8,7 @@ const { generateRandomToken } = require('../utils/tokenUtils'); // Import the fu
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 require('dotenv').config() //to use environment variables
 const { sendConfirmationEmail } = require('../services/emailService'); // Import the function to send confirmation email
+const { hobbiesEnum, habitsEnum } = require('./../models/enums');
 
 /**
  * Controller function for user registration.
@@ -115,8 +116,22 @@ async function authenticateUser(req, res) {
         return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 }
+
+async function getTags(req, res) {
+    try {
+        // Return the enums as they are
+        res.json({
+            hobbies: hobbiesEnum,
+            habits: habitsEnum
+        });
+    } catch (error) {
+        console.error("Error fetching tags:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 // Export controller functions
 module.exports = {
     registerUser,
-    authenticateUser
+    authenticateUser,
+    getTags
 };
