@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const { hobbiesEnum, habitsEnum } = require('./enums');
 
-// Define your user schema
+
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -59,24 +60,14 @@ const userSchema = new mongoose.Schema({
         type: Date
     },
     habits: {
-        type: [String],
-        default: [],
-        validate: {
-            validator: function (arr) {
-                return arr.length <= 20;
-            },
-            message: props => `Too much elements (habits)`
-        }
+        type: String,
+        enum: habitsEnum,
+        default: 'Other'
     },
     hobbies: {
-        type: [String],
-        default: [],
-        validate: {
-            validator: function (arr) {
-                return arr.length <= 20;
-            },
-            message: props => `Too much elements (hobbies)`
-        }
+        type: String,
+        enum: hobbiesEnum,
+        default: 'Other'
     },
     proPic: {
         type: [String],
@@ -85,7 +76,7 @@ const userSchema = new mongoose.Schema({
             validator: function (arr) {
                 return arr.length <= 5;
             },
-            message: props => `Too much elements (proPic)`
+            message: props => `Too many elements (proPic)`
         }
     },
     activityStatus: {
@@ -94,10 +85,6 @@ const userSchema = new mongoose.Schema({
         default: 'attivo'
     },
     active: {
-        type: Boolean,
-        default: false
-    },
-    housingSeeker:{
         type: Boolean,
         default: false
     },

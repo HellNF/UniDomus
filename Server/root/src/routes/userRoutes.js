@@ -2,7 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
-const { registerUser,authenticateUser } = require('../controllers/userController');
+const { registerUser,authenticateUser,getTags } = require('../controllers/userController');
 router.use(bodyParser.urlencoded({ extended: false }));
 
 
@@ -169,6 +169,7 @@ router.post('/registration', registerUser);
 //Define routes for user authentication
 router.post('/authentication', authenticateUser);
 
+router.get('/tags', getTags);
 
 // Export router
 module.exports = router;
