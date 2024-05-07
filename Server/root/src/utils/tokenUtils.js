@@ -1,4 +1,4 @@
-// utils.js
+// utils/tokenUtils.js
 
 /**
  * Function to generate a random token.
