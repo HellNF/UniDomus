@@ -2,7 +2,7 @@
 
 const UserModel = require('../models/userModel');
 const TokenModel = require('../models/tokenModel'); // Import the Token model
-const { isEmailValid, isStrongPassword, isUsernameValid } = require('../validators/validationFunctions');
+const { isEmailValid, isUsernameValid , isPasswordValid} = require('../validators/validationFunctions');
 const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistration, isPasswordCorrect, getUserByEmail } = require('../database/databaseQueries');
 const { generateRandomToken } = require('../utils/tokenUtils'); // Import the function to generate random token
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
@@ -25,8 +25,8 @@ async function registerUser(req, res) {
     }
 
     // Validate password
-    if (!isStrongPassword(password)) {
-        errors.push({ field: "password", message: "Weak password" });
+    if (!isPasswordValid(password)) {
+        errors.push({ field: "password", message: "Invalid password" });
     }
 
     // Validate username
@@ -58,7 +58,7 @@ async function registerUser(req, res) {
 
     try {
         // Create user
-        const newUser = await UserModel.create({ email, password, username, attivo: false });
+        const newUser = await UserModel.create({ email, password, username, active: false });
 
         // Generate random token
         const token = generateRandomToken(30);

@@ -42,6 +42,7 @@ describe('UserController', () => {
         UserModel.create.mockResolvedValue({
             _id: '1',
             email: req.body.email,
+            password: req.body.password,
             username: req.body.username,
             attivo: false
         });
@@ -89,7 +90,7 @@ describe('UserController', () => {
               email: req.body.email,
               password: req.body.password,
               username: req.body.username,
-              attivo: false
+              active: false
           });
           expect(res.status).toHaveBeenCalledWith(200);
           expect(res.json).toHaveBeenCalledWith({ message: 'success' });
@@ -157,14 +158,14 @@ describe('UserController', () => {
       });
   
       // Test input validation for password strength
-      it('should return 400 status for weak password', async () => {
+      it('should return 400 status for invalid password', async () => {
           req.body.password = '123'; // Weak password
           await registerUser(req, res);
   
           expect(res.status).toHaveBeenCalledWith(400);
           expect(res.json).toHaveBeenCalledWith({
               message: 'error',
-              errors: expect.arrayContaining([{ field: 'password', message: 'Weak password' }])
+              errors: expect.arrayContaining([{ field: 'password', message: 'Invalid password' }])
           });
       });
   
