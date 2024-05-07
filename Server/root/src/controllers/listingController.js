@@ -40,6 +40,25 @@ async function listings(req, res) {
     }
 }
 
+async function getListingById(req, res) {
+    try {
+        const { id } = req.params;
+        const listing = await Listing.findById(id);
+        
+        if (!listing) {
+            console.log("Listing not found.");
+            return res.status(400).json({ message: "Listing not found" });
+        }
+        
+        console.log("Listing retrieved successfully.");
+        return res.status(200).json({ listing: listing });
+    } catch (error) {
+        console.error("Error retrieving listing:", error);
+        return res.status(500).json({ message: "Error retrieving listing", error: error.message });
+    }
+}
+
 module.exports = {
-    listings
+    listings,
+    getListingById
 };

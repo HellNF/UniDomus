@@ -2,7 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
-const { listings } = require('../controllers/listingController');
+const { listings, getListingById } = require('../controllers/listingController');
 router.use(bodyParser.urlencoded({ extended: false }));
 
 const Listing = require('../models/listingModel');
@@ -132,6 +132,53 @@ const Listing = require('../models/listingModel');
 
 
 router.get('/',listings);
+
+/**
+ * @swagger
+ * /api/listing/{id}:
+ *   get:
+ *     summary: Retrieve a listing by ID
+ *     description: Retrieve a listing by its unique identifier.
+ *     tags: [Listings]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: The ID of the listing to retrieve
+ *     responses:
+ *       '200':
+ *         description: Listing retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Listing'
+ *       '400':
+ *         description: Listing not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Listing not found
+ *       '500':
+ *         description: Error retrieving listing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error retrieving listing
+ *                 error:
+ *                   type: string
+ */
+router.get('/:id',getListingById);
 
 
 // Export router
