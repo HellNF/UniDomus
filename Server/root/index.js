@@ -10,7 +10,7 @@ const swaggerUi = require('swagger-ui-express');
 
 // Middleware
 app.use(express.json());
-
+app.use('/api/listings/add', tokenChecker);
 // Import MongoDB connection function and Mongoose instance
 const { connectToMongoDB, mongoose } = require('./src/database/connection');
 app.use(cors({

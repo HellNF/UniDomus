@@ -40,6 +40,13 @@ async function listings(req, res) {
     }
 }
 
+async function addListing(req,res){
+
+    const listing= req.body.json;
+    console.log(listing);
+    
+}
+
 module.exports = {
-    listings
+    listings, addListing
 };
