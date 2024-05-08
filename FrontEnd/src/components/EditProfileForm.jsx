@@ -1,8 +1,14 @@
 import UniDomusLogo from "/UniDomusLogoWhite.png"
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid';
+import { Switch } from '@headlessui/react'
 import React, { useState, useEffect } from 'react';
-import { useAuth } from './../AuthContext'; 
+import { useAuth } from './../AuthContext';
 import { useNavigate } from "react-router-dom";
+
+
+function classNames(...classes) {
+    return classes.filter(Boolean).join(' ')
+}
 
 export default function EditProfileForm() {
     // State for storing form inputs and edit mode
@@ -14,6 +20,7 @@ export default function EditProfileForm() {
     const [habits, setHabits] = useState([]);
     const [hobbies, setHobbies] = useState([]);
     const [photoPreviews, setPhotoPreviews] = useState([]);
+    const [housingSeeker, setHousingSeeker] = useState(false)
 
     const navigate = useNavigate();
 
@@ -40,6 +47,8 @@ export default function EditProfileForm() {
                         setName(userData.name || '');
                         setSurname(userData.surname || '');
                         setBirthDate(userData.birthDate ? userData.birthDate.split('T')[0] : ''); // Ensure birthDate is always defined
+
+                        setHousingSeeker(userData.housingSeeker);
 
                         // Decode base64 image data and set as photoPreviews array
                         const proPicData = userData.proPic || [];
@@ -124,6 +133,7 @@ export default function EditProfileForm() {
             birthDate,
             habits: selectedHabits,
             hobbies: selectedHobbies,
+            housingSeeker: housingSeeker,
             proPic: photoBase64 // Use Base64 encoded image array
         };
 
@@ -166,74 +176,103 @@ export default function EditProfileForm() {
                         <div className="bg-white rounded-lg p-8 shadow-md">
                             <h2 className="text-2xl font-semibold leading-7 text-gray-900">Informazioni generali</h2>
 
-                            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                                <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Foto profilo
-                                </label>
+                            <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-2">
 
 
-                                <div className="mt-2 flex items-center gap-x-3 col-span-full">
-                                    {photoPreviews.map((preview, index) => (
-                                        <div key={index} className="relative overflow-hidden">
-                                            <img
-                                                src={preview}
-                                                alt={`Uploaded ${index + 1}`}
-                                                className={`rounded-full ${index === 0 ? 'h-32 w-32 border border-black' : 'h-12 w-12 border border-black'}`} // Adjust size based on index
-                                            />
-                                            <div className={`${!editMode ? 'invisible' : ''}`}>
+                                <div className="sm:col-span-1">
+                                    <label className="block text-sm font-medium leading-6 text-gray-900">
+                                        Foto profilo
+                                    </label>
+                                    <div className="mt-2 flex items-center gap-x-3 col-span-full">
+                                        {photoPreviews.map((preview, index) => (
+                                            <div key={index} className="relative overflow-hidden">
+                                                <img
+                                                    src={preview}
+                                                    alt={`Uploaded ${index + 1}`}
+                                                    className={`rounded-full ${index === 0 ? 'h-32 w-32 border border-black' : 'h-12 w-12 border border-black'}`} // Adjust size based on index
+                                                />
+                                                <div className={`${!editMode ? 'invisible' : ''}`}>
+                                                    <button
+                                                        type="button"
+                                                        disabled={!editMode}
+                                                        className="absolute top-0 right-0 -mr-1 -mt-1 bg-white rounded-full p-1.5"
+                                                        onClick={() => handleRemovePhoto(index)}
+                                                    >
+                                                        <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div className="col-span-full">
+                                            <div className="text-center">
                                                 <button
                                                     type="button"
                                                     disabled={!editMode}
-                                                    className="absolute top-0 right-0 -mr-1 -mt-1 bg-white rounded-full p-1.5"
-                                                    onClick={() => handleRemovePhoto(index)}
+                                                    className="relative overflow-hidden w-12 h-12 mx-auto"
+                                                    onClick={() => document.getElementById('file-upload').click()}
                                                 >
-                                                    <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <div className="col-span-full">
-                                        <div className="text-center">
-                                            <button
-                                                type="button"
-                                                disabled={!editMode}
-                                                className="relative overflow-hidden w-12 h-12 mx-auto"
-                                                onClick={() => document.getElementById('file-upload').click()}
-                                            >
-                                                <div className={`absolute inset-0 bg-white rounded-full border border-indigo-600 ${!editMode ? 'invisible' : ''}`}>
-                                                    <PhotoIcon className="mx-auto h-8 w-8 text-gray-300 absolute inset-0 m-auto " aria-hidden="true" />
-                                                    <div className="absolute bottom-0 right-0">
-                                                        <div className="relative rounded-full overflow-hidden w-6 h-6 bg-indigo-600 flex justify-center items-center ">
-                                                            <button
-                                                                type="button"
-                                                                disabled={!editMode}
-                                                                className="flex justify-center items-center text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
-                                                                onClick={() => document.getElementById('file-upload').click()}
-                                                            >
-                                                                +
-                                                            </button>
+                                                    <div className={`absolute inset-0 bg-white rounded-full border border-indigo-600 ${!editMode ? 'invisible' : ''}`}>
+                                                        <PhotoIcon className="mx-auto h-8 w-8 text-gray-300 absolute inset-0 m-auto " aria-hidden="true" />
+                                                        <div className="absolute bottom-0 right-0">
+                                                            <div className="relative rounded-full overflow-hidden w-6 h-6 bg-indigo-600 flex justify-center items-center ">
+                                                                <button
+                                                                    type="button"
+                                                                    disabled={!editMode}
+                                                                    className="flex justify-center items-center text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+                                                                    onClick={() => document.getElementById('file-upload').click()}
+                                                                >
+                                                                    +
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </button>
-                                            <input
-                                                id="file-upload"
-                                                name="file-upload"
-                                                type="file"
-                                                className="sr-only"
-                                                onChange={handlePhotoChange} // Add onChange handler
-                                                multiple // Allow multiple file selection
-                                                accept="image/*" // Restrict to image files
-                                            />
+                                                </button>
+                                                <input
+                                                    id="file-upload"
+                                                    name="file-upload"
+                                                    type="file"
+                                                    className="sr-only"
+                                                    onChange={handlePhotoChange} // Add onChange handler
+                                                    multiple // Allow multiple file selection
+                                                    accept="image/*" // Restrict to image files
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
+                                <div div className="sm:col-span-1">
+                                    <label className="block text-sm font-medium leading-6 text-gray-900">
+                                        Sono in cerca di una casa
+                                    </label>
+                                    <div></div>
+                                    <div className="mt-2 flex items-center justify-center gap-x-3 col-span-full">
+                                        <Switch
+                                            checked={housingSeeker}
+                                            disabled={!editMode} 
+                                            onChange={setHousingSeeker}
+                                            className={classNames(
+                                                housingSeeker ? 'bg-indigo-600' : 'bg-gray-200',
+                                                'flex w-16 flex-none cursor-pointer rounded-full p-px ring-2 ring-inset ring-gray-900/5 transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300'
+                                            )}
+                                        >
+                                            <span
+                                                aria-hidden="true"
+                                                className={classNames(
+                                                    housingSeeker ? 'translate-x-8' : 'translate-x-0', 
+                                                    'h-8 w-8 transform rounded-full bg-white shadow-sm ring-2 ring-gray-900/5 transition duration-200 ease-in-out' // Double the size of the thumb
+                                                )}
+                                            />
+                                        </Switch>
+                                    </div>
+
+                                </div>
 
 
-                                <div className="sm:col-span-3">
+
+                                <div className="sm:col-span-1">
                                     <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
                                         Nome
                                     </label>
@@ -250,7 +289,7 @@ export default function EditProfileForm() {
                                         />
                                     </div>
                                 </div>
-                                <div className="sm:col-span-3">
+                                <div className="sm:col-span-1">
                                     <label htmlFor="surname" className="block text-sm font-medium leading-6 text-gray-900">
                                         Cognome
                                     </label>
@@ -267,7 +306,7 @@ export default function EditProfileForm() {
                                         />
                                     </div>
                                 </div>
-                                <div className="sm:col-span-3">
+                                <div className="sm:col-span-1">
                                     <label htmlFor="birthDate" className="block text-sm font-medium leading-6 text-gray-900">
                                         Data di nascita
                                     </label>

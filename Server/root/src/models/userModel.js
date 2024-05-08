@@ -90,6 +90,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    housingSeeker: {
+        type: Boolean,
+        default: false
+    },
     listingID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'listings'

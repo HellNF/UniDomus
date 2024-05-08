@@ -177,6 +177,7 @@ async function getUserById(req, res) {
 const updateUserById = async (req, res) => {
     try {
         const { id } = req.params;
+        const { proPic } = req.query; // Extracting the proPic query parameter
         const updates = req.body;
 
         // Update the user document with all fields provided in the request body
@@ -185,6 +186,25 @@ const updateUserById = async (req, res) => {
         if (!user) {
             console.log("User not found.");
             return res.status(404).json({ message: "User not found" });
+        }
+
+         // Handling the proPic query parameter
+         if (proPic) {
+            if (proPic.toLowerCase() === 'true') {
+                // If proPic is true, return user with all proPics
+            } else if (proPic.toLowerCase() === 'false') {
+                // If proPic is false, remove the proPic field from the user object
+                user.proPic = user.proPic.slice(0, 0);
+            } else {
+                let numberOfPics = parseInt(proPic); // Convert proPic to an integer
+                if (!isNaN(numberOfPics) && numberOfPics >= 1 && numberOfPics <= 5) {
+                    // Return the user with the specified number of proPics if present
+                    user.proPic = user.proPic.slice(0, numberOfPics);
+                }
+            }
+        } else {
+            // If proPic query parameter is not defined, remove the entire proPic property from the user object
+            user.proPic = user.proPic.slice(0, 0);
         }
 
         console.log("User updated successfully.");
