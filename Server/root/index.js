@@ -5,7 +5,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cors =require('cors')
 const PORT = process.env.PORT || 5050; // Set the port to either the environment port or 5050
-
+const tokenChecker= require('./src/middleware/tokenChecker')
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
@@ -34,9 +34,13 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })); // Adjust the
 
 
 app.use(express.json());
+
 app.use(cors({
   origin: "*", // Allow access from any address -- no restrictions
 }));
+
+
+app.use('/api/listings/add', tokenChecker);
 
 // Import MongoDB connection function and Mongoose instance
 const { connectToMongoDB, mongoose } = require('./src/database/connection');

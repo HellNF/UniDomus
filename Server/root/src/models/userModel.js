@@ -60,6 +60,7 @@ const userSchema = new mongoose.Schema({
         type: Date
     },
     habits: {
+
         type: [String], 
         enum: habitsEnum,
         default: [] 
@@ -68,6 +69,7 @@ const userSchema = new mongoose.Schema({
         type: [String], 
         enum: hobbiesEnum,
         default: [] 
+
     },
     proPic: {
         type: [String],

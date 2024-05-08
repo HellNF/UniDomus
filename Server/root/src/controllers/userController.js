@@ -9,7 +9,9 @@ const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 require('dotenv').config() //to use environment variables
 const { sendConfirmationEmail } = require('../services/emailService'); // Import the function to send confirmation email
 const { hobbiesEnum, habitsEnum } = require('./../models/enums');
+
 const User = require('../models/userModel');
+
 
 /**
  * Controller function for user registration.
@@ -130,6 +132,7 @@ async function getTags(req, res) {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
 async function getUserById(req, res) {
     try {
         const { id } = req.params;
@@ -168,14 +171,14 @@ const updateUserById = async (req, res) => {
     }
 };
 
-
-
-
 // Export controller functions
 module.exports = {
     registerUser,
     authenticateUser,
+
     getTags,
     getUserById,
     updateUserById
+    getTags
 };
+

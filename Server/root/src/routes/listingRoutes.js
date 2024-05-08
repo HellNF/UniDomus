@@ -1,8 +1,10 @@
 // Import necessary modules
 const express = require('express');
 const bodyParser = require('body-parser');
+const tokenChecker= require('../middleware/tokenChecker')
 const router = express.Router();
-const { listings, getListingById } = require('../controllers/listingController');
+const { listings, addListing , getListingById } = require('../controllers/listingController');
+
 router.use(bodyParser.urlencoded({ extended: false }));
 
 const Listing = require('../models/listingModel');
@@ -133,6 +135,8 @@ const Listing = require('../models/listingModel');
 
 router.get('/',listings);
 
+router.post('/add',addListing)
+
 /**
  * @swagger
  * /api/listing/{id}:
@@ -179,6 +183,7 @@ router.get('/',listings);
  *                   type: string
  */
 router.get('/:id',getListingById);
+
 
 
 // Export router
