@@ -1,6 +1,16 @@
 const { listings, getListingById } = require('../controllers/listingController');
 const Listing = require('../models/listingModel');
+require('dotenv').config({ path: '../../.env' });
+const request = require('supertest');
+const app = require('../../index.js');
+const jwt = require('jsonwebtoken'); 
+const { before, default: test } = require('node:test');
 
+jest.mock('../models/userModel'); // Mock the User model for testing
+jest.spyOn(mongoose, 'connect').mockImplementation(() => Promise.resolve());
+
+
+/*
 describe('Listing Controller', () => {
   // Mock the response object
   const res = {
@@ -121,4 +131,138 @@ describe('getListingById', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Error retrieving listing', error: 'Database error' });
   });
 });
+*/
+describe('POST listing/add', () => {
+ let token;
+ const testUser={ 
+  email: "tihaf22901@mfyax.com",
+  password: "Testpwd09@09"
+};
+ 
+  let payload=testUser;
+  let options = {
+    expiresIn: 86400 // expires in 24 hours
+  }
+  token=  jwt.sign(payload,process.env.SUPER_SECRET,options); 
+ 
 
+ console.log(token);
+
+  it('should return validation errors for missing required fields', async () => {
+    const invalidListingData = {
+     
+      address: {
+                      street: "via giselga",
+                      city: "dajk",
+                      cap: "56783",
+                      houseNum: "20A",
+                      province: "OT",
+                      country: "Albania"
+      
+                  },
+      photos: [
+              "dwndioawhndaiuwdhuiawbdbia"
+            ],
+          
+      publisherID: "663a1690cb3ede7ef21ef254",
+      tenantsID: [
+      "663a04e09e58376e172487c5"
+      ],
+      typology: "adnawd",
+      description: "string",
+      price: 1000000,
+      floorArea: 100,
+      availability: "adhiawdh"
+  
+    };
+
+    const response = await request(app)
+      .post('/api/listing/add')
+      .set('x-access-token',token)
+      .send(invalidListingData);
+
+    expect(response.status).toBe(401); // Expect bad request status
+    expect(response.body.message).toBe('error'); // Expect error message
+    expect(response.body.errors.length).toBeGreaterThan(0);
+    
+ })
+
+
+  // test('it should respond with error if required data is missing', async () => {
+  //   const mockListingMissingData={
+      
+  //     address: {
+  //                     street: "via giselga",
+  //                     city: "dajk",
+  //                     cap: "56783",
+  //                     houseNum: "20A",
+  //                     province: "OT",
+  //                     country: "Albania"
+      
+  //                 },
+  //     photos: [
+  //             "dwndioawhndaiuwdhuiawbdbia"
+  //           ],
+          
+  //     publisherID: "663a1690cb3ede7ef21ef254",
+  //     tenantsID: [
+  //     "663a04e09e58376e172487c5"
+  //     ],
+  //     typology: "adnawd",
+  //     description: "string",
+  //     price: 100,
+  //     floorArea: 100,
+  //     availability: ""
+      
+      
+  // }
+
+  //   const response = await request(app)
+  //     .post('/api/listing/add').set('x-access-token',token)
+  //     .send(mockListingMissingData);
+
+  //   expect(response.status).toBe(401); 
+  //   expect(response.body.message).toBe('error'); 
+  //   expect(response.body.errors).toBeDefined(); 
+  // });
+
+  // test('it should respond with error if data is invalid', async () => {
+    
+  //   const mockListingInvalid={
+      
+  //     address: {
+  //                     street: "via giselga",
+  //                     city: "dajk",
+  //                     cap: "56783",
+  //                     houseNum: "20A",
+  //                     province: "OT",
+  //                     country: "Albania"
+      
+  //                 },
+  //     photos: [
+  //             "dwndioawhndaiuwdhuiawbdbia"
+  //           ],
+          
+  //     publisherID: "663a1690cb3ede7ef21ef254",
+  //     tenantsID: [
+  //     "663a04e09e58376e172487c5"
+  //     ],
+  //     typology: "adnawd",
+  //     description: "string",
+  //     price: 1000000,
+  //     floorArea: 100,
+  //     availability: "adhiawdh"
+  // }
+
+  //   const response = await request(app)
+  //     .post('/api/listing/add')
+  //     .set('x-access-token',token)
+  //     .send(mockListingInvalid);
+
+  //   expect(response.status).toBe(401); // Assicurati che la risposta sia un errore non autorizzato (401)
+  //   expect(response.body.message).toBe('error'); // Assicurati che il messaggio di risposta sia "error"
+  //   expect(response.body.errors).toBeDefined(); // Assicurati che gli errori siano definiti nella risposta
+  // });
+
+  
+});
