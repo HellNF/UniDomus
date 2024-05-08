@@ -3,10 +3,12 @@ import UniDomusLogo from "/UniDomusLogoWhite.png"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../constant";
+import { useAuth } from './../AuthContext';  
 import { PhotoIcon } from '@heroicons/react/24/solid'
 
 export default function AddListingForm() {
   const navigate = useNavigate();
+  const { userId } = useAuth();
   const [formData, setFormData] = useState({
     "address": {
       "street": "",
@@ -84,7 +86,8 @@ export default function AddListingForm() {
       price: formData.price,
       floorArea: formData.floorArea,
       availability: formData.availability,
-      photos: image
+      photos: image,
+      userId: userId
     }
     fetch(`${API_BASE_URL}listing/add`, {
       method: 'POST',
@@ -95,7 +98,7 @@ export default function AddListingForm() {
       body: JSON.stringify(bodyForm)
     })
       .then((res) => {
-        console.log("bella");
+        console.log(bodyForm);
 
         if (res.ok) {
           console.log("ciao")
