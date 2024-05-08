@@ -18,7 +18,7 @@ function classNames(...classes) {
 
 function Navbar() {
   const { isLoggedIn, logout } = useAuth(); // Access authentication state and functions
-  
+
   return (
     <Disclosure as="nav" className="bg-blue-950">
       {({ open }) => (
@@ -65,11 +65,13 @@ function Navbar() {
                 </div>
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                { isLoggedIn?( <><Link to="/addListing">
-                    <button className="bg-blue-500 m-4 p-2 border-1 text-white rounded-lg hover:text-blue-500  hover:bg-blue-100 ">
-                      Crea inserzione
-                    </button>
-                  </Link>
+                {isLoggedIn ? (<>
+                  <Link
+                    to="/addListing"
+                    className="text-blue-100 hover:bg-blue-100 hover:bg-opacity-5 hover:text-white rounded-md px-3 py-2"
+                  >
+                    Crea inserzione
+                  </Link>    
                   <button
                     type="button"
                     className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
@@ -79,7 +81,7 @@ function Navbar() {
                     <BellIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
 
-                  
+
                   <Menu as="div" className="relative ml-3">
                     <div>
                       <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
@@ -108,7 +110,7 @@ function Navbar() {
                               href="/editprofile"
                               className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                             >
-                              Your Profile
+                              Profilo
                             </a>
                           )}
                         </Menu.Item>
@@ -118,32 +120,34 @@ function Navbar() {
                               href="#"
                               className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                             >
-                              Settings
+                              Impostazioni
                             </a>
                           )}
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
-                            <Link onClick={logout} className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}> Log out
+                            <Link onClick={logout} className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}>
+                               Logout
                             </Link>
                           )}
                         </Menu.Item>
                       </Menu.Items>
                     </Transition>
                   </Menu>
-                  </>)
+                </>)
                   :
-                  (<><Link to="/registration">
-                    <button className="bg-blue-500 m-4 p-2 border-1 text-white rounded-lg hover:text-blue-500  hover:bg-blue-100 ">
-                      Sign up
-                    </button>
+                  (<> <Link
+                    to="/registration"
+                    className="text-blue-100 hover:bg-blue-100 hover:bg-opacity-5 hover:text-white rounded-md px-3 py-2"
+                  >
+                    Registrati
                   </Link>
-                  <Link to="/login">
-                    <button  className="bg-blue-500 m-4 p-2 border-1 rounded-lg text-white hover:text-blue-500  hover:bg-blue-100 ">
-                      Log in
-                    </button>
-                  </Link>
-                  </>) 
+                    <Link
+                      to="/login"
+                      className="text-blue-100 hover:bg-blue-100 hover:bg-opacity-5 hover:text-white rounded-md px-3 py-2"
+                    >
+                      Login
+                    </Link></>)
                 }
               </div>
             </div>
@@ -171,7 +175,7 @@ function Navbar() {
       )}
     </Disclosure>
   )
-  
+
 }
 
 export default Navbar;
