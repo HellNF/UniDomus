@@ -152,7 +152,7 @@ export default function EditProfileForm() {
     return (
         <form onSubmit={handleSave}>
             <div className="bg-blue-950 object-center">
-                <div className="flex max-w-6xl min-h-full flex-1 flex-col justify-center px-12 py-4 lg:px-8" >
+                <div className="flex min-h-full flex-1 flex-col justify-center px-12 py-4 lg:px-8" >
                     <div className="space-y-6">
                         <div className="space-y-3 border-gray-900/10 py-2  flex flex-col items-center justify-center" >
                             <img
@@ -178,38 +178,43 @@ export default function EditProfileForm() {
                                             <img
                                                 src={preview}
                                                 alt={`Uploaded ${index + 1}`}
-                                                className="h-12 w-12 rounded-full"
+                                                className={`rounded-full ${index === 0 ? 'h-32 w-32' : 'h-12 w-12'}`} // Adjust size based on index
                                             />
-                                            <button
-                                                type="button"
-                                                disabled={!editMode}
-                                                className="absolute top-0 right-0 -mr-1 -mt-1 bg-white rounded-full p-1.5"
-                                                onClick={() => handleRemovePhoto(index)}
-                                            >
-                                                <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
+                                            <div className={`${!editMode ? 'invisible' : ''}`}>
+                                                <button
+                                                    type="button"
+                                                    disabled={!editMode}
+                                                    className="absolute top-0 right-0 -mr-1 -mt-1 bg-white rounded-full p-1.5"
+                                                    onClick={() => handleRemovePhoto(index)}
+                                                >
+                                                    <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                     <div className="col-span-full">
                                         <div className="text-center">
-                                            <button type="button"
+                                            <button
+                                                type="button"
                                                 disabled={!editMode}
                                                 className="relative overflow-hidden w-12 h-12 mx-auto"
                                                 onClick={() => document.getElementById('file-upload').click()}
                                             >
-                                                <div className="absolute inset-0 bg-white rounded-full border border-indigo-600"></div>
-                                                <PhotoIcon className="mx-auto h-8 w-8 text-gray-300 absolute inset-0 m-auto" aria-hidden="true" />
-                                                <div className="absolute bottom-0 right-0">
-                                                    <div className="relative rounded-full overflow-hidden w-6 h-6 bg-indigo-600 flex justify-center items-center">
-                                                        <button type="button"
-                                                            disabled={!editMode}
-                                                            className="flex justify-center items-center text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
-                                                            onClick={() => document.getElementById('file-upload').click()}
-                                                        >
-                                                            +
-                                                        </button>
+                                                <div className={`absolute inset-0 bg-white rounded-full border border-indigo-600 ${!editMode ? 'invisible' : ''}`}>
+                                                    <PhotoIcon className="mx-auto h-8 w-8 text-gray-300 absolute inset-0 m-auto " aria-hidden="true" />
+                                                    <div className="absolute bottom-0 right-0">
+                                                        <div className="relative rounded-full overflow-hidden w-6 h-6 bg-indigo-600 flex justify-center items-center ">
+                                                            <button
+                                                                type="button"
+                                                                disabled={!editMode}
+                                                                className="flex justify-center items-center text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+                                                                onClick={() => document.getElementById('file-upload').click()}
+                                                            >
+                                                                +
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </button>
@@ -226,7 +231,8 @@ export default function EditProfileForm() {
                                     </div>
                                 </div>
 
-                                
+
+
                                 <div className="sm:col-span-3">
                                     <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
                                         Nome
@@ -281,7 +287,9 @@ export default function EditProfileForm() {
                         </div>
 
                         <div className="bg-white rounded-lg p-8 shadow-md">
-                            <div className="border-b pb-12">
+                            <h2 className="text-2xl font-semibold leading-7 text-gray-900">Tags</h2>
+
+                            <div className="mt-10 border-b pb-12">
                                 <h2 className="text-base font-semibold leading-7 text-gray-900">Abitudini</h2>
                                 <div className="mt-2 grid grid-cols-5 gap-4">
                                     {habits.map((habit, index) => (
