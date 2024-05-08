@@ -1,5 +1,17 @@
-const { listings, getListingById } = require('../controllers/listingController');
+const { listings,addListing, getListingById } = require('../controllers/listingController');
 const Listing = require('../models/listingModel');
+const request = require('supertest');
+const app = require('../../index.js');
+const jwt = require('jsonwebtoken'); 
+const { before, default: test } = require('node:test');
+const { default: mongoose } = require('mongoose');
+require('dotenv').config({ path: '../../.env' });
+
+
+jest.mock('../models/userModel'); // Mock the User model for testing
+jest.spyOn(mongoose, 'connect').mockImplementation(() => Promise.resolve());
+
+
 
 describe('Listing Controller', () => {
   // Mock the response object
@@ -122,3 +134,136 @@ describe('getListingById', () => {
   });
 });
 
+describe('POST listing/add', () => {
+ let token;
+ const testUser={ 
+  email: "tihaf22901@mfyax.com",
+  password: "Testpwd09@09"
+};
+ 
+  let payload=testUser;
+  let options = {
+    expiresIn: 86400 // expires in 24 hours
+  }
+  token=  jwt.sign(payload,process.env.SUPER_SECRET,options); 
+ 
+  it('should return validation errors for missing required fields', async () => {
+    const invalidListingData = {
+     
+      address: {
+                      street: "via giselga",
+                      city: "dajk",
+                      cap: "56783",
+                      houseNum: "20A",
+                      province: "OT",
+                      country: "Albania"
+      
+                  },
+      photos: [
+              "dwndioawhndaiuwdhuiawbdbia"
+            ],
+          
+      publisherID: "663a1690cb3ede7ef21ef254",
+      tenantsID: [
+      "663a04e09e58376e172487c5"
+      ],
+      typology: "adnawd",
+      description: "string",
+      price: 1000000,
+      floorArea: 100,
+      availability: "adhiawdh"
+  
+    };
+
+    const response = await request(app)
+      .post('/api/listing/add')
+      .set('x-access-token',token)
+      .send(invalidListingData);
+
+    expect(response.status).toBe(401); // Expect bad request status
+    expect(response.body.message).toBe('error'); // Expect error message
+    expect(response.body.errors.length).toBeGreaterThan(0);
+    
+ })
+
+
+  it('it should respond with error if required data is missing', async () => {
+    const mockListingMissingData={
+      
+      address: {
+                      street: "via giselga",
+                      city: "dajk",
+                      cap: "56783",
+                      houseNum: "20A",
+                      province: "OT",
+                      country: "Albania"
+      
+                  },
+      photos: [
+              "dwndioawhndaiuwdhuiawbdbia"
+            ],
+          
+      publisherID: "663a1690cb3ede7ef21ef254",
+      tenantsID: [
+      "663a04e09e58376e172487c5"
+      ],
+      typology: "adnawd",
+      description: "string",
+      price: 100,
+      floorArea: 100,
+      availability: ""
+      
+      
+  }
+
+    const response = await request(app)
+      .post('/api/listing/add')
+      .set('x-access-token',token)
+      .send(mockListingMissingData);
+
+    expect(response.status).toBe(401); 
+    expect(response.body.message).toBe('error'); 
+    expect(response.body.errors.length).toBeGreaterThan(0); 
+  });
+
+   it('it should respond with status 200', async () => {
+    const mockListing={
+      
+      address: {
+                      street: "via giselga",
+                      city: "dajk",
+                      cap: "56783",
+                      houseNum: "20A",
+                      province: "OT",
+                      country: "Albania"
+      
+                  },
+      photos: [
+              "dwndioawhndaiuwdhuiawbdbia"
+            ],
+          
+      publisherID: "663a1690cb3ede7ef21ef254",
+      tenantsID: [
+      "663a04e09e58376e172487c5"
+      ],
+      typology: "adnawd",
+      description: "string",
+      price: 100,
+      floorArea: 100,
+      availability: "dawdawda"
+      
+      
+  }
+
+    const response = await request(app)
+      .post('/api/listing/add')
+      .set('x-access-token',token)
+      .send(mockListing);
+
+    expect(response.status).toBe(401); 
+    expect(response.body.message).toBe('error'); 
+    expect(response.body.errors.length).toBeGreaterThan(0); 
+  });
+
+  
+});

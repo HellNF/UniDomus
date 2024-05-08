@@ -1,4 +1,5 @@
 // index.js
+const app= require('./app')
 require('dotenv').config({ path: '../.env' });
 const express = require('express');
 const app = express();
@@ -44,6 +45,8 @@ app.use('/api/listings/add', tokenChecker);
 
 // Import MongoDB connection function and Mongoose instance
 const { connectToMongoDB, mongoose } = require('./src/database/connection');
+
+// Middleware
 // Increase maximum request size
 app.use(bodyParser.json({ limit: '50mb' })); // Adjust the limit as needed
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })); // Adjust the limit as needed
@@ -71,16 +74,13 @@ const specs = swaggerJsdoc(options);
 
 // Connect to MongoDB
 connectToMongoDB()
-  .then(() => {
+  .then(async () => {
     // Use routes
     
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
-    app.use('/api/users', userRoutes);
-    app.use('/api/tokens', tokenRoutes);
-    app.use('/api/listing', listingRoutes);
+   
 
     // Start the server
-    const server = app.listen(PORT, () => {
+    const server = await app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
     });
 
@@ -103,3 +103,5 @@ connectToMongoDB()
     console.error('Error connecting to MongoDB:', error);
     process.exit(1); // Exit the process with an error code
   });
+
+  module.exports=app;
