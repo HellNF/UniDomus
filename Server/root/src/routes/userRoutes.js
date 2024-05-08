@@ -2,7 +2,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
-const { registerUser,authenticateUser,getTags } = require('../controllers/userController');
+
+const { registerUser,authenticateUser,getTags, getUserById, updateUserById } = require('../controllers/userController');
+
 router.use(bodyParser.urlencoded({ extended: false }));
 
 
@@ -170,6 +172,12 @@ router.post('/registration', registerUser);
 router.post('/authentication', authenticateUser);
 
 router.get('/tags', getTags);
+
+
+router.get('/:id', getUserById);
+
+router.put('/:id', updateUserById);
+
 
 // Export router
 module.exports = router;

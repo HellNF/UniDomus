@@ -50,4 +50,6 @@ const habitsEnum = [
 module.exports = {
     hobbiesEnum,
     habitsEnum
+
 };
+
