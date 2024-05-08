@@ -30,7 +30,7 @@ function Navbar() {
 
   const fetchUserData = () => {
     // Fetch user data from the backend
-    fetch(`http://localhost:5050/api/users/${userId}`)
+    fetch(`http://localhost:5050/api/users/${userId}?proPic=1`)
       .then(response => response.json())
       .then(data => {
         const userData = data.user;

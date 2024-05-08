@@ -1,7 +1,7 @@
 import UniDomusLogo from "/UniDomusLogoWhite.png"
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import React, { useState, useEffect } from 'react';
-import { useAuth } from './../AuthContext';  // Adjust the import path as necessary
+import { useAuth } from './../AuthContext'; 
 import { useNavigate } from "react-router-dom";
 
 export default function EditProfileForm() {
@@ -31,7 +31,7 @@ export default function EditProfileForm() {
     // Effect hook to fetch user data when userId changes
     useEffect(() => {
         if (userId) {
-            fetch(`http://localhost:5050/api/users/${userId}`)
+            fetch(`http://localhost:5050/api/users/${userId}?proPic=true`)
                 .then(response => response.json())
                 .then(data => {
                     const userData = data.user;
@@ -178,7 +178,7 @@ export default function EditProfileForm() {
                                             <img
                                                 src={preview}
                                                 alt={`Uploaded ${index + 1}`}
-                                                className={`rounded-full ${index === 0 ? 'h-32 w-32' : 'h-12 w-12'}`} // Adjust size based on index
+                                                className={`rounded-full ${index === 0 ? 'h-32 w-32 border border-black' : 'h-12 w-12 border border-black'}`} // Adjust size based on index
                                             />
                                             <div className={`${!editMode ? 'invisible' : ''}`}>
                                                 <button
