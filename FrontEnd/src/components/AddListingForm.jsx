@@ -19,8 +19,9 @@ export default function AddListingForm() {
     "typology": "",
     "description": "",
     "price": "",
-    "floorArea":"",
-    "availability":""
+    "floorArea": "",
+    "availability": "",
+    "photos": []
   })
   const [formDataErr, setFormDataErr] = useState({
     "addressErr": {
@@ -34,9 +35,11 @@ export default function AddListingForm() {
     "typologyErr": "",
     "descriptionErr": "",
     "priceErr": "",
-    "floorAreaErr":"",
-    "availabilityErr":""
+    "floorAreaErr": "",
+    "availabilityErr": "",
+    "photosErr": []
   })
+
   function handleChangeInput(e) {
     const { name, value } = e.target;
     setFormData({
@@ -45,26 +48,48 @@ export default function AddListingForm() {
     });
   }
 
+  const [image, setImage] = useState([]);
+
+  function convertToBase64(e) {
+    const files = Array.from(e.target.files);
+    Promise.all(files.map((file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+    })).then((results) => {
+      setImage(image.concat(results));
+    }).catch((error) => {
+      console.log("Error: ", error);
+    });
+  }
+
+
   function handleSubmit(e) {
     e.preventDefault();
 
     const bodyForm = {
-      country: formData.country,
-      street: formData.street,
-      city: formData.city,
-      cap: formData.cap,
-      houseNum: formData.houseNum,
-      province: formData.province,
-      typology: formData.typology,
+      address: {
+        country: formData.country ? formData.country : "Italia",
+        street: formData.street,
+        city: formData.city,
+        cap: formData.cap,
+        houseNum: formData.houseNum,
+        province: formData.province,
+      },
+      typology: formData.typology ? formData.typology : "Camera singola",
       description: formData.description,
       price: formData.price,
       floorArea: formData.floorArea,
-      availability: formData.availability
+      availability: formData.availability,
+      photos: image
     }
     fetch(`${API_BASE_URL}listing/add`, {
       method: 'POST',
       headers: {
-        'x-access-token':localStorage.getItem("token"),
+        'x-access-token': localStorage.getItem("token"),
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(bodyForm)
@@ -78,7 +103,7 @@ export default function AddListingForm() {
         }
         else {
           if (res.status == "400") {
-            setFormData({ street: "", city: "", cap: "", houseNum: "", province: "", country: "",typology:"",description:"", price: "",floorArea:"",availability:""})
+            setFormData({ street: "", city: "", cap: "", houseNum: "", province: "", country: "", typology: "", description: "", price: "", floorArea: "", availability: "" })
             res.json().then((json) => {
               const errors = json.errors;
               errors.map((element) => {
@@ -137,24 +162,43 @@ export default function AddListingForm() {
                     </div>
                   </div>
 
-                  <div className="col-span-full">
+                  <div className="sm:col-span-2 sm:col-start-1">
                     <label htmlFor="street" className="block text-sm font-medium leading-6 text-gray-900">
                       Via
                     </label>
                     <div className="street">
                       <input
-                      id="street"
-                      name="street"
-                      type="text"
-                      autoComplete="street"
-                      required
-                      value={formData.street}
-                      onChange={handleChangeInput}
-                        className="block w-full max-w-xs rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-
+                        id="street"
+                        name="street"
+                        type="text"
+                        autoComplete="street"
+                        required
+                        value={formData.street}
+                        onChange={handleChangeInput}
+                        className="block max-w-xs w-full  rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
                     </div>
                   </div>
+
+                  <div className="sm:col-span-2">
+                    <label htmlFor="houseNum" className="block text-sm font-medium leading-6 text-gray-900">
+                      Civico
+                    </label>
+                    <div className="houseNum">
+                      <input
+                        id="houseNum"
+                        name="houseNum"
+                        type="text"
+                        autoComplete="houseNum"
+                        required
+                        value={formData.houseNum}
+                        onChange={handleChangeInput}
+                        className="block max-w-xs w-full w-16 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                    </div>
+                  </div>
+
+
 
                   <div className="sm:col-span-2 sm:col-start-1">
                     <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
@@ -162,13 +206,13 @@ export default function AddListingForm() {
                     </label>
                     <div className="city">
                       <input
-                       id="city"
-                       name="city"
-                       type="text"
-                       autoComplete="=city"
-                       required
-                       value={formData.city}
-                       onChange={handleChangeInput}
+                        id="city"
+                        name="city"
+                        type="text"
+                        autoComplete="=city"
+                        required
+                        value={formData.city}
+                        onChange={handleChangeInput}
                         className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
                     </div>
@@ -223,12 +267,12 @@ export default function AddListingForm() {
                       </label>
                       <div className="typology">
                         <select
-                         id="typology"
-                         name="typology"
-                         autoComplete="typology"
-                         required
-                         value={formData.typology}
-                         onChange={handleChangeInput}
+                          id="typology"
+                          name="typology"
+                          autoComplete="typology"
+                          required
+                          value={formData.typology}
+                          onChange={handleChangeInput}
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                         >
                           <option>Camera singola</option>
@@ -241,17 +285,17 @@ export default function AddListingForm() {
 
 
                     <div className="sm:col-span-2 sm:col-start-1">
-                      <label htmlFor="areaFloor" className="block text-sm font-medium leading-6 text-gray-900">
+                      <label htmlFor="floorArea" className="block text-sm font-medium leading-6 text-gray-900">
                         Metratura
                       </label>
-                      <div className="areaFloor">
+                      <div className="floorArea">
                         <input
-                          id="areaFloor"
-                          name="areaFloor"
+                          id="floorArea"
+                          name="floorArea"
                           type="text"
-                          autoComplete="areaFloor"
+                          autoComplete="floorArea"
                           required
-                          value={formData.areaFloor}
+                          value={formData.floorArea}
                           onChange={handleChangeInput}
                           className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
@@ -324,11 +368,30 @@ export default function AddListingForm() {
                             className="relative cursor-pointer rounded-md bg-white font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-700 focus-within:ring-offset-2 hover:text-blue-500"
                           >
                             <span>Upload a file</span>
-                            <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                            <input
+                              id="file-upload"
+                              accept="image/"
+                              name="file-upload"
+                              type="file"
+                              multiple
+                              className="sr-only"
+                              onChange={convertToBase64} />
                           </label>
-                          <p className="pl-1">or drag and drop</p>
+                          {image.length === 0 && Array.isArray(image) ? (
+                            <div>
+                              <p className="pl-1">or drag and drop</p>
+                              <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-4">
+                              {image.map((imgSrc, index) => (
+                                <img key={index} width={100} height={100} src={imgSrc} />
+                              ))}
+                            </div>
+                          )}
+
                         </div>
-                        <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+
                       </div>
                     </div>
                   </div>
@@ -338,7 +401,7 @@ export default function AddListingForm() {
 
             <div className="mt-6  flex items-center justify-between">
               <button
-              
+
                 className="rounded-md bg-red-600  px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >Annulla</button>
 
