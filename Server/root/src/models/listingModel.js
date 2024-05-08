@@ -59,7 +59,6 @@ const listingSchema = new mongoose.Schema({
   },
   publisherID: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
     ref: 'user' // Reference to the collection "user"
   },
   tenantsID: {
