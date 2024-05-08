@@ -60,14 +60,14 @@ const userSchema = new mongoose.Schema({
         type: Date
     },
     habits: {
-        type: String,
+        type: [String], 
         enum: habitsEnum,
-        default: 'Other'
+        default: [] 
     },
     hobbies: {
-        type: String,
+        type: [String], 
         enum: hobbiesEnum,
-        default: 'Other'
+        default: [] 
     },
     proPic: {
         type: [String],
