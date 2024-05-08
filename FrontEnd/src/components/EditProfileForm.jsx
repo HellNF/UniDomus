@@ -1,6 +1,7 @@
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './../AuthContext';  // Adjust the import path as necessary
+import { useNavigate } from "react-router-dom";
 
 export default function EditProfileForm() {
     // State for storing form inputs
@@ -12,6 +13,8 @@ export default function EditProfileForm() {
     const [hobbies, setHobbies] = useState([]);
     const [photoPreviews, setPhotoPreviews] = useState([]);
 
+    const navigate = useNavigate();
+    
     // Initialize state with default values to prevent undefined values
     useEffect(() => {
         setName('');
@@ -108,6 +111,7 @@ export default function EditProfileForm() {
             }
 
             console.log('Profile updated successfully');
+            navigate('/');
         } catch (error) {
             console.error('Error updating profile:', error);
         }

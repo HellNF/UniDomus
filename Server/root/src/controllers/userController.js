@@ -178,7 +178,7 @@ module.exports = {
 
     getTags,
     getUserById,
-    updateUserById
+    updateUserById,
     getTags
 };
 
