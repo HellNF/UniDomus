@@ -1,16 +1,18 @@
-const { listings, getListingById } = require('../controllers/listingController');
+const { listings,addListing, getListingById } = require('../controllers/listingController');
 const Listing = require('../models/listingModel');
-require('dotenv').config({ path: '../../.env' });
 const request = require('supertest');
 const app = require('../../index.js');
 const jwt = require('jsonwebtoken'); 
 const { before, default: test } = require('node:test');
+const { default: mongoose } = require('mongoose');
+require('dotenv').config({ path: '../../.env' });
+
 
 jest.mock('../models/userModel'); // Mock the User model for testing
 jest.spyOn(mongoose, 'connect').mockImplementation(() => Promise.resolve());
 
 
-/*
+
 describe('Listing Controller', () => {
   // Mock the response object
   const res = {
@@ -131,7 +133,7 @@ describe('getListingById', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Error retrieving listing', error: 'Database error' });
   });
 });
-*/
+
 describe('POST listing/add', () => {
  let token;
  const testUser={ 
@@ -145,9 +147,6 @@ describe('POST listing/add', () => {
   }
   token=  jwt.sign(payload,process.env.SUPER_SECRET,options); 
  
-
- console.log(token);
-
   it('should return validation errors for missing required fields', async () => {
     const invalidListingData = {
      
@@ -188,81 +187,83 @@ describe('POST listing/add', () => {
  })
 
 
-  // test('it should respond with error if required data is missing', async () => {
-  //   const mockListingMissingData={
+  it('it should respond with error if required data is missing', async () => {
+    const mockListingMissingData={
       
-  //     address: {
-  //                     street: "via giselga",
-  //                     city: "dajk",
-  //                     cap: "56783",
-  //                     houseNum: "20A",
-  //                     province: "OT",
-  //                     country: "Albania"
+      address: {
+                      street: "via giselga",
+                      city: "dajk",
+                      cap: "56783",
+                      houseNum: "20A",
+                      province: "OT",
+                      country: "Albania"
       
-  //                 },
-  //     photos: [
-  //             "dwndioawhndaiuwdhuiawbdbia"
-  //           ],
+                  },
+      photos: [
+              "dwndioawhndaiuwdhuiawbdbia"
+            ],
           
-  //     publisherID: "663a1690cb3ede7ef21ef254",
-  //     tenantsID: [
-  //     "663a04e09e58376e172487c5"
-  //     ],
-  //     typology: "adnawd",
-  //     description: "string",
-  //     price: 100,
-  //     floorArea: 100,
-  //     availability: ""
+      publisherID: "663a1690cb3ede7ef21ef254",
+      tenantsID: [
+      "663a04e09e58376e172487c5"
+      ],
+      typology: "adnawd",
+      description: "string",
+      price: 100,
+      floorArea: 100,
+      availability: ""
       
       
-  // }
+  }
 
-  //   const response = await request(app)
-  //     .post('/api/listing/add').set('x-access-token',token)
-  //     .send(mockListingMissingData);
+    const response = await request(app)
+      .post('/api/listing/add')
+      .set('x-access-token',token)
+      .send(mockListingMissingData);
 
-  //   expect(response.status).toBe(401); 
-  //   expect(response.body.message).toBe('error'); 
-  //   expect(response.body.errors).toBeDefined(); 
-  // });
+    expect(response.status).toBe(401); 
+    expect(response.body.message).toBe('error'); 
+    expect(response.body.errors.length).toBeGreaterThan(0); 
+  });
 
-  // test('it should respond with error if data is invalid', async () => {
-    
-  //   const mockListingInvalid={
+   it('it should respond with status 200', async () => {
+    const mockListing={
       
-  //     address: {
-  //                     street: "via giselga",
-  //                     city: "dajk",
-  //                     cap: "56783",
-  //                     houseNum: "20A",
-  //                     province: "OT",
-  //                     country: "Albania"
+      address: {
+                      street: "via giselga",
+                      city: "dajk",
+                      cap: "56783",
+                      houseNum: "20A",
+                      province: "OT",
+                      country: "Albania"
       
-  //                 },
-  //     photos: [
-  //             "dwndioawhndaiuwdhuiawbdbia"
-  //           ],
+                  },
+      photos: [
+              "dwndioawhndaiuwdhuiawbdbia"
+            ],
           
-  //     publisherID: "663a1690cb3ede7ef21ef254",
-  //     tenantsID: [
-  //     "663a04e09e58376e172487c5"
-  //     ],
-  //     typology: "adnawd",
-  //     description: "string",
-  //     price: 1000000,
-  //     floorArea: 100,
-  //     availability: "adhiawdh"
-  // }
+      publisherID: "663a1690cb3ede7ef21ef254",
+      tenantsID: [
+      "663a04e09e58376e172487c5"
+      ],
+      typology: "adnawd",
+      description: "string",
+      price: 100,
+      floorArea: 100,
+      availability: "dawdawda"
+      
+      
+  }
 
-  //   const response = await request(app)
-  //     .post('/api/listing/add')
-  //     .set('x-access-token',token)
-  //     .send(mockListingInvalid);
+    const response = await request(app)
+      .post('/api/listing/add')
+      .set('x-access-token',token)
+      .send(mockListing);
 
-  //   expect(response.status).toBe(401); // Assicurati che la risposta sia un errore non autorizzato (401)
-  //   expect(response.body.message).toBe('error'); // Assicurati che il messaggio di risposta sia "error"
-  //   expect(response.body.errors).toBeDefined(); // Assicurati che gli errori siano definiti nella risposta
-  // });
+    expect(response.status).toBe(401); 
+    expect(response.body.message).toBe('error'); 
+    expect(response.body.errors.length).toBeGreaterThan(0); 
+  });
 
   
 });
