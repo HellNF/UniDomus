@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import UniDomusLogo from "/UniDomusLogoWhite.png"
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
@@ -6,7 +6,7 @@ import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext'; // Import the useAuth hook
 
-const navigation = [,
+const navigation = [
   { name: 'Home', href: '/', current: true },
   { name: 'Trova un appartamento', href: '/', current: false },
   { name: 'Trova un coiquilino', href: '/', current: false },
@@ -18,6 +18,32 @@ function classNames(...classes) {
 
 function Navbar() {
   const { isLoggedIn, logout } = useAuth(); // Access authentication state and functions
+  const [profilePic, setProfilePic] = useState(null);
+  const { userId } = useAuth();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      // Fetch user data to get profile picture URL
+      fetchUserData(); // Define fetchUserData function to fetch user data
+    }
+  }, [isLoggedIn]);
+
+  const fetchUserData = () => {
+    // Fetch user data from the backend
+    fetch(`http://localhost:5050/api/users/${userId}`)
+      .then(response => response.json())
+      .then(data => {
+        const userData = data.user;
+        console.log(userData);
+        if (userData && userData.proPic && userData.proPic.length > 0) {
+          // Set profile picture URL
+          setProfilePic(`data:image/png;base64,${userData.proPic[0]}`);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+      });
+  };
 
   return (
     <Disclosure as="nav" className="bg-blue-950">
@@ -47,7 +73,6 @@ function Navbar() {
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4 py-4  text-lg">
-
                     {navigation.map((item) => (
                       <Link
                         key={item.name}
@@ -65,90 +90,91 @@ function Navbar() {
                 </div>
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                {isLoggedIn ? (<>
-                  <Link
-                    to="/addListing"
-                    className="text-blue-100 hover:bg-blue-100 hover:bg-opacity-5 hover:text-white rounded-md px-3 py-2"
-                  >
-                    Crea inserzione
-                  </Link>    
-                  <button
-                    type="button"
-                    className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                  >
-                    <span className="absolute -inset-1.5" />
-                    <span className="sr-only">View notifications</span>
-                    <BellIcon className="h-6 w-6" aria-hidden="true" />
-                  </button>
-
-
-                  <Menu as="div" className="relative ml-3">
-                    <div>
-                      <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                        <span className="absolute -inset-1.5" />
-                        <span className="sr-only">Open user menu</span>
-                        <img
-                          className="h-8 w-8 rounded-full"
-                          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                          alt=""
-                        />
-                      </Menu.Button>
-                    </div>
-                    <Transition
-                      as={Fragment}
-                      enter="transition ease-out duration-100"
-                      enterFrom="transform opacity-0 scale-95"
-                      enterTo="transform opacity-100 scale-100"
-                      leave="transition ease-in duration-75"
-                      leaveFrom="transform opacity-100 scale-100"
-                      leaveTo="transform opacity-0 scale-95"
+                {isLoggedIn ? (
+                  <>
+                    <Link
+                      to="/addListing"
+                      className="text-blue-100 hover:bg-blue-100 hover:bg-opacity-5 hover:text-white rounded-md px-3 py-2"
                     >
-                      <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                        <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              href="/editprofile"
-                              className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                            >
-                              Profilo
-                            </a>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              href="#"
-                              className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                            >
-                              Impostazioni
-                            </a>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <Link onClick={logout} className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}>
-                               Logout
-                            </Link>
-                          )}
-                        </Menu.Item>
-                      </Menu.Items>
-                    </Transition>
-                  </Menu>
-                </>)
-                  :
-                  (<> <Link
-                    to="/registration"
-                    className="text-blue-100 hover:bg-blue-100 hover:bg-opacity-5 hover:text-white rounded-md px-3 py-2"
-                  >
-                    Registrati
-                  </Link>
+                      Crea inserzione
+                    </Link>
+                    <button
+                      type="button"
+                      className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                    >
+                      <span className="absolute -inset-1.5" />
+                      <span className="sr-only">View notifications</span>
+                      <BellIcon className="h-6 w-6" aria-hidden="true" />
+                    </button>
+                    <Menu as="div" className="relative ml-3">
+                      <div>
+                        <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                          <span className="absolute -inset-1.5" />
+                          <span className="sr-only">Open user menu</span>
+                          <img
+                            className="h-8 w-8 rounded-full"
+                            src={profilePic || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'}
+                            alt=""
+                          />
+                        </Menu.Button>
+                      </div>
+                      <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-100"
+                        enterFrom="transform opacity-0 scale-95"
+                        enterTo="transform opacity-100 scale-100"
+                        leave="transition ease-in duration-75"
+                        leaveFrom="transform opacity-100 scale-100"
+                        leaveTo="transform opacity-0 scale-95"
+                      >
+                        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                href="/editprofile"
+                                className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                              >
+                                Profilo
+                              </a>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                href="#"
+                                className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                              >
+                                Impostazioni
+                              </a>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <Link onClick={logout} className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}>
+                                Logout
+                              </Link>
+                            )}
+                          </Menu.Item>
+                        </Menu.Items>
+                      </Transition>
+                    </Menu>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/registration"
+                      className="text-blue-100 hover:bg-blue-100 hover:bg-opacity-5 hover:text-white rounded-md px-3 py-2"
+                    >
+                      Registrati
+                    </Link>
                     <Link
                       to="/login"
                       className="text-blue-100 hover:bg-blue-100 hover:bg-opacity-5 hover:text-white rounded-md px-3 py-2"
                     >
                       Login
-                    </Link></>)
-                }
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -179,6 +205,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
-
-

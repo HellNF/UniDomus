@@ -170,16 +170,19 @@ export default function EditProfileForm() {
                                 <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
                                     Foto profilo
                                 </label>
+
+
                                 <div className="mt-2 flex items-center gap-x-3 col-span-full">
                                     {photoPreviews.map((preview, index) => (
                                         <div key={index} className="relative overflow-hidden">
                                             <img
                                                 src={preview}
                                                 alt={`Uploaded ${index + 1}`}
-                                                className="h-12 w-12 squared-full"
+                                                className="h-12 w-12 rounded-full"
                                             />
                                             <button
                                                 type="button"
+                                                disabled={!editMode}
                                                 className="absolute top-0 right-0 -mr-1 -mt-1 bg-white rounded-full p-1.5"
                                                 onClick={() => handleRemovePhoto(index)}
                                             >
@@ -191,7 +194,8 @@ export default function EditProfileForm() {
                                     ))}
                                     <div className="col-span-full">
                                         <div className="text-center">
-                                            <button
+                                            <button type="button"
+                                                disabled={!editMode}
                                                 className="relative overflow-hidden w-12 h-12 mx-auto"
                                                 onClick={() => document.getElementById('file-upload').click()}
                                             >
@@ -199,7 +203,8 @@ export default function EditProfileForm() {
                                                 <PhotoIcon className="mx-auto h-8 w-8 text-gray-300 absolute inset-0 m-auto" aria-hidden="true" />
                                                 <div className="absolute bottom-0 right-0">
                                                     <div className="relative rounded-full overflow-hidden w-6 h-6 bg-indigo-600 flex justify-center items-center">
-                                                        <button
+                                                        <button type="button"
+                                                            disabled={!editMode}
                                                             className="flex justify-center items-center text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
                                                             onClick={() => document.getElementById('file-upload').click()}
                                                         >
@@ -220,6 +225,8 @@ export default function EditProfileForm() {
                                         </div>
                                     </div>
                                 </div>
+
+                                
                                 <div className="sm:col-span-3">
                                     <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
                                         Nome
