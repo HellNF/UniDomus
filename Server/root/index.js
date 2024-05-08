@@ -9,7 +9,30 @@ const PORT = process.env.PORT || 5050; // Set the port to either the environment
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
+
+const logRequestSize = (req, res, next) => {
+  let requestData = '';
+  req.on('data', (chunk) => {
+    requestData += chunk;
+  });
+
+  req.on('end', () => {
+    console.log('Request Size:', Buffer.byteLength(requestData), 'bytes');
+    next();
+  });
+
+  req.on('error', (err) => {
+    console.error('Error reading request data:', err);
+    next(err);
+  });
+};
+
 // Middleware
+//pls non mettere niente sopra questi app.use
+app.use(bodyParser.json({ limit: '50mb' })); // Adjust the limit as needed
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })); // Adjust the limit as needed
+
+
 app.use(express.json());
 app.use(cors({
   origin: "*", // Allow access from any address -- no restrictions
@@ -17,10 +40,6 @@ app.use(cors({
 
 // Import MongoDB connection function and Mongoose instance
 const { connectToMongoDB, mongoose } = require('./src/database/connection');
-app.use(cors({
-  origin: "*", //allow access form any address --no restrictions
-}))
-
 // Increase maximum request size
 app.use(bodyParser.json({ limit: '50mb' })); // Adjust the limit as needed
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })); // Adjust the limit as needed

@@ -32,19 +32,23 @@ export default function EditProfileForm() {
             })
             .catch(error => console.error('Error fetching data:', error));
     }, []);
-
-    // Effect hook to fetch user data and update habits and hobbies
     useEffect(() => {
         if (userId) {
             fetch(`http://localhost:5050/api/users/${userId}`)
                 .then(response => response.json())
                 .then(data => {
                     const userData = data.user;
+                    console.log(userData);
                     if (userData) {
                         setName(userData.name || '');
                         setSurname(userData.surname || '');
                         setBirthDate(userData.birthDate ? userData.birthDate.split('T')[0] : ''); // Ensure birthDate is always defined
-                        setPhotoPreview(userData.proPic.length > 0 ? userData.proPic[0] : null);
+    
+                        // Decode base64 image data and set as photoPreview
+                        const proPicData = userData.proPic.length > 0 ? userData.proPic[0] : null;
+                        const imageUrl = proPicData ? `data:image/png;base64,${proPicData}` : null;
+                        setPhotoPreview(imageUrl);
+    
                         setHabits(prevHabits => prevHabits.map(habit => ({
                             label: habit,
                             checked: userData.habits ? userData.habits.includes(habit) : false
@@ -60,6 +64,7 @@ export default function EditProfileForm() {
                 });
         }
     }, [userId]);
+    
 
     // Define handlers for checkbox changes
     const handleHabitChange = (habit) => {
@@ -74,33 +79,32 @@ export default function EditProfileForm() {
     // Handle form submission
     const handleSave = async (e) => {
         e.preventDefault(); // Prevent default form submission behavior
-
+    
         // Filter selected habits and hobbies
         const selectedHabits = habits.filter((habit, index) => {
             const checkbox = document.getElementById(`habit-${index}`);
             return checkbox && checkbox.checked;
         });
-
+    
         const selectedHobbies = hobbies.filter((hobby, index) => {
             const checkbox = document.getElementById(`hobby-${index}`);
             return checkbox && checkbox.checked;
         });
-
+    
         // Convert photo preview to Base64
         const photoBase64 = photoPreview ? photoPreview.split(',')[1] : null; // Remove data URL prefix if photo exists
-
+    
         const formData = {
             name,
             surname,
             birthDate,
             habits: selectedHabits.map(habit => habit.label),
             hobbies: selectedHobbies.map(hobby => hobby.label),
-            photo: photoBase64 // Use Base64 encoded image
+            proPic: photoBase64 // Use Base64 encoded image
         };
-        
-
+    
         console.log(formData);
-
+    
         try {
             const response = await fetch(`http://localhost:5050/api/users/${userId}`, {
                 method: 'PUT',
@@ -109,11 +113,11 @@ export default function EditProfileForm() {
                 },
                 body: JSON.stringify(formData),
             });
-
+    
             if (!response.ok) {
                 throw new Error('Failed to update profile');
             }
-
+    
             console.log('Profile updated successfully');
         } catch (error) {
             console.error('Error updating profile:', error);
