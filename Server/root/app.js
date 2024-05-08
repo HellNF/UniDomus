@@ -3,12 +3,20 @@ require('dotenv').config({ path: '../.env' });
 const express = require('express');
 const app = express();
 const cors =require('cors')
-
+const bodyParser = require('body-parser');
 const tokenChecker= require('./src/middleware/tokenChecker')
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
+
+
 // Middleware
+
+
+app.use(bodyParser.json({ limit: '50mb' })); // Adjust the limit as needed
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })); // Adjust the limit as needed
+
+
 app.use(express.json());
 app.use('/api/listings/add', tokenChecker);
 // Import MongoDB connection function and Mongoose instance
@@ -34,6 +42,7 @@ const options = {
 };
 
 const specs = swaggerJsdoc(options);
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use('/api/users', userRoutes);
 app.use('/api/tokens', tokenRoutes);
