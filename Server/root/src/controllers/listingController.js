@@ -76,10 +76,12 @@ async function addListing(req, res) {
         else{  errors.push({field:"publisherID",message: "missing publisher id"});}
 
         //tenantsId check
-        tenantsID.map(async (id)=>{
-            const checkId= await User.findById(id)
-            if(!checkId) errors.push({field:`tenants id:${id}`,message: "invalid id"})
-        })
+        if(tenantsID){
+            tenantsID.map(async (id)=>{
+                const checkId= await User.findById(id)
+                if(!checkId) errors.push({field:`tenants id:${id}`,message: "invalid id"})
+            })
+        }  
         //description check
         if(!description)errors.push({field:"description",message: "missing descriprion"})
         //typology check

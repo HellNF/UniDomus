@@ -19,6 +19,7 @@ function classNames(...classes) {
 function Navbar() {
   const { isLoggedIn, logout } = useAuth(); // Access authentication state and functions
   const [profilePic, setProfilePic] = useState(null);
+  const [publisherIDAvailable, setPublisherIDAvaiilable] = useState(false);
   const { userId } = useAuth();
 
   useEffect(() => {
@@ -35,6 +36,7 @@ function Navbar() {
       .then(data => {
         const userData = data.user;
         console.log(userData);
+        setPublisherIDAvaiilable(userData && userData.hasOwnProperty('listingID'))
         if (userData && userData.proPic && userData.proPic.length > 0) {
           // Set profile picture URL
           setProfilePic(`data:image/png;base64,${userData.proPic[0]}`);
@@ -133,18 +135,18 @@ function Navbar() {
                               </a>
                             )}
                           </Menu.Item>
-
-                          <Menu.Item>
-                            {({ active }) => (
-                              <a
-                                href="/addListing"
-                                className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                              >
-                                Crea inserzione
-                              </a>
-                            )}
-                          </Menu.Item>
-
+                          { !publisherIDAvailable && (
+                            <Menu.Item>
+                              {({ active }) => (
+                                <a
+                                  href="/addListing"
+                                  className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                                >
+                                  Crea inserzione
+                                </a>
+                              )}
+                            </Menu.Item>
+                          )}
 
                           <Menu.Item>
                             {({ active }) => (

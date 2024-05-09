@@ -167,8 +167,8 @@ setTimeout(() => {
           navigate('/');
         }
         else {
-          if (res.status == "400") {
-            setFormData({ street: "", city: "", cap: "", houseNum: "", province: "", country: "", typology: "", description: "", price: "", floorArea: "", availability: "" })
+          if (res.status == "401") {
+            //setFormData({ street: "", city: "", cap: "", houseNum: "", province: "", country: "", typology: "", description: "", price: "", floorArea: "", availability: "" })
             res.json().then((json) => {
               const errors = json.errors;
               errors.map((element) => {
@@ -179,7 +179,7 @@ setTimeout(() => {
               })
             })
 
-
+            
           }
           else if (res.status == "500") {
             res.json().then((json) => { alert(`${json.message}: ${json.reason}`) })
@@ -302,7 +302,7 @@ setTimeout(() => {
                         onChange={handleChangeInput}
                         className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
-                      {formDataErr.provinceErr && <p className="text-red-600 text-xs mt-1">{formDataErr.proviceErr}</p>}
+                      {formDataErr.provinceErr && <p className="text-red-600 text-xs mt-1">{formDataErr.provinceErr}</p>}
                     </div>
                   </div>
 
