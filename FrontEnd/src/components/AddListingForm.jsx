@@ -3,7 +3,8 @@ import UniDomusLogo from "/UniDomusLogoWhite.png"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../constant";
-import { useAuth } from './../AuthContext';  
+import { Link } from 'react-router-dom';
+import { useAuth } from './../AuthContext';
 import { PhotoIcon } from '@heroicons/react/24/solid'
 
 export default function AddListingForm() {
@@ -23,7 +24,8 @@ export default function AddListingForm() {
     "price": "",
     "floorArea": "",
     "availability": "",
-    "photos": []
+    "photos": [],
+    "publisherID": ""
   })
   const [formDataErr, setFormDataErr] = useState({
     "addressErr": {
@@ -39,7 +41,8 @@ export default function AddListingForm() {
     "priceErr": "",
     "floorAreaErr": "",
     "availabilityErr": "",
-    "photosErr": []
+    "photosErr": [],
+    "publisherIDErr": ""
   })
 
   function handleChangeInput(e) {
@@ -50,7 +53,17 @@ export default function AddListingForm() {
     });
   }
 
-  const [image, setImage] = useState([]);
+  function handleCancel(e) {
+    showPopup('Inserimento inserzione annullato','#DC2626');
+  }
+
+    const handleRemovePhoto = (index) => {
+        const newPhotoPreviews = [...photoPreviews];
+        newPhotoPreviews.splice(index, 1);
+        setPhotoPreviews(newPhotoPreviews);
+    };
+
+  /*const [image, setImage] = useState([]);
 
   function convertToBase64(e) {
     const files = Array.from(e.target.files);
@@ -66,12 +79,60 @@ export default function AddListingForm() {
     }).catch((error) => {
       console.log("Error: ", error);
     });
-  }
+  }*/
 
+  const [photoPreviews, setPhotoPreviews] = useState([]);
+  const handlePhotoChange = (e) => {
+    const files = e.target.files;
+    const newPhotoPreviews = [...photoPreviews];
+
+    // Check if adding new photos will exceed the limit of 5
+    if (newPhotoPreviews.length + files.length > 10) {
+      alert('You can add at most 10 photos.');
+      return;
+    }
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        newPhotoPreviews.push(reader.result);
+        setPhotoPreviews(newPhotoPreviews);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
+  function showPopup(message,color){
+// Visualizza il popup di successo
+const successPopup = document.createElement('div');
+successPopup.textContent = message;
+successPopup.style.cssText = `
+position: fixed;
+top: 10%;
+left: 50%;
+transform: translate(-50%, -50%);
+padding: 1rem;
+background-color: ${color};
+color: #fff;
+border-radius: 5px;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+z-index: 9999;
+`;
+
+document.body.appendChild(successPopup);
+
+setTimeout(() => {
+  successPopup.remove();
+  navigate('/'); 
+}, 2000); 
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
-
+    const photoBase64 = photoPreviews.map(preview => preview.split(',')[1]);
     const bodyForm = {
       address: {
         country: formData.country ? formData.country : "Italia",
@@ -86,8 +147,8 @@ export default function AddListingForm() {
       price: formData.price,
       floorArea: formData.floorArea,
       availability: formData.availability,
-      photos: image,
-      userId: userId
+      photos: photoBase64,
+      publisherID: userId
     }
     fetch(`${API_BASE_URL}listing/add`, {
       method: 'POST',
@@ -101,6 +162,7 @@ export default function AddListingForm() {
         console.log(bodyForm);
 
         if (res.ok) {
+          showPopup('Inserzione aggiunta con successo','#10B981');
           console.log("ciao")
           navigate('/');
         }
@@ -131,7 +193,8 @@ export default function AddListingForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit} method="POST">
+    <div className="flex items-center justify-center min-h-screen bg-blue-950">
+      <form onSubmit={handleSubmit} method="POST" className="bg-blue-950 max-w-7xl w-full p-6">
         <div className="bg-blue-950 object-center">
           <div className="flex max-w-6xl min-h-full flex-1 flex-col justify-center px-12 py-4 lg:px-8" >
             <div className="space-y-6">
@@ -180,6 +243,7 @@ export default function AddListingForm() {
                         onChange={handleChangeInput}
                         className="block max-w-xs w-full  rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
+                      {formDataErr.streetErr && <p className="text-red-600 text-xs mt-1">{formDataErr.streetErr}</p>}
                     </div>
                   </div>
 
@@ -196,8 +260,9 @@ export default function AddListingForm() {
                         required
                         value={formData.houseNum}
                         onChange={handleChangeInput}
-                        className="block max-w-xs w-full w-16 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        className="block max-w-xs w-16 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
+                      {formDataErr.houseNumErr && <p className="text-red-600 text-xs mt-1">{formDataErr.houseNumErr}</p>}
                     </div>
                   </div>
 
@@ -218,6 +283,7 @@ export default function AddListingForm() {
                         onChange={handleChangeInput}
                         className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
+                      {formDataErr.cityErr && <p className="text-red-600 text-xs mt-1">{formDataErr.cityErr}</p>}
                     </div>
                   </div>
 
@@ -236,6 +302,7 @@ export default function AddListingForm() {
                         onChange={handleChangeInput}
                         className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
+                      {formDataErr.provinceErr && <p className="text-red-600 text-xs mt-1">{formDataErr.proviceErr}</p>}
                     </div>
                   </div>
 
@@ -254,6 +321,7 @@ export default function AddListingForm() {
                         onChange={handleChangeInput}
                         className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
+                      {formDataErr.streetErr && <p className="text-red-600 text-xs mt-1">{formDataErr.streetErr}</p>}
                     </div>
                   </div>
                 </div>
@@ -302,6 +370,7 @@ export default function AddListingForm() {
                           onChange={handleChangeInput}
                           className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
+                        {formDataErr.floorAreaErr && <p className="text-red-600 text-xs mt-1">{formDataErr.floorAreaErr}</p>}
                       </div>
                     </div>
 
@@ -319,6 +388,7 @@ export default function AddListingForm() {
                           onChange={handleChangeInput}
                           className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
+                        {formDataErr.priceErr && <p className="text-red-600 text-xs mt-1">{formDataErr.priceErr}</p>}
                       </div>
                     </div>
 
@@ -336,6 +406,7 @@ export default function AddListingForm() {
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                           defaultValue={''}
                         />
+                        {formDataErr.descriptionErr && <p className="text-red-600 text-xs mt-1">{formDataErr.descriptionErr}</p>}
                       </div>
                     </div>
 
@@ -353,6 +424,7 @@ export default function AddListingForm() {
                           onChange={handleChangeInput}
                           className="block w-full max-w-2xl rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
+                        {formDataErr.availabilityErr && <p className="text-red-600 text-xs mt-1">{formDataErr.availabilityErr}</p>}
                       </div>
                     </div>
                   </div>
@@ -364,33 +436,75 @@ export default function AddListingForm() {
                     <h2 className="text-2xl font-semibold leading-7 text-gray-900">Inserisci foto</h2>
                     <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
                       <div className="text-center">
-                        <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
-                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                          <label
-                            htmlFor="file-upload"
-                            className="relative cursor-pointer rounded-md bg-white font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-700 focus-within:ring-offset-2 hover:text-blue-500"
-                          >
-                            <span>Upload a file</span>
+                        <div className="col-span-full">
+                          <div className="text-center">
+                            <button
+                              type="button"
+                              onClick={() => document.getElementById('file-upload').click()}
+                              className="relative overflow-hidden w-12 h-12 mx-auto"
+                            >
+                              <div className={`absolute inset-0 bg-white rounded-full border border-indigo-600 `}>
+                                <PhotoIcon className="mx-auto h-8 w-8 text-gray-300 absolute inset-0 m-auto " aria-hidden="true" />
+                                <div className="absolute bottom-0 right-0">
+                                  <div className="relative rounded-full overflow-hidden w-6 h-6 bg-indigo-600 flex justify-center items-center ">
+                                    +
+                                  </div>
+                                </div>
+                              </div>
+                            </button>
+
+
                             <input
                               id="file-upload"
-                              accept="image/"
                               name="file-upload"
                               type="file"
-                              multiple
                               className="sr-only"
-                              onChange={convertToBase64} />
-                          </label>
-                          {image.length === 0 && Array.isArray(image) ? (
+                              onChange={handlePhotoChange} // Add onChange handler
+                              multiple // Allow multiple file selection
+                              accept="image/*" // Restrict to image files
+                            />
+                          </div>
+                        </div>
+                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
+
+                          {formDataErr.photosErr.length > 0 && (
                             <div>
-                              <p className="pl-1">or drag and drop</p>
+                              {formDataErr.photosErr.map((error, index) => (
+                                <p key={index} className="text-red-600 text-xs mt-1">{error}</p>
+                              ))}
+                            </div>
+                          )}
+                          {photoPreviews.length === 0 && Array.isArray(photoPreviews) ? (
+                            <div>
                               <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
                             </div>
                           ) : (
                             <div className="flex flex-wrap gap-4">
-                              {image.map((imgSrc, index) => (
-                                <img key={index} width={100} height={100} src={imgSrc} />
-                              ))}
+                              {photoPreviews.map((imgSrc, index) => (
+                                <div key={index} className="relative overflow-hidden">
+                                <img
+                                    src={imgSrc}
+                                    alt={`Uploaded ${index + 1}`}
+                                    className="" key={index} width={200} height={200} // Adjust size based on index
+                                />
+                                <div >
+                                    <button
+                                        type="button"
+                                        
+                                        className="absolute top-0 right-0 -mr-1 -mt-1 bg-white rounded-full p-1.5"
+                                        onClick={() => handleRemovePhoto(index)}
+                                    >
+                                        <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
+                                
+                              ))}
+                              
+                            </div>
+                            
                           )}
 
                         </div>
@@ -402,11 +516,14 @@ export default function AddListingForm() {
               </div>
             </div>
 
-            <div className="mt-6  flex items-center justify-between">
-              <button
 
-                className="rounded-md bg-red-600  px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >Annulla</button>
+            
+
+            <div className="mt-6  flex items-center justify-between">
+              <Link to="/.." className="rounded-md bg-red-600  px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    onClick={handleCancel}>
+                     Annulla
+              </Link>
 
               <button
                 type="submit"
@@ -418,6 +535,7 @@ export default function AddListingForm() {
           </div>
         </div>
       </form>
+    </div>
 
 
     </>
