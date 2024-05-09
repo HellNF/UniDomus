@@ -6,20 +6,32 @@ import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext'; // Import the useAuth hook
 
-const navigation = [
-  { name: 'Home', href: '/', current: true },
-  { name: 'Trova un appartamento', href: '/', current: false },
-  { name: 'Trova un coiquilino', href: '/', current: false },
-]
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-function Navbar() {
+function Navbar({current}) {
   const { isLoggedIn, logout } = useAuth(); // Access authentication state and functions
   const [profilePic, setProfilePic] = useState(null);
   const { userId } = useAuth();
+  
+
+  const navigation = [
+    { name: 'Home', href: '/', current: false },
+    { name: 'Trova un appartamento', href: '/findaflat', current: false },
+    { name: 'Trova un coiquilino', href: '/', current: false },
+  ]
+  navigation.map((item)=>{
+    if(item.name==current) item.current=true
+  })
+
+  
+  
+  
+   
+ 
 
   useEffect(() => {
     if (isLoggedIn) {

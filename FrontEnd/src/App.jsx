@@ -8,7 +8,7 @@ function App() {
 
   return (
     <div className="App">
-      <Navbar />
+      <Navbar current={'Home'}/>
       <Homepage />
     </div>
   );

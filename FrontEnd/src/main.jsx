@@ -8,7 +8,7 @@ import Registration from "./pages/Registration.jsx"
 import Login from "./pages/Login.jsx"
 
 import EditProfile from './pages/EditProfile.jsx'
-
+import FindAFlat from './pages/FindAFlat.jsx'
 import AddListing from "./pages/AddListing.jsx"
 
 
@@ -28,6 +28,10 @@ const router= createBrowserRouter([
   {
     path: "/",
     element: <App></App>
+  },
+  {
+    path: "/findaflat",
+    element: <FindAFlat></FindAFlat>
   },
   {
     path: "/addListing",
