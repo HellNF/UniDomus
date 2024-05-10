@@ -5,31 +5,13 @@ const app= require('./app')
 const PORT = process.env.PORT || 5050; // Set the port to either the environment port or 5050
 
 
-
-
-
-// Middleware
-
-
-
-
-
 // Import MongoDB connection function and Mongoose instance
 const { connectToMongoDB, mongoose } = require('./src/database/connection');
-
-
-
-
-
-
 
 // Connect to MongoDB
 connectToMongoDB()
   .then(async () => {
     // Use routes
-    
-   
-
     // Start the server
     const server = await app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
