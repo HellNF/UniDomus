@@ -1,4 +1,4 @@
-import ImageSlider from "./ImageSlider";
+import Carousel from "./ImageSlider";
 import typo from "../assets/typology.svg"
 import heart from "../assets/favorite.svg"
 import calendar from "../assets/calendar.svg"
@@ -8,12 +8,20 @@ import { Link } from 'react-router-dom';
 
 function Card(){
     
+    const slides=["https://i.ibb.co/ncrXc2V/1.png",
+    "https://i.ibb.co/B3s7v4h/2.png",
+    "https://i.ibb.co/XXR8kzF/3.png",
+    "https://i.ibb.co/yg7BSdM/4.png"]
     return(
            <>
                
-               <div className="flex flex-row bg-white h-60 m-3 rounded-lg items-center ">
-                       <div className="h-full w-2/4 scale-75 items-start">
-                        <ImageSlider></ImageSlider>
+               <div className="flex flex-row bg-green-300 h-60 m-3 rounded-lg items-center ">
+                       <div className="h-full w-2/4  items-center max-w-lg object-cover">
+                        <Carousel >
+                            {slides.map((element,id)=>(
+                                <img src={element} alt="ciao" key={id} />
+                            ))}
+                        </Carousel>
                        </div>
                         <div className="flex flex-col bg-slate-100 h-full w-9/12 rounded-lg text-black  p-7 space-y-2">
 
