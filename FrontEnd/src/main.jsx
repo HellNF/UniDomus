@@ -10,6 +10,8 @@ import Login from "./pages/Login.jsx"
 import EditProfile from './pages/EditProfile.jsx'
 
 import AddListing from "./pages/AddListing.jsx"
+import PasswordReset from './pages/PasswordReset.jsx'
+import ForgotPassword from './pages/ForgotPassword.jsx'
 
 
 const router= createBrowserRouter([
@@ -32,6 +34,12 @@ const router= createBrowserRouter([
   {
     path: "/addListing",
     element: <AddListing></AddListing>
+  },{
+    path: "/forgotpassword",
+    element: <ForgotPassword></ForgotPassword>
+  },{
+    path: "/resetpassword/:token",
+    element: <PasswordReset></PasswordReset>
   }
 ])
 

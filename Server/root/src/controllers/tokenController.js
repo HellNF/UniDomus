@@ -14,7 +14,7 @@ async function confirmToken(req, res) {
     const userId = await isEmailSuccessfullyConfirmed(token);
     if (userId) {
         try {
-            // Update the 'attivo' field in the 'utente' collection for the user with the given _id
+            // Update the 'active' field in the 'utente' collection for the user with the given _id
             const updatedUser = await User.findByIdAndUpdate(
                 userId,
                 { $set: { active: true } },

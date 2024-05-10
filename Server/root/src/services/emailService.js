@@ -79,8 +79,62 @@ async function sendConfirmationEmail(recipientEmail, confirmationLink) {
   }
 }
 
+/**
+ * Sends a password reset email.
+ * @param {string} recipientEmail - The recipient's email address.
+ * @param {string} resetLink - The password reset link.
+ */
+
+async function sendPasswordResetEmail(recipientEmail, resetLink) {
+  // Set SendGrid API Key securely using environment variable
+  const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+
+  sgMail.setApiKey(SENDGRID_API_KEY);
+
+  const msg = {
+    to: recipientEmail,
+    from: 'freezer.spa@gmail.com', // Change to your verified sender
+    subject: 'Password Reset Request for UniDomus',
+    text: `Hi there!
+
+    We received a request to reset your password for your UniDomus account. If you didn't make this request, you can ignore this email.
+
+    To reset your password, please click on the following link:
+
+    ${resetLink}
+
+    This link will expire within 24 hours.
+
+    Sincerely,
+    The UniDomus Team`,
+    html: `
+    <strong>Hi there!</strong><br>
+
+    <p>We received a request to reset your password for your UniDomus account. If you didn't make this request, you can ignore this email.</p>
+
+    <p>To reset your password, please click on the following link:</p>
+
+    <a href="${resetLink}">${resetLink}</a>
+
+    <p>This link will expire within 24 hours.</p>
+
+    <p>Sincerely,</p>
+    <p>The UniDomus Team</p>
+    `,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log('Password reset email sent successfully!');
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+  }
+}
+
+
 module.exports={
   sendEmail,
-  sendConfirmationEmail
+  sendConfirmationEmail,
+  sendPasswordResetEmail
 };
 

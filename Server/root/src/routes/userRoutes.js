@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
 
-const { registerUser,authenticateUser,getTags, getUserById, updateUserById } = require('../controllers/userController');
+const { registerUser,authenticateUser,getTags, getUserById, updateUserById, updatePassword, requestPasswordChange } = require('../controllers/userController');
 
 router.use(bodyParser.urlencoded({ extended: false }));
 
@@ -22,6 +22,9 @@ router.get('/:id', getUserById);
 
 router.put('/:id', updateUserById);
 
+router.post('/forgotpassword',requestPasswordChange)
+
+router.put('/resetpassword/:token',updatePassword)
 
 // Export router
 module.exports = router;
