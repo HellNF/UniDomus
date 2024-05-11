@@ -23,7 +23,7 @@ export default function Carousel({
   return (
     <div className="overflow-hidden relative h-full rounded-lg">
       <div
-        className="flex transition-transform ease-out duration-500"
+        className="flex transition-transform ease-out duration-500 object-contain"
         style={{ transform: `translateX(-${curr * 100}%)` }}
       >
         {slides}
@@ -31,13 +31,13 @@ export default function Carousel({
       <div className="absolute inset-0 flex items-center justify-between p-4">
         <button
           onClick={prev}
-          className="p-1 rounded-full shadow bg-white/80 text-gray-800 hover:bg-white"
+          className="p-1 rounded-full shadow bg-blue-950/80 text-white hover:bg-white hover:text-blue-950"
         >
           <ArrowLeftIcon className='w-4 h-4' />
         </button>
         <button
           onClick={next}
-          className="p-1 rounded-full shadow bg-white/80 text-gray-800 hover:bg-white"
+          className="p-1 rounded-full shadow bg-blue-950/80 text-white hover:bg-white hover:text-blue-950"
         >
         <ArrowRightIcon className='w-4 h-4' />
         </button>
