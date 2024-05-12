@@ -2,7 +2,8 @@ import React from 'react';
 import { useAuth } from './AuthContext'; // Import the useAuth hook
 import Navbar from './components/Navbar';
 import Homepage from './components/Homepage';
-import ImageSlider from './components/ImageSlider'
+import MapComponent from './components/MapComponent';
+
 function App() {
   const { isLoggedIn } = useAuth(); // Access authentication state using useAuth hook
   const slides=["https://i.ibb.co/ncrXc2V/1.png",
@@ -13,12 +14,8 @@ function App() {
     <div className="App">
       <Navbar current={'Home'}/>
       <Homepage />
-      <div className='w-80'>
-      <ImageSlider>
-        {slides.map((element,id)=>(
-            <img src={element} alt="ciao" key={element}/>
-        ))}
-      </ImageSlider>
+      <div className='w-full'>
+        <MapComponent></MapComponent>
       </div>
       
     </div>
