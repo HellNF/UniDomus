@@ -9,7 +9,7 @@ import { useAuth } from '../AuthContext'; // Import the useAuth hook
 const navigation = [
   { name: 'Home', href: '/', current: true },
   { name: 'Trova un appartamento', href: '/', current: false },
-  { name: 'Trova un coiquilino', href: '/', current: false },
+  { name: 'Trova un coiquilino', href: '/displayTenants', current: false },
 ]
 
 function classNames(...classes) {
