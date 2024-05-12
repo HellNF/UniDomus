@@ -285,13 +285,62 @@ async function updatePassword(req, res) {
       return res.status(500).json({ message: 'Internal server error' });
     }
   }
+
+  function calculateDOBFromAge(age) {
+    const currentDate = new Date(); // Get the current date and time
+    currentDate.setHours(currentDate.getHours() + 2); // Add 2 hours to the current time
+
+    const birthYear = currentDate.getFullYear() - age; // Calculate the birth year
+
+    // Create a new date object for the date of birth, maintaining the adjusted month, day, and time
+    const dob = new Date(currentDate.setFullYear(birthYear));
+
+    // Format the date of birth in ISO 8601 format
+    return dob.toISOString();
+}
+
+
+async function getUserByFilters(req, res) {
+    try {
+        const { etaMin, etaMax, hobbies, habits } = req.query;
+
+        const dataMin = calculateDOBFromAge(etaMax + 1);
+        const dataMax = calculateDOBFromAge(etaMin);
+
+        console.log(dataMin);
+        console.log(dataMax);
+
+        // Costruisci la query basata sulle condizioni non vuote
+        let query = {
+            birthDate: { $gte: dataMin, $lte: dataMax }
+        };
+
+        if (hobbies && hobbies.length > 0) {
+            query.hobbies = { $all: hobbies };
+        }
+
+        if (habits && habits.length > 0) {
+            query.habits = { $all: habits };
+        }
+
+        const users = await User.find(query);
+
+        console.log("Users retrieved successfully.");
+        return res.status(200).json({ users });
+    } catch (error) {
+        console.error("Error retrieving users:", error);
+        return res.status(500).json({ message: "Error retrieving users", error: error.message });
+    }
+}
+
+ 
   
 
 // Export controller functions
 module.exports = {
     registerUser,
     authenticateUser,
-
+    getUserByFilters,
     getTags,
     getUserById,
     updateUserById,
