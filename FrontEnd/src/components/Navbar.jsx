@@ -15,6 +15,7 @@ function classNames(...classes) {
 function Navbar({current}) {
   const { isLoggedIn, logout } = useAuth(); // Access authentication state and functions
   const [profilePic, setProfilePic] = useState(null);
+  const [publisherIDAvailable, setPublisherIDAvaiilable] = useState(false);
   const { userId } = useAuth();
   
 
@@ -47,10 +48,12 @@ function Navbar({current}) {
       .then(data => {
         const userData = data.user;
         console.log(userData);
+        setPublisherIDAvaiilable(userData && userData.hasOwnProperty('listingID'))
         if (userData && userData.proPic && userData.proPic.length > 0) {
           // Set profile picture URL
           setProfilePic(`data:image/png;base64,${userData.proPic[0]}`);
         }
+
       })
       .catch(error => {
         console.error('Error fetching user data:', error);
@@ -104,12 +107,6 @@ function Navbar({current}) {
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 {isLoggedIn ? (
                   <>
-                    <Link
-                      to="/addListing"
-                      className="text-blue-100 hover:bg-blue-100 hover:bg-opacity-5 hover:text-white rounded-md px-3 py-2"
-                    >
-                      Crea inserzione
-                    </Link>
                     <button
                       type="button"
                       className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
@@ -150,6 +147,19 @@ function Navbar({current}) {
                               </a>
                             )}
                           </Menu.Item>
+                          { !publisherIDAvailable && (
+                            <Menu.Item>
+                              {({ active }) => (
+                                <a
+                                  href="/addListing"
+                                  className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                                >
+                                  Crea inserzione
+                                </a>
+                              )}
+                            </Menu.Item>
+                          )}
+
                           <Menu.Item>
                             {({ active }) => (
                               <a
