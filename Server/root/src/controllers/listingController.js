@@ -1,5 +1,8 @@
+const { log } = require('console');
 const Listing = require('../models/listingModel');
+require('dotenv').config({ path: '../../.env' });
 const User = require('../models/userModel');
+const { query } = require('express');
 
 async function listings(req, res) {
     try {
@@ -153,8 +156,93 @@ async function getListingById(req, res) {
     }
 }
 
+async function addressToCordinates(req,res){
+
+    try {
+        // Step 1: Parse query parameters
+        let query = {};
+        const { priceMin, priceMax, typology, city, floorAreaMin, floorAreaMax } = req.query;
+
+        // Step 2: Construct the query object
+        if (priceMin || priceMax) {
+            query.price = {};
+            if (priceMin) query.price.$gte = Number(priceMin);
+            if (priceMax) query.price.$lte = Number(priceMax);
+        }
+        if (floorAreaMin || floorAreaMax) {
+            query.floorArea = {};
+            if (floorAreaMin) query.floorArea.$gte = Number(floorAreaMin);
+            if (floorAreaMax) query.floorArea.$lte = Number(floorAreaMax);
+        }
+        if (typology) {
+            query.typology = typology;
+        }
+        if (city) {
+            query['address.city'] = city;
+        }
+
+        // Step 3: Execute the query with filters
+        const listings = await Listing.find(query);
+        
+        if (!listings.length) {
+            console.log("Filtered query returned no listings.");
+            return res.status(200).json({ listings: [] });
+        }
+        const coordinates=[]
+        await Promise.all(listings.map( async(item)=>{
+            await fetch("http://api.positionstack.com/v1/forward?"+ new URLSearchParams({
+                access_key: process.env.GEOCODING_API_KEY,
+                query: `${item.address.street} ${item.address.houseNum}, ${item.address.cap} `,
+                country: "IT",
+                region: "Trento",
+                limit: 1
+            }))
+            .then((response)=>{
+                if(!response.ok){
+                    
+                    return null
+                }
+                else return response.json()
+            })
+            .then(async (body)=>{
+                const temp=[]
+                temp.push(body.data) //body.data.lenght =>undefinded (json object no length attribute)
+                if(temp.length){
+                    coordinates.push({
+                        latitude: body.data[0].latitude,
+                        longitude: body.data[0].longitude,
+                        label: body.data[0].label
+                    
+                    })
+                }
+                
+                
+            })
+            .catch((error)=>{
+                console.error('Error Converting address', error);
+                
+            })
+            
+
+        }))
+        console.log(coordinates)
+        if(!coordinates.length){
+            console.log("Bad addresses no conversion.");
+            return res.status(200).json({ data: [] });
+        }
+        else{
+            return res.status(200).json({ data: coordinates });
+        }
+        
+    } catch (error) {
+        console.error("Error retrieving listings with filters:", error);
+        return res.status(500).json({ message: "Error retrieving listings", error: error.message });
+    }
+}
 module.exports = {
     listings,
     addListing,
-    getListingById
+    getListingById,
+    addressToCordinates
 };
+

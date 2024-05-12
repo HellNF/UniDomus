@@ -15,7 +15,7 @@ function App() {
       <Navbar current={'Home'}/>
       <Homepage />
       <div className='w-full'>
-        <MapComponent></MapComponent>
+        
       </div>
       
     </div>
