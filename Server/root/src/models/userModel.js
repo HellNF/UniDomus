@@ -59,6 +59,11 @@ const userSchema = new mongoose.Schema({
     lastUpdate: {
         type: Date
     },
+    gender:{
+        type: String,
+        enum: ['Maschio', 'Femmina','Altro'], 
+        default: 'Altro'
+    },
     habits: {
 
         type: [String], 

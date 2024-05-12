@@ -302,18 +302,18 @@ async function updatePassword(req, res) {
 
 async function getUserByFilters(req, res) {
     try {
-        const { etaMin, etaMax, hobbies, habits } = req.query;
+        const { gender,etaMin, etaMax, hobbies, habits } = req.query;
 
         const dataMin = calculateDOBFromAge(etaMax + 1);
         const dataMax = calculateDOBFromAge(etaMin);
 
-        console.log(dataMin);
-        console.log(dataMax);
-
-        // Costruisci la query basata sulle condizioni non vuote
         let query = {
             birthDate: { $gte: dataMin, $lte: dataMax }
         };
+
+        if (gender) {
+            query.gender = {$eq: gender};
+        }
 
         if (hobbies && hobbies.length > 0) {
             query.hobbies = { $all: hobbies };
