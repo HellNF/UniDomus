@@ -8,7 +8,7 @@ import Registration from "./pages/Registration.jsx"
 import Login from "./pages/Login.jsx"
 
 import EditProfile from './pages/EditProfile.jsx'
-
+import DisplayTenants from './pages/displayTenants.jsx'
 import AddListing from "./pages/AddListing.jsx"
 import PasswordReset from './pages/PasswordReset.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
@@ -28,19 +28,25 @@ const router= createBrowserRouter([
     element: <EditProfile></EditProfile> 
   },
   {
+    path: "/displayTenants",
+    element: <DisplayTenants></DisplayTenants>
+  },
+  {
     path: "/",
     element: <App></App>
   },
   {
     path: "/addListing",
     element: <AddListing></AddListing>
-  },{
+  },
+  {
     path: "/forgotpassword",
     element: <ForgotPassword></ForgotPassword>
   },{
     path: "/resetpassword/:token",
     element: <PasswordReset></PasswordReset>
   }
+
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(
