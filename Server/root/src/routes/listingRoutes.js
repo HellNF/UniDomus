@@ -12,9 +12,13 @@ const Listing = require('../models/listingModel');
 
 router.get('/',listings);
 
-router.post('/add',addListing)
+router.post('/add',addListing);
+
+router.get('/coordinates',addressToCordinates);
 
 router.get('/:id',getListingById);
+
+
 
 
 

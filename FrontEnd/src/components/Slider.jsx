@@ -35,10 +35,10 @@ const doubleSlider = ({min,max,values,setValues}) => {
             defaultValue={[min, max]}
         />
         </div>
-        <div className="slider-labels">
+        {/* <div className="slider-labels">
         <span className="slider-min-max">{min}</span>
         <span className="slider-min-max">{max}</span>
-      </div>
+      </div> */}
         </>
     );
 };

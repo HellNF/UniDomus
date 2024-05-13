@@ -162,6 +162,7 @@ async function addressToCordinates(req,res){
         // Step 1: Parse query parameters
         let query = {};
         const { priceMin, priceMax, typology, city, floorAreaMin, floorAreaMax } = req.query;
+        
 
         // Step 2: Construct the query object
         if (priceMin || priceMax) {
