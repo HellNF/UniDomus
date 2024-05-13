@@ -44,7 +44,7 @@ export default function RegistrationForm() {
          
         
         if(res.ok){
-          console.log("ciao")
+          //console.log("ciao")
           navigate('/');
         }
         else{
@@ -137,7 +137,7 @@ export default function RegistrationForm() {
                   
                   <div className="text-sm">
                     <a href="#" className="font-semibold text-blue-950 hover:text-blue-700">
-                      Forgot password?
+                      Password dimenticata?
                     </a>
                   </div>
                 </div>
@@ -161,7 +161,7 @@ export default function RegistrationForm() {
                   type="submit"
                   className="flex w-full justify-center rounded-md bg-blue-950 px-3 py-1.5 text-sm font-semibold leading-6 text-center text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                  Sign in
+                  Sign up
                 </button>
               </div>
             </form>

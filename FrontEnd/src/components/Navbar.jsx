@@ -21,7 +21,7 @@ function Navbar({current}) {
   const navigation = [
     { name: 'Home', href: '/', current: false },
     { name: 'Trova un appartamento', href: '/findaflat', current: false },
-    { name: 'Trova un coiquilino', href: '/displayTenants', current: false },
+    { name: 'Trova un coinquilino', href: '/displayTenants', current: false },
   ]
   navigation.map((item)=>{
     if(item.name==current) item.current=true

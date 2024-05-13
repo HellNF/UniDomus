@@ -4,6 +4,7 @@ info:
   version: 1.0.0
   description: API documentation for confirming tokens and activating user accounts
 paths:
+  
   /api/token/token/{token}:
     get:
       summary: Confirm token and activate user account
@@ -116,6 +117,179 @@ paths:
                     example: Error retrieving listing
                   error:
                     type: string
+  /api/listing/coordinates:
+    get:
+      summary: convert addresses to coordinates
+      description: through an Geocoder API converts addresses retrived from database into corordinates in order to plot them on map
+      tags:
+        - Listings
+      parameters:
+        - in: query
+          name: priceMin
+          schema:
+            type: number
+          description: Prezzo minimo
+        - in: query
+          name: priceMax
+          schema:
+            type: number
+          description: Prezzo massimo
+        - in: query
+          name: typology
+          schema:
+            type: string
+          description: Tipologia di immobile
+        - in: query
+          name: city
+          schema:
+            type: string
+          description: Città dell'immobile
+        - in: query
+          name: floorAreaMin
+          schema:
+            type: number
+          description: Superficie minima
+        - in: query
+          name: floorAreaMax
+          schema:
+            type: number
+          description: Superficie massima
+      responses:
+        '200':
+          description: Coordinate geografiche degli annunci
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        latitude:
+                          type: number
+                          description: Latitudine
+                        longitude:
+                          type: number
+                          description: Longitudine
+                        label:
+                          type: string
+                          description: Etichetta della posizione
+        '500':
+          description: Errore durante il recupero delle coordinate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error retrieving listings with filters
+                  error:
+                    type: string
+  /api/listing/add:
+    post:
+      tags:
+          - Listings
+      summary: Add a new listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: object
+                  properties:
+                    street:
+                      type: string
+                    city:
+                      type: string
+                    cap:
+                      type: string
+                    houseNum:
+                      type: string
+                    province:
+                      type: string
+                    country:
+                      type: string
+                photos:
+                  type: array
+                  items:
+                    type: string
+                publisherID:
+                  type: string
+                tenantsID:
+                  type: array
+                  items:
+                    type: string
+                typology:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                floorArea:
+                  type: number
+                availability:
+                  type: string
+      responses:
+        '201':
+          description: Inserzione aggiunta con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Inserzione aggiunta con successo
+                  data:
+                    type: object
+                    properties:
+                      address:
+                        $ref: '#/components/schemas/Address'
+                      photos:
+                        type: array
+                        items:
+                          type: string
+                      publisherID:
+                        type: string
+                      tenantsID:
+                        type: array
+                        items:
+                          type: string
+                      typology:
+                        type: string
+                      description:
+                        type: string
+                      price:
+                        type: number
+                      floorArea:
+                        type: number
+                      availability:
+                        type: string
+        '401':
+          description: Errore durante la richiesta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: error
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        field:
+                          type: string
+                        message:
+                          type: string
   /api/users/registration:
     post:
       summary: Register a new user

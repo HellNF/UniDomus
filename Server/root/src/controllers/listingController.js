@@ -159,12 +159,12 @@ async function getListingById(req, res) {
 async function addressToCordinates(req,res){
 
     try {
-        // Step 1: Parse query parameters
+        // Parse query parameters
         let query = {};
         const { priceMin, priceMax, typology, city, floorAreaMin, floorAreaMax } = req.query;
         
 
-        // Step 2: Construct the query object
+        //  Construct the query object
         if (priceMin || priceMax) {
             query.price = {};
             if (priceMin) query.price.$gte = Number(priceMin);
