@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext'; // Import the useAuth hook
 
 
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
@@ -22,7 +21,7 @@ function Navbar({current}) {
   const navigation = [
     { name: 'Home', href: '/', current: false },
     { name: 'Trova un appartamento', href: '/findaflat', current: false },
-    { name: 'Trova un coiquilino', href: '/', current: false },
+    { name: 'Trova un coiquilino', href: '/displayTenants', current: false },
   ]
   navigation.map((item)=>{
     if(item.name==current) item.current=true

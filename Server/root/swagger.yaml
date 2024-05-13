@@ -1,0 +1,409 @@
+openapi: 3.0.0
+info:
+  title: Token Confirmation API
+  version: 1.0.0
+  description: API documentation for confirming tokens and activating user accounts
+paths:
+  /api/token/token/{token}:
+    get:
+      summary: Confirm token and activate user account
+      description: Confirm the token sent to the user's email and activate the user's account.
+      tags:
+        - Tokens
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+          description: The token sent to the user's email for account activation.
+      responses:
+        "200":
+          description: Token confirmed and user account activated successfully.
+        "400":
+          description: Invalid or expired token.
+        "500":
+          description: Internal server error occurred.
+  /api/listing:
+    get:
+      summary: Retrieve listings based on query parameters
+      description: Retrieve listings based on price range, typology, city, and floor area range.
+      tags:
+        - Listings
+      parameters:
+        - in: query
+          name: priceMin
+          schema:
+            type: number
+          description: Minimum price filter
+        - in: query
+          name: priceMax
+          schema:
+            type: number
+          description: Maximum price filter
+        - in: query
+          name: typology
+          schema:
+            type: string
+          description: Typology filter
+        - in: query
+          name: city
+          schema:
+            type: string
+          description: City filter
+        - in: query
+          name: floorAreaMin
+          schema:
+            type: number
+          description: Minimum floor area filter
+        - in: query
+          name: floorAreaMax
+          schema:
+            type: number
+          description: Maximum floor area filter
+      responses:
+        "200":
+          description: A list of listings matching the query parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  listings:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Listing"
+  /api/listing/{id}:
+    get:
+      summary: Retrieve a listing by ID
+      description: Retrieve a listing by its unique identifier.
+      tags:
+        - Listings
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the listing to retrieve
+      responses:
+        "200":
+          description: Listing retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+        "400":
+          description: Listing not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Listing not found
+        "500":
+          description: Error retrieving listing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error retrieving listing
+                  error:
+                    type: string
+  /api/users/registration:
+    post:
+      summary: Register a new user
+      description: Register a new user with the provided details.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                username:
+                  type: string
+              required:
+                - email
+                - password
+                - username
+      responses:
+        "200":
+          description: User registered successfully.
+        "400":
+          description: Bad request or validation error.
+        "500":
+          description: Internal server error occurred.
+  /api/users/authentication:
+    post:
+      summary: Authenticate user
+      description: Authenticate user with provided credentials and return an access token.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: User authenticated successfully and access token generated.
+        "400":
+          description: Bad request or validation error.
+        "401":
+          description: Unauthorized - Invalid credentials.
+        "500":
+          description: Internal server error occurred.
+  /api/users/tags:
+    get:
+      summary: Get user tags
+      description: Retrieve all tags form the database.
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Tags retrieved successfully.
+        "500":
+          description: Internal server error occurred.
+  /api/users/{id}:
+    get:
+      summary: Get user by ID
+      description: Retrieve user details by ID.
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the user to retrieve
+        - in: query
+          name: proPic
+          schema:
+            type: string
+          description: Flag to include or exclude profile pictures in the response
+      responses:
+        '200':
+          description: User details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: User not found.
+        '500':
+          description: Internal server error occurred.
+    put:
+      summary: Update user by ID
+      description: Update user details by ID.
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the user to update
+        - in: query
+          name: proPic
+          schema:
+            type: string
+          description: Flag to include or exclude profile pictures in the response
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User details updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request or validation error.
+        '404':
+          description: User not found.
+        '500':
+          description: Internal server error occurred.
+
+components:
+  schemas:
+    Token:
+      type: object
+      properties:
+        userID:
+          type: string
+          format: uuid
+          description: The ID of the user associated with the token.
+        token:
+          type: string
+          minLength: 30
+          maxLength: 30
+          description: The token string for confirmation.
+        expirationDate:
+          type: string
+          format: date-time
+          description: The expiration date of the token.
+    Listing:
+      type: object
+      properties:
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+              minLength: 3
+              maxLength: 50
+            city:
+              type: string
+              minLength: 3
+              maxLength: 50
+            cap:
+              type: string
+              minLength: 5
+              maxLength: 5
+              pattern: '^\d{5}$'
+            houseNum:
+              type: string
+              minLength: 1
+              maxLength: 5
+            province:
+              type: string
+              minLength: 2
+              maxLength: 2
+            country:
+              type: string
+              minLength: 3
+              maxLength: 50
+        photos:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+        publisherID:
+          type: string
+          format: uuid
+        tenantsID:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 12
+        typology:
+          type: string
+          maxLength: 30
+        description:
+          type: string
+          maxLength: 1000
+        price:
+          type: number
+          minimum: 10
+          maximum: 10000
+        floorArea:
+          type: number
+          minimum: 1
+          maximum: 10000
+        availability:
+          type: string
+        publicationDate:
+          type: string
+          format: date-time
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 2
+          maxLength: 20
+          description: The username of the user.
+        name:
+          type: string
+          minLength: 2
+          maxLength: 30
+          description: The name of the user.
+        surname:
+          type: string
+          minLength: 2
+          maxLength: 30
+          description: The surname of the user.
+        email:
+          type: string
+          minLength: 5
+          maxLength: 50
+          pattern: '^\S+@\S+\.\S+$'
+          description: The email of the user.
+        password:
+          type: string
+          description: The hashed password of the user.
+        birthDate:
+          type: string
+          format: date-time
+          description: The birth date of the user.
+        creationDate:
+          type: string
+          format: date-time
+          description: The creation date of the user account.
+        lastUpdate:
+          type: string
+          format: date-time
+          description: The last update date of the user account.
+        habits:
+          type: array
+          items:
+            type: string
+          description: The habits of the user.
+        hobbies:
+          type: array
+          items:
+            type: string
+          description: The hobbies of the user.
+        proPic:
+          type: array
+          items:
+            type: string
+          description: The profile picture URLs of the user.
+        activityStatus:
+          type: string
+          enum: [attivo, "attivo recentemente", inattivo]
+          description: The activity status of the user.
+        active:
+          type: boolean
+          description: The activation status of the user account.
+        listingID:
+          type: string
+          format: uuid
+          description: The ID of the listing associated with the user.
+        matchListID:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: The IDs of the matches associated with the user.

@@ -1,0 +1,60 @@
+.slider-container {
+    margin-top: 10px;   
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; /* Assicura che le etichette siano larghe quanto lo slider */
+  }
+
+  .slider-min-max {
+    color: #333; /* Cambia il colore del testo a seconda delle tue esigenze */
+  }
+
+.react-slider {
+    /* Stile base per lo slider */
+    width: 100%;
+    height: 25px;
+    margin-top: 20px;
+}
+
+.react-slider .example-track {
+    background: #ddd; /* Colore di sfondo di default per la traccia */
+    height: 4px;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 9999px;
+}
+
+.react-slider .example-track.example-track-0 {
+    background: #2563EB; /* Colore per la traccia attiva */
+}
+
+.react-slider .example-thumb {
+    height: 20px;
+    width: 20px;
+    background-color: white;
+    border: 2px solid #2563EB;
+    border-radius: 50%;
+    cursor: grab;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.react-slider .thumb-value {
+  position: absolute;
+  top: -30px; /* Sposta il valore sopra il thumb */
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 12px;
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: 4px;
+  padding: 4px;
+  }

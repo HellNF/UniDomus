@@ -7,7 +7,7 @@ const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistra
 const { generateRandomToken } = require('../utils/tokenUtils'); // Import the function to generate random token
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 require('dotenv').config() //to use environment variables
-const { sendConfirmationEmail } = require('../services/emailService'); // Import the function to send confirmation email
+const { sendConfirmationEmail,sendPasswordResetEmail } = require('../services/emailService'); // Import the function to send confirmation email
 const { hobbiesEnum, habitsEnum } = require('./../models/enums');
 
 const User = require('../models/userModel');
@@ -71,7 +71,7 @@ async function registerUser(req, res) {
         await TokenModel.create({ token, userID: newUser._id });
 
         // Construct confirmation link
-        const base_url = process.env.BASE_URL || "http://localhost:5050";
+        const base_url = process.env.BASE_URL;
         const confirmationLink = `${base_url}/api/tokens/token/${token}`;
 
         // Send confirmation email
@@ -215,14 +215,136 @@ const updateUserById = async (req, res) => {
     }
 };
 
+async function requestPasswordChange(req, res) {
+    console.log(req.body)
+    const { email } = req.body;
+
+    try {
+        // Find the user by email
+        const user = await User.findOne({ email });
+
+        // If no user found, return error
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Generate a unique token for password reset
+        const token = generateRandomToken(30);
+
+        // Save the token in the database
+        await TokenModel.create({ token, userID: user._id });
+
+        // Construct password reset link
+        const base_url = process.env.FRONTEND_BASE;
+        const resetLink = `${base_url}/resetpassword/${token}`;
+
+        // Send password reset email to the usesr
+        await sendPasswordResetEmail(user.email, resetLink);
+
+        return res.status(200).json({ message: 'Password reset email sent' });
+    } catch (error) {
+        console.error('Error initiating password change:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+async function updatePassword(req, res) {
+    const { token } = req.params;
+    const { password } = req.body;
+  
+    try {
+      // Verify the token
+      const tokenRecord = await TokenModel.findOne({ token });
+  
+      // If no token found, return error
+      if (!tokenRecord) {
+        return res.status(404).json({ message: 'Invalid or expired token' });
+      }
+  
+      // Verify the token's expiration
+      const tokenExpiration = new Date(tokenRecord.expiresAt);
+      if (tokenExpiration < Date.now()) {
+        // If token is expired, delete it from the database and return error
+        await TokenModel.deleteOne({ token });
+        return res.status(404).json({ message: 'Token expired' });
+      }
+  
+      // Find the user associated with the token
+      const user = await User.findById(tokenRecord.userID);
+  
+      // Update the user's password
+      user.password = password;
+      await user.save();
+  
+      // Delete the token record from the database
+      await TokenModel.deleteOne({ token });
+  
+      return res.status(200).json({ message: 'Password updated successfully' });
+    } catch (error) {
+      console.error('Error updating password:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  function calculateDOBFromAge(age) {
+    const currentDate = new Date(); // Get the current date and time
+    currentDate.setHours(currentDate.getHours() + 2); // Add 2 hours to the current time
+
+    const birthYear = currentDate.getFullYear() - age; // Calculate the birth year
+
+    // Create a new date object for the date of birth, maintaining the adjusted month, day, and time
+    const dob = new Date(currentDate.setFullYear(birthYear));
+
+    // Format the date of birth in ISO 8601 format
+    return dob.toISOString();
+}
+
+
+async function getUserByFilters(req, res) {
+    try {
+        const { gender,etaMin, etaMax, hobbies, habits } = req.query;
+
+        const dataMin = calculateDOBFromAge(etaMax + 1);
+        const dataMax = calculateDOBFromAge(etaMin);
+
+        let query = {
+            birthDate: { $gte: dataMin, $lte: dataMax }
+        };
+
+        if (gender) {
+            query.gender = {$eq: gender};
+        }
+
+        if (hobbies && hobbies.length > 0) {
+            query.hobbies = { $all: hobbies };
+        }
+
+        if (habits && habits.length > 0) {
+            query.habits = { $all: habits };
+        }
+
+        const users = await User.find(query);
+
+        console.log("Users retrieved successfully.");
+        return res.status(200).json({ users });
+    } catch (error) {
+        console.error("Error retrieving users:", error);
+        return res.status(500).json({ message: "Error retrieving users", error: error.message });
+    }
+}
+
+ 
+  
+
 // Export controller functions
 module.exports = {
     registerUser,
     authenticateUser,
-
+    getUserByFilters,
     getTags,
     getUserById,
     updateUserById,
-    getTags
+    updatePassword,
+    requestPasswordChange
 };
 

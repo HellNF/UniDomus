@@ -1,4 +1,4 @@
-// index.js
+//app.js
 require('dotenv').config({ path: '../.env' });
 const express = require('express');
 const app = express();
@@ -38,7 +38,7 @@ const options = {
       description: 'API documentation for managing property listings',
     },
   },
-  apis: ['./src/routes/*.js'], // Path to the files containing Swagger annotations
+  apis: ['./swagger.yaml'], // Add the YAML file path
 };
 
 const specs = swaggerJsdoc(options);
