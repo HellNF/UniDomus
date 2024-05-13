@@ -119,8 +119,8 @@ paths:
                     type: string
   /api/listing/coordinates:
     get:
-      summary: convert addresses to coordinates
-      description: through an Geocoder API converts addresses retrived from database into corordinates in order to plot them on map
+      summary: Convert addresses to coordinates
+      description: Converts addresses retrieved from the database into coordinates using a Geocoding API, to plot them on a map.
       tags:
         - Listings
       parameters:
@@ -128,35 +128,35 @@ paths:
           name: priceMin
           schema:
             type: number
-          description: Prezzo minimo
+          description: Minimum price
         - in: query
           name: priceMax
           schema:
             type: number
-          description: Prezzo massimo
+          description: Maximum price
         - in: query
           name: typology
           schema:
             type: string
-          description: Tipologia di immobile
+          description: Property type
         - in: query
           name: city
           schema:
             type: string
-          description: Città dell'immobile
+          description: Property city
         - in: query
           name: floorAreaMin
           schema:
             type: number
-          description: Superficie minima
+          description: Minimum floor area
         - in: query
           name: floorAreaMax
           schema:
             type: number
-          description: Superficie massima
+          description: Maximum floor area
       responses:
         '200':
-          description: Coordinate geografiche degli annunci
+          description: Geographic coordinates of the listings
           content:
             application/json:
               schema:
@@ -169,15 +169,15 @@ paths:
                       properties:
                         latitude:
                           type: number
-                          description: Latitudine
+                          description: Latitude
                         longitude:
                           type: number
-                          description: Longitudine
+                          description: Longitude
                         label:
                           type: string
-                          description: Etichetta della posizione
+                          description: Location label
         '500':
-          description: Errore durante il recupero delle coordinate
+          description: Error during coordinate retrieval
           content:
             application/json:
               schema:
@@ -188,11 +188,13 @@ paths:
                     example: Error retrieving listings with filters
                   error:
                     type: string
+
   /api/listing/add:
     post:
-      tags:
-          - Listings
       summary: Add a new listing
+      description: Adds a new real estate listing to the database with validation on input data.
+      tags:
+        - Listings
       requestBody:
         required: true
         content:
@@ -202,6 +204,13 @@ paths:
               properties:
                 address:
                   type: object
+                  required:
+                    - street
+                    - city
+                    - cap
+                    - houseNum
+                    - province
+                    - country
                   properties:
                     street:
                       type: string
@@ -209,35 +218,52 @@ paths:
                       type: string
                     cap:
                       type: string
+                      pattern: '^\d{5}$'
                     houseNum:
                       type: string
                     province:
                       type: string
+                      maxLength: 2
+                      minLength: 2
                     country:
                       type: string
                 photos:
                   type: array
                   items:
                     type: string
+                  minItems: 1
+                  maxItems: 10
                 publisherID:
                   type: string
+                  format: uuid
                 tenantsID:
                   type: array
                   items:
                     type: string
+                    format: uuid
                 typology:
                   type: string
                 description:
                   type: string
                 price:
                   type: number
+                  minimum: 10
+                  maximum: 10000
                 floorArea:
                   type: number
+                  minimum: 10
+                  maximum: 10000
                 availability:
                   type: string
       responses:
         '201':
-          description: Inserzione aggiunta con successo
+          description: Listing added successfully. Returns newly added listing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '400':
+          description: Invalid input parameters.
           content:
             application/json:
               schema:
@@ -245,42 +271,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Inserzione aggiunta con successo
-                  data:
-                    type: object
-                    properties:
-                      address:
-                        $ref: '#/components/schemas/Address'
-                      photos:
-                        type: array
-                        items:
-                          type: string
-                      publisherID:
-                        type: string
-                      tenantsID:
-                        type: array
-                        items:
-                          type: string
-                      typology:
-                        type: string
-                      description:
-                        type: string
-                      price:
-                        type: number
-                      floorArea:
-                        type: number
-                      availability:
-                        type: string
-        '401':
-          description: Errore durante la richiesta
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: error
+                    example: "error"
                   errors:
                     type: array
                     items:
@@ -290,6 +281,9 @@ paths:
                           type: string
                         message:
                           type: string
+        '500':
+          description: Internal server error occurred during the listing creation.
+
   /api/users/registration:
     post:
       summary: Register a new user
@@ -427,7 +421,57 @@ paths:
           description: User not found.
         '500':
           description: Internal server error occurred.
-
+  /api/users/forgotpassword:
+   post:
+    summary: Forgot password
+    description: Initiates a password reset process for a user.
+    tags:
+      - Users
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+    responses:
+      '200':
+        description: Password reset email sent.
+      '404':
+        description: Email not found.
+      '500':
+        description: Internal server error occurred.
+  /resetpassword/{token}:
+    put:
+      summary: Reset password
+      description: Resets the user's password using a token.
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+          description: Reset token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Password updated successfully.
+        '404':
+          description: Invalid or expired token.
+        '500':
+          description: Internal server error occurred.
 components:
   schemas:
     Token:

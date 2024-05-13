@@ -121,7 +121,7 @@ async function addListing(req, res) {
         )
 
         if(updatedUser){
-            return res.status(201).json({ message: 'Inserzione aggiunta con successo', data: newListing });
+            return res.status(201).json({ message: 'Listing added successfully', data: newListing });
 
         }
         else{
@@ -156,15 +156,13 @@ async function getListingById(req, res) {
     }
 }
 
-async function addressToCordinates(req,res){
-
+async function addressToCoordinates(req, res) {
     try {
         // Parse query parameters
         let query = {};
         const { priceMin, priceMax, typology, city, floorAreaMin, floorAreaMax } = req.query;
-        
 
-        //  Construct the query object
+        // Construct the query object
         if (priceMin || priceMax) {
             query.price = {};
             if (priceMin) query.price.$gte = Number(priceMin);
@@ -182,56 +180,49 @@ async function addressToCordinates(req,res){
             query['address.city'] = city;
         }
 
-        // Step 3: Execute the query with filters
+        // Execute the query with filters
         const listings = await Listing.find(query);
-        
+
         if (!listings.length) {
             console.log("Filtered query returned no listings.");
             return res.status(200).json({ listings: [] });
         }
-        const coordinates=[]
-        await Promise.all(listings.map( async(item)=>{
-            await fetch("http://api.positionstack.com/v1/forward?"+ new URLSearchParams({
+
+        const coordinates = [];
+        await Promise.all(listings.map(async (item) => {
+            await fetch("http://api.positionstack.com/v1/forward?" + new URLSearchParams({
                 access_key: process.env.GEOCODING_API_KEY,
-                query: `${item.address.street} ${item.address.houseNum}, ${item.address.cap} `,
+                query: `${item.address.street} ${item.address.houseNum}, ${item.address.cap}`,
                 country: "IT",
                 region: "Trento",
                 limit: 1
             }))
-            .then((response)=>{
-                if(!response.ok){
-                    
-                    return null
+            .then(response => {
+                if (!response.ok) {
+                    return null;
+                } else {
+                    return response.json();
                 }
-                else return response.json()
             })
-            .then(async (body)=>{
-                const temp=[]
-                temp.push(body.data) //body.data.lenght =>undefinded (json object no length attribute)
-                if(temp.length){
+            .then(body => {
+                if (body && body.data && body.data.length) {
                     coordinates.push({
                         latitude: body.data[0].latitude,
                         longitude: body.data[0].longitude,
                         label: body.data[0].label
-                    
-                    })
+                    });
                 }
-                
-                
             })
-            .catch((error)=>{
-                console.error('Error Converting address', error);
-                
-            })
-            
+            .catch(error => {
+                console.error('Error converting address:', error);
+            });
+        }));
 
-        }))
-        console.log(coordinates)
-        if(!coordinates.length){
-            console.log("Bad addresses no conversion.");
+        console.log(coordinates);
+        if (!coordinates.length) {
+            console.log("Bad addresses or no conversion.");
             return res.status(200).json({ data: [] });
-        }
-        else{
+        } else {
             return res.status(200).json({ data: coordinates });
         }
         
@@ -240,10 +231,11 @@ async function addressToCordinates(req,res){
         return res.status(500).json({ message: "Error retrieving listings", error: error.message });
     }
 }
+
 module.exports = {
     listings,
     addListing,
     getListingById,
-    addressToCordinates
+    addressToCoordinates
 };
 

@@ -42,7 +42,7 @@ function Navbar({current}) {
 
   const fetchUserData = () => {
     // Fetch user data from the backend
-    fetch(`http://localhost:5050/api/users/${userId}?proPic=1`)
+    fetch(`${API_BASE_URL}users/${userId}?proPic=1`)
       .then(response => response.json())
       .then(data => {
         const userData = data.user;
@@ -146,7 +146,7 @@ function Navbar({current}) {
                               </a>
                             )}
                           </Menu.Item>
-                          { !publisherIDAvailable && (
+                          { publisherIDAvailable && (
                             <Menu.Item>
                               {({ active }) => (
                                 <a

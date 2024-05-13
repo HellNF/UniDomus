@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const tokenChecker= require('../middleware/tokenChecker')
 const router = express.Router();
-const { listings, addListing , getListingById, addressToCordinates } = require('../controllers/listingController');
+const { listings, addListing , getListingById, addressToCoordinates } = require('../controllers/listingController');
 
 //router.use(bodyParser.urlencoded({ extended: false }));
 
@@ -14,7 +14,7 @@ router.get('/',listings);
 
 router.post('/add',addListing);
 
-router.get('/coordinates',addressToCordinates);
+router.get('/coordinates',addressToCoordinates);
 
 router.get('/:id',getListingById);
 

@@ -25,7 +25,7 @@ import Slider from './Slider'
  
     function getCordinatesFromAddresses(){
         
-        fetch('http://localhost:5050/api/listing/coordinates?'+ new URLSearchParams({
+        fetch(`${API_BASE_URL}listing/coordinates?`+ new URLSearchParams({
             typology: typology,
             priceMin: prices[0],
             priceMax: prices[1],
@@ -52,7 +52,7 @@ import Slider from './Slider'
         
     }
     function fetchListings(){
-        fetch(`http://localhost:5050/api/listing?`+ new URLSearchParams({
+        fetch(`${API_BASE_URL}listing?`+ new URLSearchParams({
             typology: typology,
             priceMin: prices[0],
             priceMax: prices[1],

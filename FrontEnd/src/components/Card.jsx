@@ -17,7 +17,7 @@ function Card({listing}){
     
       const fetchUserData = () => {
         // Fetch user data from the backend
-        fetch(`http://localhost:5050/api/users/${listing.publisherID}?proPic=1`)
+        fetch(`${API_BASE_URL}users/${listing.publisherID}?proPic=1`)
           .then(response => response.json())
           .then(data => {
             

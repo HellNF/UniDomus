@@ -26,7 +26,7 @@ export default function EditProfileForm() {
 
     // Effect hook to fetch habits and hobbies data on component mount
     useEffect(() => {
-        fetch('http://localhost:5050/api/users/tags')
+        fetch(`${API_BASE_URL}users/tags`)
             .then(response => response.json())
             .then(data => {
                 setHabits(data.habits || []);
@@ -38,7 +38,7 @@ export default function EditProfileForm() {
     // Effect hook to fetch user data when userId changes
     useEffect(() => {
         if (userId) {
-            fetch(`http://localhost:5050/api/users/${userId}?proPic=true`)
+            fetch(`${API_BASE_URL}users/${userId}?proPic=true`)
                 .then(response => response.json())
                 .then(data => {
                     const userData = data.user;
@@ -140,7 +140,7 @@ export default function EditProfileForm() {
         console.log(formData);
 
         try {
-            const response = await fetch(`http://localhost:5050/api/users/${userId}`, {
+            const response = await fetch(`${API_BASE_URL}users/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
