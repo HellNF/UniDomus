@@ -6,6 +6,7 @@ import location from "../assets/location.svg"
 import squareFoot from "../assets/square_foot.svg"
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../constant";
 
 function Card({listing}){
     const [publisher,setPublisher]=useState({img: "", username:""});

@@ -5,6 +5,7 @@ import { useState } from "react";
 import MapComponent from "./MapComponent.jsx";
 import search from '../assets/search.svg'
 import Slider from './Slider'
+import { API_BASE_URL } from "../constant";
 
 
 
