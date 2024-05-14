@@ -43,60 +43,59 @@ async function listings(req, res) {
 
 async function addListing(req, res) {
     const errors = [];
-    
-        
-        const { address, photos, publisherID, tenantsID, typology, description, price, floorArea, availability, publicationDate } = req.body;
 
+
+    const { address, photos, publisherID, tenantsID, typology, description, price, floorArea, availability, publicationDate } = req.body;
+
+    try {
         //address check
-        if(!address) errors.push({field: "address", message:"missing address"}) //empty address
+        if (!address) errors.push({ field: "address", message: "missing address" }) //empty address
 
-        if(!address.street)errors.push({field: "street", message:"missing street"});
-        
-        if(!address.city)errors.push({field: "city", message:"missing city"})
+        if (!address.street) errors.push({ field: "street", message: "missing street" });
 
-        if(!address.cap)errors.push({field: "cap", message:"invalid cap"})
+        if (!address.city) errors.push({ field: "city", message: "missing city" })
 
-        if(!address.houseNum)errors.push({field: "houseNum", message:"missing houseNum"})
-        else if( !(/\d/.test(address.houseNum)) )errors.push({field: "houseNum", message:"does not contain a number"})
-        
-        if(!address.province)errors.push({field: "province", message:"missing province"})
-        else if(address.province.length!=2)errors.push({field: "province", message:"province needs to be only two character"})
-        
-        if(!address.country)errors.push({field: "country", message:"missing country"})
-        
+        if (!address.cap) errors.push({ field: "cap", message: "invalid cap" })
+
+        if (!address.houseNum) errors.push({ field: "houseNum", message: "missing houseNum" })
+        else if (!(/\d/.test(address.houseNum))) errors.push({ field: "houseNum", message: "does not contain a number" })
+
+        if (!address.province) errors.push({ field: "province", message: "missing province" })
+        else if (address.province.length != 2) errors.push({ field: "province", message: "province needs to be only two character" })
+
+        if (!address.country) errors.push({ field: "country", message: "missing country" })
+
         //photos check
-        if(photos.length < 1 || photos.length > 10) errors.push({field: "photos", message:"not enough photos"});
+        if (photos.length < 1 || photos.length > 10) errors.push({ field: "photos", message: "not enough photos" });
         //publisheerId check    
-        if(publisherID){
-            const pubId= await User.findById(publisherID)
-            if(!pubId){
-                errors.push({field:"publisherID",message: "publisher id doesn't exists"});
+        if (publisherID) {
+            const pubId = await User.findById(publisherID)
+            if (!pubId) {
+                errors.push({ field: "publisherID", message: "publisher id doesn't exists" });
             }
         }
-        else{  errors.push({field:"publisherID",message: "missing publisher id"});}
+        else { errors.push({ field: "publisherID", message: "missing publisher id" }); }
 
         //tenantsId check
-        if(tenantsID){
-            tenantsID.map(async (id)=>{
-                const checkId= await User.findById(id)
-                if(!checkId) errors.push({field:`tenants id:${id}`,message: "invalid id"})
+        if (tenantsID) {
+            tenantsID.map(async (id) => {
+                const checkId = await User.findById(id)
+                if (!checkId) errors.push({ field: `tenants id:${id}`, message: "invalid id" })
             })
-        }  
+        }
         //description check
-        if(!description)errors.push({field:"description",message: "missing descriprion"})
+        if (!description) errors.push({ field: "description", message: "missing descriprion" })
         //typology check
-        if(!typology)errors.push({field:"typology",message: "missing typology"})
+        if (!typology) errors.push({ field: "typology", message: "missing typology" })
         //price check
-        if(!price || price<10 || price >10000)errors.push({field:"price",message: "invalid price"})
+        if (!price || price < 10 || price > 10000) errors.push({ field: "price", message: "invalid price" })
         //floorArea check
-        if(!floorArea || floorArea<10 || floorArea>10000)errors.push({field:"floorArea",message: "invalid floorArea"})
+        if (!floorArea || floorArea < 10 || floorArea > 10000) errors.push({ field: "floorArea", message: "invalid floorArea" })
         //availability check
-        if(!availability)errors.push({field:"availability",message: "availability"})
-        if(errors.length>0){
-            return res.status(401).json({message: "error", errors})
-        }   
-     try{  
-
+        if (!availability) errors.push({ field: "availability", message: "availability" })
+        if (errors.length > 0) {
+            return res.status(401).json({ message: "error", errors })
+        }
         const newListing = await Listing.create({
             address: address,
             photos: photos,
@@ -108,26 +107,26 @@ async function addListing(req, res) {
             floorArea: floorArea,
             availability: availability
         })
-        if(!newListing){
-            return res.status(401).json({ message: "error", reason: 'Error during the user update'});
-        } 
+        if (!newListing) {
+            return res.status(401).json({ message: "error", reason: 'Error during the user update' });
+        }
 
-        const updatedUser= await User.findByIdAndUpdate(newListing.publisherID, 
+        const updatedUser = await User.findByIdAndUpdate(newListing.publisherID,
             { $set: { listingID: newListing._id } },
             { new: true } // Return the modified document)
         )
 
-        if(updatedUser){
+        if (updatedUser) {
             return res.status(201).json({ message: 'Inserzione aggiunta con successo', data: newListing });
 
         }
-        else{
-            return res.status(401).json({ message: "error", reason: 'Error during the user update'});
+        else {
+            return res.status(401).json({ message: "error", reason: 'Error during the user update' });
         }
-        
+
 
     } catch (error) {
-        
+
         console.error("Error  creating listing:", error);
         return res.status(500).json({ message: "error", reason: "Internal server error" });
     }
@@ -139,12 +138,12 @@ async function getListingById(req, res) {
     try {
         const { id } = req.params;
         const listing = await Listing.findById(id);
-        
+
         if (!listing) {
             console.log("Listing not found.");
             return res.status(400).json({ message: "Listing not found" });
         }
-        
+
         console.log("Listing retrieved successfully.");
         return res.status(200).json({ listing: listing });
     } catch (error) {
