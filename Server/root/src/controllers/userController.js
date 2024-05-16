@@ -123,7 +123,7 @@ async function authenticateUser(req, res) {
 async function getTags(req, res) {
     try {
         // Return the enums as they are
-        res.json({
+        res.status(200).json({
             hobbies: hobbiesEnum,
             habits: habitsEnum
         });
