@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../../app.js'); // Assumendo che questo sia il file principale dell'app
+const app = require('../../app.js'); 
 const Token = require('../models/tokenModel');
 const User = require('../models/userModel');
 const databaseQueries = require('../database/databaseQueries');
@@ -28,7 +28,7 @@ describe('TokenController - confirmToken Tests', () => {
         Token.findOneAndDelete.mockResolvedValue({ token: 'valid_token' });
 
         const response = await request(app)
-            .get('/api/tokens/token/valid_token');
+            .get('/api/tokens/valid_token');
 
         expect(User.findByIdAndUpdate).toHaveBeenCalledWith('user_id', { $set: { active: true } }, { new: true });
         expect(Token.findOneAndDelete).toHaveBeenCalledWith({ token: 'valid_token' });
@@ -41,7 +41,7 @@ describe('TokenController - confirmToken Tests', () => {
         Token.findOne.mockResolvedValue(null); // No token found
 
         const response = await request(app)
-            .get('/api/tokens/token/valid_token');
+            .get('/api/tokens/valid_token');
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({ message: "error", reason: "Invalid token" });
@@ -52,7 +52,7 @@ describe('TokenController - confirmToken Tests', () => {
         User.findByIdAndUpdate.mockRejectedValue(new Error('Database error'));
 
         const response = await request(app)
-            .get('/api/tokens/token/valid_token');
+            .get('/api/tokens/valid_token');
 
         expect(response.status).toBe(500);
         expect(response.body).toEqual({ message: "error", reason: "Internal server error" });
@@ -66,7 +66,7 @@ describe('TokenController - confirmToken Tests', () => {
         });
 
         const response = await request(app)
-            .get('/api/tokens/token/valid_token');
+            .get('/api/tokens/valid_token');
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({ message: "error", reason: "Expired token" });
