@@ -1,6 +1,6 @@
 // Import necessary modules and services
 const request = require('supertest');
-const app = require('../../app.js');  // Assumendo che questo sia il file principale dell'app
+const app = require('../../app.js'); 
 const UserModel = require('../models/userModel');
 const TokenModel = require('../models/tokenModel');
 const tokenUtils = require('../utils/tokenUtils'); 

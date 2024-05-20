@@ -15,7 +15,7 @@ describe('Listing Controller', () => {
         jest.clearAllMocks(); // Clear mock function calls before each test
     });
 
-    describe('GET /api/listing', () => {
+    describe('GET /api/listings', () => {
         it('should return filtered listings when valid query parameters are provided', async () => {
             const mockListings = [
                 { price: 1500, typology: 'doppia', address: { city: 'Trento' }, floorArea: 80 },
@@ -25,7 +25,7 @@ describe('Listing Controller', () => {
             Listing.find.mockResolvedValue(mockListings);
 
             const response = await request(app)
-                .get('/api/listing')
+                .get('/api/listings')
                 .query({
                     priceMin: '1000',
                     priceMax: '2000',
@@ -49,7 +49,7 @@ describe('Listing Controller', () => {
             Listing.find.mockResolvedValue([]);
 
             const response = await request(app)
-                .get('/api/listing')
+                .get('/api/listings')
                 .query({
                     priceMin: '1000',
                     priceMax: '2000',
@@ -67,7 +67,7 @@ describe('Listing Controller', () => {
             Listing.find.mockRejectedValue(new Error('Database error'));
 
             const response = await request(app)
-                .get('/api/listing')
+                .get('/api/listings')
                 .query({
                     priceMin: '1000',
                     priceMax: '2000',
@@ -82,7 +82,7 @@ describe('Listing Controller', () => {
         });
     });
 
-    describe('GET /api/listing/:id', () => {
+    describe('GET /api/listings/:id', () => {
         it('should return a listing when a valid ID is provided', async () => {
             const id = 'validId';
             const mockListing = { _id: id, price: 1500, typology: 'doppia', address: { city: 'Trento' }, floorArea: 80 };
@@ -90,7 +90,7 @@ describe('Listing Controller', () => {
             Listing.findById.mockResolvedValue(mockListing);
 
             const response = await request(app)
-                .get(`/api/listing/${id}`);
+                .get(`/api/listings/${id}`);
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ listing: mockListing });
@@ -103,7 +103,7 @@ describe('Listing Controller', () => {
             Listing.findById.mockResolvedValue(null);
 
             const response = await request(app)
-                .get(`/api/listing/${id}`);
+                .get(`/api/listings/${id}`);
 
             expect(response.status).toBe(400);
             expect(response.body).toEqual({ message: 'Listing not found' });
@@ -115,14 +115,14 @@ describe('Listing Controller', () => {
             Listing.findById.mockRejectedValue(new Error('Database error'));
 
             const response = await request(app)
-                .get(`/api/listing/${id}`);
+                .get(`/api/listings/${id}`);
 
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: 'Error retrieving listing', error: 'Database error' });
         });
     });
 
-    describe('POST /api/listing/add', () => {
+    describe('POST /api/listings', () => {
         const reqBody = {
             address: {
                 street: "via Roma",
@@ -152,7 +152,7 @@ describe('Listing Controller', () => {
             User.findByIdAndUpdate.mockResolvedValue(true);
 
             const response = await request(app)
-                .post('/api/listing/add')
+                .post('/api/listings')
                 .send(reqBody);
 
             expect(User.findById).toHaveBeenCalledWith(reqBody.publisherID);
@@ -166,7 +166,7 @@ describe('Listing Controller', () => {
             const modifiedReqBody = { ...reqBody, photos: [] }; // No photos
 
             const response = await request(app)
-                .post('/api/listing/add')
+                .post('/api/listings')
                 .send(modifiedReqBody);
 
             expect(response.status).toBe(401);
@@ -181,7 +181,7 @@ describe('Listing Controller', () => {
             const modifiedReqBody = { ...restOfBody }; // 'price' is now omitted
 
             const response = await request(app)
-                .post('/api/listing/add')
+                .post('/api/listings')
                 .send(modifiedReqBody);
 
             expect(response.status).toBe(401);
@@ -195,7 +195,7 @@ describe('Listing Controller', () => {
             Listing.create.mockRejectedValue(new Error('Database error'));
 
             const response = await request(app)
-                .post('/api/listing/add')
+                .post('/api/listings')
                 .send(reqBody);
 
             expect(response.status).toBe(500);
@@ -206,7 +206,7 @@ describe('Listing Controller', () => {
             User.findById.mockResolvedValue(null); // Simulate ID not found
 
             const response = await request(app)
-                .post('/api/listing/add')
+                .post('/api/listings')
                 .send(reqBody);
 
             expect(response.status).toBe(401);
@@ -222,7 +222,7 @@ describe('Listing Controller', () => {
             User.findById.mockRejectedValue(new Error('Database error'));
 
             const response = await request(app)
-                .post('/api/listing/add')
+                .post('/api/listings')
                 .send(reqBody);
 
             expect(response.status).toBe(500);
