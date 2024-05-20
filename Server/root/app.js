@@ -28,6 +28,7 @@ app.use(cors({
 const userRoutes = require('./src/routes/userRoutes');
 const tokenRoutes = require('./src/routes/tokenRoutes');
 const listingRoutes=require('./src/routes/listingRoutes');
+const matchRoutes=require('./src/routes/matchRoutes');
 
 const options = {
   definition: {
@@ -47,6 +48,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use('/api/users', userRoutes);
 app.use('/api/tokens', tokenRoutes);
 app.use('/api/listing', listingRoutes);
+app.use('/api/match', matchRoutes);
 
 
 

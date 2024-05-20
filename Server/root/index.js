@@ -2,7 +2,7 @@
 const app= require('./app')
 
 
-const PORT = process.env.PORT || 5050; // Set the port to either the environment port or 5050
+const PORT = process.env.PORT; // Set the port to either the environment port or 5050
 
 
 // Import MongoDB connection function and Mongoose instance

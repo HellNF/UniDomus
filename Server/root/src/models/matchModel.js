@@ -1,34 +1,36 @@
 const mongoose = require('mongoose');
+const { matchStatusEnum, matchTypeEnum } = require('./enums'); // Changed import to require for consistency
 
-// schema per la collezione "matches"
-
+// Schema for the "matches" collection
 const matchSchema = new mongoose.Schema({
   requesterID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user', // Riferimento alla collezione "user"
-    required: true
+    ref: 'user', // Reference to the "user" collection
+    required: true,
+    index: true // Adding an index for performance
   },
   receiverID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user', // Riferimento alla collezione "user"
-    required: true
+    ref: 'user', // Reference to the "user" collection
+    required: true,
+    index: true // Adding an index for performance
   },
   requestDate: {
     type: Date,
-    default: () => Date.now()  + (2 * 60 * 60 * 1000),
-    mutable: false
+    default: () => new Date(Date.now() ),
+    immutable: true // Making the field immutable
   },
   confirmationDate: {
     type: Date,
   },
   matchStatus: {
     type: String,
-    enum: ['in attesa', 'accettato', 'rifiutato'], // Possibili valori per lo stato del match
-    default: 'in attesa'
+    enum: matchStatusEnum, // Possible values for match status
+    default: matchStatusEnum.PENDING // Assuming the third enum is 'PENDING'
   },
   matchType: {
     type: String,
-    enum: ['match inquilino', 'match appartamento'], // Possibili tipi di match
+    enum: matchTypeEnum, // Possible match types
     required: true
   },
   messages: [{
@@ -38,17 +40,27 @@ const matchSchema = new mongoose.Schema({
     },
     date: {
       type: Date,
-      default: () => Date.now()  + (2 * 60 * 60 * 1000),
+      default: () => new Date(Date.now()), 
     },
     userID: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'user' // Riferimento alla collezione "user"
+      ref: 'user' // Reference to the "user" collection
     }
   }]
+}, {
+  timestamps: true // Automatically add createdAt and updatedAt timestamps
 });
 
-// Creazione del modello "matches" basato sullo schema
-const Match = mongoose.model('matches', matchSchema);
+// Middleware to set default values (if needed)
+matchSchema.pre('save', function (next) {
+  if (!this.requestDate) {
+    this.requestDate = new Date(Date.now());
+  }
+  next();
+});
+
+// Creating the "matches" model based on the schema
+const Match = mongoose.model('Match', matchSchema); // Changed model name to singular
 
 module.exports = Match;
