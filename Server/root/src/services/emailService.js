@@ -131,10 +131,48 @@ async function sendPasswordResetEmail(recipientEmail, resetLink) {
   }
 }
 
+/**
+ * Sends an email with the notification details.
+ * @param {string} recipientEmail - The recipient's email address.
+ * @param {string} notificationType - The type of notification.
+ * @param {string} notificationMessage - The notification message.
+ * @param {string} notificationLink - The link related to the notification.
+ */
+async function sendNotificationEmail(recipientEmail, notificationType, notificationMessage, notificationLink = '') {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const msg = {
+      to: recipientEmail,
+      from: 'freezer.spa@gmail.com',
+      subject: 'You have a new notification from UniDomus',
+      text: `${notificationMessage} ${notificationLink}`,
+      html: `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+              <h2 style="color: #333;">You have a new ${notificationType} notification</h2>
+              <p style="font-size: 16px; color: #555;">${notificationMessage}</p>
+              ${notificationLink ? `<p><a href="${notificationLink}" style="color: #1a73e8; text-decoration: none; font-weight: bold;">View Details</a></p>` : ''}
+              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+              <p style="font-size: 14px; color: #999;">If you have any questions, feel free to <a href="mailto:support@unidomus.com" style="color: #1a73e8; text-decoration: none;">contact our support team</a>.</p>
+              <p style="font-size: 14px; color: #999;">Thank you,<br>The UniDomus Team</p>
+          </div>
+      `,
+  };
+
+  try {
+      await sgMail.send(msg);
+      console.log('Notification email sent successfully!');
+  } catch (error) {
+      console.error('Error sending notification email:', error);
+  }
+}
+
+
+
 
 module.exports={
   sendEmail,
   sendConfirmationEmail,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendNotificationEmail
 };
 

@@ -2,9 +2,8 @@
 
 const MatchModel = require('../models/matchModel');
 const UserModel = require('../models/userModel');
-const { matchStatusEnum } = require('../models/enums');
-//const { sendMatchNotification } = require('../services/notificationService');
-
+const NotificationModel = require('../models/notificationModel');
+const { matchStatusEnum , matchPriorityEnum, notificationPriorityEnum} = require('../models/enums');
 /**
  * Controller function for creating a match.
  * @param {Request} req - The Express request object.
@@ -30,9 +29,15 @@ async function createMatch(req, res) {
             matchStatus: matchStatusEnum.PENDING
         });
 
-        // Optionally, send a notification about the new match
-        //await sendMatchNotification(receiver.email, 'You have a new match request!');
-
+        //create a notification for the receiver
+        await NotificationModel.create({
+            userID: receiverID,
+            type: "match",
+            message: `You have a new match request from ${requester.name} ${requester.surname}`,
+            link: `/matches/${newMatch._id}`,
+            priority: notificationPriorityEnum.MEDIUM
+        });
+        
         return res.status(200).json({ message: "Match created successfully", match: newMatch });
     } catch (error) {
         console.error("Error creating match:", error);

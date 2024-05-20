@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { registerUser, authenticateUser, getTags, getUserById, updateUserById, updatePassword, requestPasswordChange, getHousingSeekers } = require('../controllers/userController');
+const { registerUser, authenticateUser, getTags, getUserById, updateUserById, updatePassword, requestPasswordChange, getHousingSeekers,getAllUsers } = require('../controllers/userController');
 const tokenChecker = require('../middleware/tokenChecker');
 
 // Define routes for user registration
@@ -11,6 +11,8 @@ router.post('/registration', registerUser);
 router.post('/authentication', authenticateUser);
 
 router.get('/tags', getTags);
+router.get('/', getAllUsers);
+
 
 // Use query parameters for filtering users
 router.get('/housingseekers', getHousingSeekers);

@@ -135,11 +135,10 @@ async function getTags(req, res) {
 }
 
 /**
- * Controller function for user authentication.
+ * Controller function for retrieving a user by ID.
  * @param {Request} req - The Express request object.
  * @param {Response} res - The Express response object.
  */
-
 async function getUserById(req, res) {
     try {
         const { id } = req.params;
@@ -178,7 +177,73 @@ async function getUserById(req, res) {
         return res.status(500).json({ message: "Error retrieving user", error: error.message });
     }
 }
+/**
+ *  Controller function for retrieving all users with the proPic filter.
+ *  @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
 
+/**
+ * Controller function for retrieving all users with optional proPic handling.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function getAllUsers(req, res) {
+    try {
+        const { proPic } = req.query; // Extracting the proPic query parameter
+
+        const users = await User.find({});
+
+        if (!users || users.length === 0) {
+            console.log("No users found.");
+            return res.status(400).json({ message: "No users found" });
+        }
+
+        users.forEach(user => {
+            // Handling the proPic query parameter
+            if (proPic) {
+                if (proPic.toLowerCase() === 'true') {
+                    // If proPic is true, return user with all proPics
+                } else if (proPic.toLowerCase() === 'false') {
+                    // If proPic is false, remove the proPic field from the user object
+                    user.proPic = user.proPic.slice(0, 0);
+                } else {
+                    let numberOfPics = parseInt(proPic); // Convert proPic to an integer
+                    if (!isNaN(numberOfPics) && numberOfPics >= 1 && numberOfPics <= 5) {
+                        // Return the user with the specified number of proPics if present
+                        user.proPic = user.proPic.slice(0, numberOfPics);
+                    }
+                }
+            } else {
+                // If proPic query parameter is not defined, remove the entire proPic property from the user object
+                user.proPic = user.proPic.slice(0, 0);
+            }
+        });
+
+        console.log("Users retrieved successfully.");
+        return res.status(200).json({ users: users });
+    } catch (error) {
+        console.error("Error retrieving users:", error);
+        return res.status(500).json({ message: "Error retrieving users", error: error.message });
+    }
+}
+
+    
+
+
+
+
+
+
+/**
+ * Controller function for updating user details.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ * @returns {Response} - The Express response object.
+ * @throws {Error} - If an error occurs while updating the user.
+ * @throws {Error} - If the user is not found.
+ * @throws {Error} - If an error occurs while updating the user.
+ */
 const updateUserById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -337,6 +402,7 @@ module.exports = {
     getUserById,
     updateUserById,
     updatePassword,
-    requestPasswordChange
+    requestPasswordChange,
+    getAllUsers
 };
 
