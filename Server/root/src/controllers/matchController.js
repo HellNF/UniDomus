@@ -3,7 +3,7 @@
 const MatchModel = require('../models/matchModel');
 const UserModel = require('../models/userModel');
 const { matchStatusEnum } = require('../models/enums');
-const { sendMatchNotification } = require('../services/notificationService');
+//const { sendMatchNotification } = require('../services/notificationService');
 
 /**
  * Controller function for creating a match.
@@ -31,7 +31,7 @@ async function createMatch(req, res) {
         });
 
         // Optionally, send a notification about the new match
-        await sendMatchNotification(receiver.email, 'You have a new match request!');
+        //await sendMatchNotification(receiver.email, 'You have a new match request!');
 
         return res.status(200).json({ message: "Match created successfully", match: newMatch });
     } catch (error) {

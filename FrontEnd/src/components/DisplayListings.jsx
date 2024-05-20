@@ -26,7 +26,7 @@ import { API_BASE_URL } from "../constant";
  
     function getCordinatesFromAddresses(){
         
-        fetch(`${API_BASE_URL}listing/coordinates?`+ new URLSearchParams({
+        fetch(`${API_BASE_URL}listings/coordinates?`+ new URLSearchParams({
             typology: typology,
             priceMin: prices[0],
             priceMax: prices[1],
@@ -53,7 +53,7 @@ import { API_BASE_URL } from "../constant";
         
     }
     function fetchListings(){
-        fetch(`${API_BASE_URL}listing?`+ new URLSearchParams({
+        fetch(`${API_BASE_URL}listings?`+ new URLSearchParams({
             typology: typology,
             priceMin: prices[0],
             priceMax: prices[1],

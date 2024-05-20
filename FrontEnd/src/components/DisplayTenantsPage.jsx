@@ -3,6 +3,7 @@ import UniDomusLogo from "/UniDomusLogo.png";
 import { Link } from "react-router-dom";
 import Navbar from './Navbar';
 import Slider from './Slider';
+import { API_BASE_URL } from "../constant";
 
 const MIN = 0;
 const MAX = 120;
@@ -16,7 +17,7 @@ export default function DisplayTenantsPage() {
 
   // Effect hook to fetch habits and hobbies data on component mount
   useEffect(() => {
-    fetch('http://localhost:5050/api/users/tags')
+    fetch(`${API_BASE_URL}users/tags`)
       .then(response => response.json())
       .then(data => {
         setHabits(data.habits || []);

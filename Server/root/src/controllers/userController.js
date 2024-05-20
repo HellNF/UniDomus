@@ -5,6 +5,7 @@ const TokenModel = require('../models/tokenModel'); // Import the Token model
 const { isEmailValid, isUsernameValid, isPasswordValid } = require('../validators/validationFunctions');
 const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistration, isPasswordCorrect, getUserByEmail } = require('../database/databaseQueries');
 const { generateRandomToken } = require('../utils/tokenUtils'); // Import the function to generate random token
+const { calculateDOBFromAge } = require('../utils/dateUtils');
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 require('dotenv').config() //to use environment variables
 const { sendConfirmationEmail,sendPasswordResetEmail } = require('../services/emailService'); // Import the function to send confirmation email
@@ -72,7 +73,7 @@ async function registerUser(req, res) {
 
         // Construct confirmation link
         const base_url = process.env.BASE_URL;
-        const confirmationLink = `${base_url}/api/tokens/token/${token}`;
+        const confirmationLink = `${base_url}/api/tokens/${token}`;
 
         // Send confirmation email
         await sendConfirmationEmail(email, confirmationLink);
@@ -290,21 +291,7 @@ async function updatePassword(req, res) {
     }
   }
 
-  function calculateDOBFromAge(age) {
-    const currentDate = new Date(); // Get the current date and time
-    currentDate.setHours(currentDate.getHours() + 2); // Add 2 hours to the current time
-
-    const birthYear = currentDate.getFullYear() - age; // Calculate the birth year
-
-    // Create a new date object for the date of birth, maintaining the adjusted month, day, and time
-    const dob = new Date(currentDate.setFullYear(birthYear));
-
-    // Format the date of birth in ISO 8601 format
-    return dob.toISOString();
-}
-
-
-async function getUserByFilters(req, res) {
+async function getHousingSeekers(req, res) {
     try {
         const { gender,etaMin, etaMax, hobbies, habits } = req.query;
 
@@ -312,6 +299,7 @@ async function getUserByFilters(req, res) {
         const dataMax = calculateDOBFromAge(etaMin);
 
         let query = {
+            housingSeeker: true,
             birthDate: { $gte: dataMin, $lte: dataMax }
         };
 
@@ -344,7 +332,7 @@ async function getUserByFilters(req, res) {
 module.exports = {
     registerUser,
     authenticateUser,
-    getUserByFilters,
+    getHousingSeekers,
     getTags,
     getUserById,
     updateUserById,

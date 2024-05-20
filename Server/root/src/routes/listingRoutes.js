@@ -1,26 +1,13 @@
-// Import necessary modules
 const express = require('express');
-const bodyParser = require('body-parser');
-const tokenChecker= require('../middleware/tokenChecker')
+const tokenChecker = require('../middleware/tokenChecker'); // Import the tokenChecker middleware
 const router = express.Router();
-const { listings, addListing , getListingById, addressToCoordinates } = require('../controllers/listingController');
+const { listings, addListing, getListingById, addressToCoordinates } = require('../controllers/listingController');
 
-//router.use(bodyParser.urlencoded({ extended: false }));
+// Apply tokenChecker middleware to routes that require authentication
+router.post('/', tokenChecker, addListing);
 
-const Listing = require('../models/listingModel');
+router.get('/', listings);
+router.get('/coordinates', addressToCoordinates);
+router.get('/:id', getListingById);
 
-
-router.get('/',listings);
-
-router.post('/add',addListing);
-
-router.get('/coordinates',addressToCoordinates);
-
-router.get('/:id',getListingById);
-
-
-
-
-
-// Export router
 module.exports = router;

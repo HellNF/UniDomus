@@ -17,6 +17,8 @@ const tokenChecker = require('../middleware/tokenChecker');
 const router = express.Router();
 
 // Define routes
+router.use(tokenChecker);
+
 router.post('/', createMatch);
 router.get('/user/:userID', getMatchesByUserID);
 router.get('/received/:userID', getReceivedMatches);
