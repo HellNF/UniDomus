@@ -2,6 +2,7 @@ const request = require('supertest');
 const app = require('../../app.js'); 
 const Listing = require('../models/listingModel.js');
 const User = require('../models/userModel.js');
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 require('dotenv').config({ path: '../../.env' });
 
@@ -11,8 +12,13 @@ jest.mock('../models/listingModel'); // Mock the Listing model for testing
 jest.spyOn(mongoose, 'connect').mockImplementation(() => Promise.resolve());
 
 describe('Listing Controller', () => {
+    let token;
+
     beforeEach(() => {
         jest.clearAllMocks(); // Clear mock function calls before each test
+
+        // Generate a valid JWT token for testing
+        token = jwt.sign({ id: 'testUserId' }, process.env.SUPER_SECRET, { expiresIn: '1h' });
     });
 
     describe('GET /api/listings', () => {
@@ -153,6 +159,7 @@ describe('Listing Controller', () => {
 
             const response = await request(app)
                 .post('/api/listings')
+                .set('x-access-token', `${token}`) // Set the token in the header
                 .send(reqBody);
 
             expect(User.findById).toHaveBeenCalledWith(reqBody.publisherID);
@@ -167,6 +174,7 @@ describe('Listing Controller', () => {
 
             const response = await request(app)
                 .post('/api/listings')
+                .set('x-access-token', `${token}`) // Set the token in the header
                 .send(modifiedReqBody);
 
             expect(response.status).toBe(401);
@@ -182,6 +190,7 @@ describe('Listing Controller', () => {
 
             const response = await request(app)
                 .post('/api/listings')
+                .set('x-access-token', `${token}`) // Set the token in the header
                 .send(modifiedReqBody);
 
             expect(response.status).toBe(401);
@@ -196,6 +205,7 @@ describe('Listing Controller', () => {
 
             const response = await request(app)
                 .post('/api/listings')
+                .set('x-access-token', `${token}`) // Set the token in the header
                 .send(reqBody);
 
             expect(response.status).toBe(500);
@@ -207,6 +217,7 @@ describe('Listing Controller', () => {
 
             const response = await request(app)
                 .post('/api/listings')
+                .set('x-access-token', `${token}`) // Set the token in the header
                 .send(reqBody);
 
             expect(response.status).toBe(401);
@@ -223,6 +234,7 @@ describe('Listing Controller', () => {
 
             const response = await request(app)
                 .post('/api/listings')
+                .set('x-access-token', `${token}`) // Set the token in the header
                 .send(reqBody);
 
             expect(response.status).toBe(500);
