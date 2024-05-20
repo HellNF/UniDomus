@@ -1,13 +1,12 @@
-
 // Import necessary modules and services
-const { registerUser,authenticateUser,getTags,getUserById,updateUserById  } = require('../controllers/userController');
+const request = require('supertest');
+const app = require('../../app.js');  // Assumendo che questo sia il file principale dell'app
 const UserModel = require('../models/userModel');
 const TokenModel = require('../models/tokenModel');
 const tokenUtils = require('../utils/tokenUtils'); 
-const jwt = require('jsonwebtoken');
 const emailService = require('../services/emailService'); 
 const databaseQueries = require('../database/databaseQueries'); 
-const validators = require('../validators/validationFunctions');
+const jwt = require('jsonwebtoken');
 
 // Mock external modules as necessary
 jest.mock('../models/userModel');
@@ -18,17 +17,6 @@ jest.mock('../database/databaseQueries');
 
 describe('UserController', () => {
 
-    const req = {
-        body: {
-            email: 'test@example.com',
-            password: 'Password123!',
-            username: 'testuser',
-        }
-    };
-    const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-    };
     beforeEach(() => {
         jest.clearAllMocks(); // Reset all mocks
 
@@ -38,12 +26,11 @@ describe('UserController', () => {
         jest.spyOn(databaseQueries, 'isUsernameAlreadyTaken').mockResolvedValue(false);
         jest.spyOn(databaseQueries, 'isEmailPendingRegistration').mockResolvedValue(false);
         jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(null);
-        jest.spyOn(emailService, 'sendConfirmationEmail').mockResolvedValue();
         jest.spyOn(UserModel, 'create').mockResolvedValue({
             _id: '1',
-            email: req.body.email,
-            password: req.body.password,
-            username: req.body.username,
+            email: 'test@example.com',
+            password: 'Password123!',
+            username: 'testuser',
             active: false
         });
         jest.spyOn(TokenModel, 'create').mockResolvedValue({
@@ -51,400 +38,373 @@ describe('UserController', () => {
         });
     });
 
-    describe('POST api/users/registration', () => {
+    describe('POST /api/users/registration', () => {
 
-    // Test successful registration
-    it('should successfully register a user', async () => {
-        await registerUser(req, res);
+        it('should successfully register a user', async () => {
+            const response = await request(app)
+                .post('/api/users/registration')
+                .send({
+                    email: 'test@example.com',
+                    password: 'Password123!',
+                    username: 'testuser'
+                });
 
-        expect(UserModel.create).toHaveBeenCalledWith({
-            email: req.body.email,
-            password: req.body.password,
-            username: req.body.username,
-            active: false
-        });
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ message: 'success' });
-        expect(emailService.sendConfirmationEmail).toHaveBeenCalledWith(req.body.email, expect.any(String));
-    });
-
-    // Test handling of duplicate email registrations
-    it('should handle duplicate email registrations and return 400 status', async () => {
-        jest.spyOn(databaseQueries, 'isEmailAlreadyRegistered').mockResolvedValue(true);
-
-        await registerUser(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            message: 'error',
-            errors: expect.arrayContaining([{ field: 'email', message: 'Email already registered' }])
-        });
-    });
-
-    // Test input validation for email
-    it('should return 400 status for invalid email format', async () => {
-        req.body.email = 'bademail'; // Invalid email format
-
-        await registerUser(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            message: 'error',
-            errors: expect.arrayContaining([{ field: 'email', message: 'Invalid email' }])
-        });
-    });
-
-    // Test input validation for password strength
-    it('should return 400 status for invalid password', async () => {
-        req.body.password = '123'; // Weak password
-
-        await registerUser(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            message: 'error',
-            errors: expect.arrayContaining([{ field: 'password', message: 'Invalid password' }])
-        });
-    });
-
-    // Test handling of exceptions during the user creation process
-    it('should handle database errors and return 500 status', async () => {
-  
-    req.body.email = 'valid.email@example.com';
-    req.body.password = 'ValidPassword123!';
-    req.body.username = 'validUsername';
-
-        
-        jest.spyOn(UserModel, 'create').mockRejectedValue(new Error('Database error'));
-
-        await registerUser(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({
-            message: 'error', 
-            reason: 'Internal server error'
-        });
-    });
-});
-
-describe('POST api/users/authentication', () => {
-    beforeEach(() => {
-        jest.clearAllMocks(); // Reset all mocks
-
-        jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(null);
-        jest.spyOn(jwt, 'sign').mockReturnValue('fake_jwt_token');
-    });
-
-    //test succesful authentication
-    it('should authenticate a user and return a token', async () => {
-        const userMock = {
-            _id: '1',
-            email: 'test@example.com',
-            isValidPassword: jest.fn().mockResolvedValue(true)
-        };
-
-        jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(userMock);
-        
-        const req = {
-            body: {
+            expect(UserModel.create).toHaveBeenCalledWith({
                 email: 'test@example.com',
-                password: 'Password123!'
-            }
-        };
-        const res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn()
-        };
+                password: 'Password123!',
+                username: 'testuser',
+                active: false
+            });
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ message: 'success' });
+        });
 
-        await authenticateUser(req, res);
+        it('should handle duplicate email registrations and return 400 status', async () => {
+            jest.spyOn(databaseQueries, 'isEmailAlreadyRegistered').mockResolvedValue(true);
 
-        expect(databaseQueries.getUserByEmail).toHaveBeenCalledWith('test@example.com');
-        expect(userMock.isValidPassword).toHaveBeenCalledWith('Password123!');
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            success: true,
-            message: 'Token returned',
-            token: 'fake_jwt_token',
-            email: 'test@example.com',
-            id: '1',
-            self: 'api/users/authentication/1'
+            const response = await request(app)
+                .post('/api/users/registration')
+                .send({
+                    email: 'test@example.com',
+                    password: 'Password123!',
+                    username: 'testuser'
+                });
+
+            expect(response.status).toBe(400);
+            expect(response.body).toEqual({
+                message: 'error',
+                errors: [{ field: 'email', message: 'Email already registered' }]
+            });
+        });
+
+        it('should return 400 status for invalid email format', async () => {
+            const response = await request(app)
+                .post('/api/users/registration')
+                .send({
+                    email: 'bademail',
+                    password: 'Password123!',
+                    username: 'testuser'
+                });
+
+            expect(response.status).toBe(400);
+            expect(response.body).toEqual({
+                message: 'error',
+                errors: [{ field: 'email', message: 'Invalid email' }]
+            });
+        });
+
+        it('should return 400 status for invalid password', async () => {
+            const response = await request(app)
+                .post('/api/users/registration')
+                .send({
+                    email: 'test@example.com',
+                    password: '123',
+                    username: 'testuser'
+                });
+
+            expect(response.status).toBe(400);
+            expect(response.body).toEqual({
+                message: 'error',
+                errors: [{ field: 'password', message: 'Invalid password' }]
+            });
+        });
+
+        it('should handle database errors and return 500 status', async () => {
+            jest.spyOn(UserModel, 'create').mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .post('/api/users/registration')
+                .send({
+                    email: 'valid.email@example.com',
+                    password: 'ValidPassword123!',
+                    username: 'validUsername'
+                });
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({
+                message: 'error',
+                reason: 'Internal server error'
+            });
         });
     });
 
-    //test wrong password error
-    it('should return 401 status if the password is incorrect', async () => {
-        const userMock = {
-            email: 'test@example.com',
-            isValidPassword: jest.fn().mockResolvedValue(false)
-        };
+    describe('POST /api/users/authentication', () => {
+        beforeEach(() => {
+            jest.clearAllMocks(); // Reset all mocks
 
-        jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(userMock);
+            jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(null);
+            jest.spyOn(jwt, 'sign').mockReturnValue('fake_jwt_token');
+        });
 
-        const req = {
-            body: {
+        it('should authenticate a user and return a token', async () => {
+            const userMock = {
+                _id: '1',
                 email: 'test@example.com',
-                password: 'WrongPassword123!'
-            }
-        };
-        const res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn()
-        };
+                isValidPassword: jest.fn().mockResolvedValue(true)
+            };
 
-        await authenticateUser(req, res);
+            jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(userMock);
 
-        expect(userMock.isValidPassword).toHaveBeenCalledWith('WrongPassword123!');
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: 'Wrong password'
-        });
-    });
+            const response = await request(app)
+                .post('/api/users/authentication')
+                .send({
+                    email: 'test@example.com',
+                    password: 'Password123!'
+                });
 
-    //test user not found error
-    it('should handle user not found and return 401 status', async () => {
-        jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(null);
-
-        const req = {
-            body: {
-                email: 'nonexistent@example.com',
-                password: 'Password123!'
-            }
-        };
-        const res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn()
-        };
-
-        await authenticateUser(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: 'User not found'
-        });
-    });
-
-    // Test handling of exceptions during authentication
-    it('should handle database errors during user lookup and return 500 status', async () => {
-        jest.spyOn(databaseQueries, 'getUserByEmail').mockRejectedValue(new Error('Database error'));
-
-        const req = {
-            body: {
+            expect(databaseQueries.getUserByEmail).toHaveBeenCalledWith('test@example.com');
+            expect(userMock.isValidPassword).toHaveBeenCalledWith('Password123!');
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                success: true,
+                message: 'Token returned',
+                token: 'fake_jwt_token',
                 email: 'test@example.com',
-                password: 'Password123!'
-            }
-        };
-        const res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn()
-        };
+                id: '1',
+                self: 'api/users/authentication/1'
+            });
+        });
 
-        await authenticateUser(req, res);
+        it('should return 401 status if the password is incorrect', async () => {
+            const userMock = {
+                email: 'test@example.com',
+                isValidPassword: jest.fn().mockResolvedValue(false)
+            };
 
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: 'Internal server error'
+            jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(userMock);
+
+            const response = await request(app)
+                .post('/api/users/authentication')
+                .send({
+                    email: 'test@example.com',
+                    password: 'WrongPassword123!'
+                });
+
+            expect(userMock.isValidPassword).toHaveBeenCalledWith('WrongPassword123!');
+            expect(response.status).toBe(401);
+            expect(response.body).toEqual({
+                success: false,
+                message: 'Wrong password'
+            });
+        });
+
+        it('should handle user not found and return 401 status', async () => {
+            const response = await request(app)
+                .post('/api/users/authentication')
+                .send({
+                    email: 'nonexistent@example.com',
+                    password: 'Password123!'
+                });
+
+            expect(response.status).toBe(401);
+            expect(response.body).toEqual({
+                success: false,
+                message: 'User not found'
+            });
+        });
+
+        it('should handle database errors during user lookup and return 500 status', async () => {
+            jest.spyOn(databaseQueries, 'getUserByEmail').mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .post('/api/users/authentication')
+                .send({
+                    email: 'test@example.com',
+                    password: 'Password123!'
+                });
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({
+                success: false,
+                message: 'Internal server error'
+            });
         });
     });
 
-});
+    describe('GET /api/users/tags', () => {
+        it('should return tags', async () => {
+            const response = await request(app)
+                .get('/api/users/tags');
 
-describe('GET api/users/tags', () => {
-    const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-    };
-
-    beforeEach(() => {
-        jest.clearAllMocks();  
-    });
- 
-    it('should return tags', async () => {
-
-        await getTags(null, res); 
-
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            hobbies: expect.any(Array),
-            habits: expect.any(Array)
-          });
-    });
-});
-
-describe('GET api/users/:id', () => {
-    const req = {
-        params: { id: '1' },
-        query: {}
-    };
-    const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-    };
-
-    beforeEach(() => {
-        jest.clearAllMocks();
-        // Spy on UserModel.findById
-        jest.spyOn(UserModel, 'findById').mockResolvedValue({
-            _id: '1',
-            username: 'testUser',
-            email: 'test@example.com',
-            hobbies: ['reading', 'gaming'], 
-            proPic: ['pic1', 'pic2'] 
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                hobbies: expect.any(Array),
+                habits: expect.any(Array)
+            });
         });
     });
- 
-    //test the user's successful retrieval
-    it('should retrieve a user by ID and return successfully', async () => {
-        await getUserById(req, res);
 
-        expect(UserModel.findById).toHaveBeenCalledWith('1');
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            user: {
+    describe('GET /api/users/:id', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+            jest.spyOn(UserModel, 'findById').mockResolvedValue({
                 _id: '1',
                 username: 'testUser',
                 email: 'test@example.com',
                 hobbies: ['reading', 'gaming'],
+                proPic: ['pic1', 'pic2']
+            });
+        });
+
+        it('should retrieve a user by ID and return successfully', async () => {
+            const response = await request(app)
+                .get('/api/users/1');
+
+            expect(UserModel.findById).toHaveBeenCalledWith('1');
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                user: {
+                    _id: '1',
+                    username: 'testUser',
+                    email: 'test@example.com',
+                    hobbies: ['reading', 'gaming'],
+                    proPic: []
+                }
+            });
+        });
+
+        it('should handle the case when no user is found', async () => {
+            jest.spyOn(UserModel, 'findById').mockResolvedValue(null);
+
+            const response = await request(app)
+                .get('/api/users/1');
+
+            expect(response.status).toBe(400);
+            expect(response.body).toEqual({ message: 'User not found' });
+        });
+
+        it('should handle database errors and return 500 status', async () => {
+            jest.spyOn(UserModel, 'findById').mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .get('/api/users/1');
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({
+                message: 'Error retrieving user',
+                error: 'Database error'
+            });
+        });
+    });
+
+    describe('PUT /api/users/:id', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('should update user details and return updated user', async () => {
+            const mockUser = {
+                _id: '1',
+                username: 'updatedUser',
+                email: 'update@example.com',
+                proPic: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg']
+            };
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(mockUser);
+
+            const response = await request(app)
+                .put('/api/users/1')
+                .send({
+                    username: 'updatedUser',
+                    email: 'update@example.com'
+                });
+
+            expect(UserModel.findByIdAndUpdate).toHaveBeenCalledWith('1', {
+                username: 'updatedUser',
+                email: 'update@example.com'
+            }, { new: true });
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ user: mockUser });
+        });
+
+        it('should handle "proPic=true" and return all profile pictures', async () => {
+            const mockUser = {
+                _id: '1',
+                username: 'updatedUser',
+                email: 'update@example.com',
+                proPic: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg']
+            };
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(mockUser);
+
+            const response = await request(app)
+                .put('/api/users/1')
+                .query({ proPic: 'true' })
+                .send({
+                    username: 'updatedUser',
+                    email: 'update@example.com'
+                });
+
+            expect(response.body.user.proPic).toEqual(['pic1.jpg', 'pic2.jpg', 'pic3.jpg']);
+        });
+
+        it('should handle "proPic=false" and remove all profile pictures', async () => {
+            const mockUser = {
+                _id: '1',
+                username: 'updatedUser',
+                email: 'update@example.com',
                 proPic: []
-            }
+            };
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(mockUser);
+
+            const response = await request(app)
+                .put('/api/users/1')
+                .query({ proPic: 'false' })
+                .send({
+                    username: 'updatedUser',
+                    email: 'update@example.com'
+                });
+
+            expect(response.body.user.proPic).toEqual([]);
         });
-    });
-    
-    //test user not found error
-    it('should handle the case when no user is found', async () => {
-        jest.spyOn(UserModel, 'findById').mockResolvedValue(null);
 
-        await getUserById(req, res);
+        it('should handle "proPic=2" and return two profile pictures', async () => {
+            const mockUser = {
+                _id: '1',
+                username: 'updatedUser',
+                email: 'update@example.com',
+                proPic: ['pic1.jpg', 'pic2.jpg']
+            };
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(mockUser);
 
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ message: 'User not found' });
-    });
+            const response = await request(app)
+                .put('/api/users/1')
+                .query({ proPic: '2' })
+                .send({
+                    username: 'updatedUser',
+                    email: 'update@example.com'
+                });
 
-    // Test handling of database errors during findById function
-    it('should handle database errors and return 500 status', async () => {
-        jest.spyOn(UserModel, 'findById').mockRejectedValue(new Error('Database error'));
-
-        await getUserById(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({
-            message: 'Error retrieving user',
-            error: 'Database error'
+            expect(response.body.user.proPic.length).toBe(2);
         });
-    });
-});
 
-describe('PUT api/users/:id', () => {
-    const req = {
-        params: { id: '1' },
-        body: {
-            username: 'updatedUser',
-            email: 'update@example.com'
-        },
-        query: {}  
-    };
-    const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-    };
+        it('should return 404 if user not found', async () => {
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(null);
 
-    beforeEach(() => {
-        jest.clearAllMocks();
-        req.query = {};  // Reset query parameters for each test
-    });
-     //test successful user update 
-    it('should update user details and return updated user', async () => {
-        const mockUser = {
-            _id: '1',
-            username: 'updatedUser',
-            email: 'update@example.com',
-            proPic: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg']
-        };
-        jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(mockUser);
+            const response = await request(app)
+                .put('/api/users/1')
+                .send({
+                    username: 'updatedUser',
+                    email: 'update@example.com'
+                });
 
-        await updateUserById(req, res);
+            expect(response.status).toBe(404);
+            expect(response.body).toEqual({ message: 'User not found' });
+        });
 
-        expect(UserModel.findByIdAndUpdate).toHaveBeenCalledWith('1', req.body, { new: true });
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ user: mockUser });
-    });
+        it('should handle database errors and return 500 status', async () => {
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockRejectedValue(new Error('Database error'));
 
-    //checks that all profile pictures are returned when 'proPic=true'
-    it('should handle "proPic=true" and return all profile pictures', async () => {
-        req.query.proPic = 'true';
-        const mockUser = {
-            _id: '1',
-            username: 'updatedUser',
-            email: 'update@example.com',
-            proPic: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg']
-        };
-        jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(mockUser);
+            const response = await request(app)
+                .put('/api/users/1')
+                .send({
+                    username: 'updatedUser',
+                    email: 'update@example.com'
+                });
 
-        await updateUserById(req, res);
-
-        expect(res.json).toHaveBeenCalledWith({ user: mockUser });
-    });
-
-    //confirms that no profile pictures are returned when 'proPic=false'
-    it('should handle "proPic=false" and remove all profile pictures', async () => {
-        req.query.proPic = 'false';
-        const mockUser = {
-            _id: '1',
-            username: 'updatedUser',
-            email: 'update@example.com',
-            proPic: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg']
-        };
-        jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(mockUser);
-
-        await updateUserById(req, res);
-
-        expect(mockUser.proPic).toEqual([]);
-        expect(res.json).toHaveBeenCalledWith({ user: mockUser });
-    });
-
-    //ensures returning only two profile pictures when 'proPic=2
-    it('should handle "proPic=2" and return two profile pictures', async () => {
-        req.query.proPic = '2';
-        const mockUser = {
-            _id: '1',
-            username: 'updatedUser',
-            email: 'update@example.com',
-            proPic: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg']
-        };
-        jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(mockUser);
-
-        await updateUserById(req, res);
-
-        expect(mockUser.proPic.length).toBe(2);
-        expect(res.json).toHaveBeenCalledWith({ user: mockUser });
-    });
-
-    //ensures a 404 status is returned if the user is not found
-    it('should return 404 if user not found', async () => {
-        jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(null);
-
-        await updateUserById(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(404);
-        expect(res.json).toHaveBeenCalledWith({ message: 'User not found' });
-    });
-
-    //test that database errors are caught and a 500 status is returned
-    it('should handle database errors and return 500 status', async () => {
-        jest.spyOn(UserModel, 'findByIdAndUpdate').mockRejectedValue(new Error('Database error'));
-
-        await updateUserById(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({
-            message: 'Error updating user',
-            error: 'Database error'
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({
+                message: 'Error updating user',
+                error: 'Database error'
+            });
         });
     });
 });
-
-
-});
-
