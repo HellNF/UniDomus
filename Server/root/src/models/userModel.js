@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const { hobbiesEnum, habitsEnum } = require('./enums');
+const { hobbiesEnum, habitsEnum, sexEnum, activeEnum } = require("./enums");
 
 
 const userSchema = new mongoose.Schema({
@@ -61,8 +61,8 @@ const userSchema = new mongoose.Schema({
     },
     gender:{
         type: String,
-        enum: ['Maschio', 'Femmina','Altro'], 
-        default: 'Altro'
+        enum: sexEnum,
+        default: sexEnum.OTHER
     },
     habits: {
 
@@ -88,8 +88,8 @@ const userSchema = new mongoose.Schema({
     },
     activityStatus: {
         type: String,
-        enum: ['attivo', 'attivo recentemente', 'inattivo'],
-        default: 'attivo'
+        enum: activeEnum,
+        default: activeEnum.INACTIVE
     },
     active: {
         type: Boolean,

@@ -1,4 +1,50 @@
 // models/enums.js
+const sexEnum = {
+    MALE: 'Maschio',
+    FEMALE: 'Femmina',
+    OTHER: 'Altro'
+};
+
+const activeEnum = {
+    ACTIVE: 'Attivo',
+    INACTIVE: 'Inattivo',
+    RECENTLY_ACTIVE: 'Recentemente Attivo'
+};
+
+const matchStatusEnum = {
+    PENDING: 'In attesa',
+    ACCEPTED: 'Accettato',
+    REJECTED: 'Rifiutato'
+};
+
+const matchTypeEnum = {
+    APARTMENT: 'Appartamento',
+    ROOMMATE: 'Coinquilino'
+};
+
+const matchPriorityEnum = {
+    LOW: 'Basso',
+    MEDIUM: 'Medio',
+    HIGH: 'Alto'
+};
+
+const notificationTypeEnum = {
+    MATCH: 'match',
+    MESSAGE: 'messaggio',
+    ALERT: 'alert',
+    REMINDER: 'promemria'
+};
+
+const notificationStatusEnum = {
+    SEEN: 'visto',
+    NOT_SEEN: 'non visto',
+};
+
+const notificationPriorityEnum = {
+    LOW: 'basso',
+    MEDIUM: 'medio',
+    HIGH: 'alto'
+};
 
 const hobbiesEnum = [
     'Lettura',
@@ -111,5 +157,13 @@ const habitsEnum = [
 
 module.exports = {
     hobbiesEnum,
-    habitsEnum
+    habitsEnum,
+    sexEnum,
+    activeEnum,
+    matchStatusEnum,
+    matchTypeEnum,
+    matchPriorityEnum,
+    notificationTypeEnum,
+    notificationStatusEnum,
+    notificationPriorityEnum
 };

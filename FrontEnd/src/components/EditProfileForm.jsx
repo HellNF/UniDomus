@@ -4,6 +4,7 @@ import { Switch } from '@headlessui/react'
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './../AuthContext';
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from '../constant';
 
 
 function classNames(...classes) {
@@ -143,8 +144,9 @@ export default function EditProfileForm() {
             const response = await fetch(`${API_BASE_URL}users/${userId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
-                },
+                    'x-access-token': localStorage.getItem("token"),
+                    'Content-Type': 'application/json'
+                  },
                 body: JSON.stringify(formData),
             });
 

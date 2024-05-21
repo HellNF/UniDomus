@@ -150,7 +150,7 @@ setTimeout(() => {
       photos: photoBase64,
       publisherID: userId
     }
-    fetch(`${API_BASE_URL}listing/add`, {
+    fetch(`${API_BASE_URL}listings/`, {
       method: 'POST',
       headers: {
         'x-access-token': localStorage.getItem("token"),
