@@ -130,7 +130,7 @@ function Navbar({ current }) {
                     <Menu as="div" className="relative ml-3 z-20">
                       <Menu.Button onClick={markNotificationsAsSeen} className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                         <span className="absolute -inset-1.5" />
-                        <span className="sr-only">View notifications</span>
+                        <span className="sr-only">Notifiche</span>
                         <BellIcon className="h-6 w-6" aria-hidden="true" />
                         {unseenNotifications > 0 && (
                           <span className="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 text-white rounded-full h-4 w-4 flex items-center justify-center text-xs">
@@ -209,6 +209,16 @@ function Navbar({ current }) {
                               )}
                             </Menu.Item>
                           )}
+                           <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                href="/matches/index"
+                                className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                              >
+                                Matches
+                              </a>
+                            )}
+                          </Menu.Item>
                           <Menu.Item>
                             {({ active }) => (
                               <a

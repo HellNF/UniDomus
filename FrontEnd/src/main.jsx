@@ -53,7 +53,7 @@ const router= createBrowserRouter([
     path: "/resetpassword/:token",
     element: <PasswordReset></PasswordReset>
   },{
-    path: "/matchlist",
+    path: "/matches/:id",
     element: <MatchDisplayer></MatchDisplayer>
   }
 

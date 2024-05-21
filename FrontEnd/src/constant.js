@@ -6,4 +6,9 @@ export const notificationStatusEnum = {
     SEEN: 'visto',
     NOT_SEEN: 'non visto',
 };
+export const matchStatusEnum = {
+    PENDING: 'In attesa',
+    ACCEPTED : 'Accettato',
+    DECLINED : 'Rifiutato',
+};
 
