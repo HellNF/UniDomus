@@ -1,8 +1,9 @@
 openapi: 3.0.0
 info:
-  title: Token Confirmation API
-  version: 1.0.0
-  description: API documentation for confirming tokens and activating user accounts
+  title: Unidomus API
+  version: 2.0.0
+  description: API for the Unidomus application, a platform for real estate listings and roommate matching.
+  
 paths:
   
   /api/token/token/{token}:

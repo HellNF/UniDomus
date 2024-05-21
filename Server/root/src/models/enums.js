@@ -46,6 +46,20 @@ const notificationPriorityEnum = {
     HIGH: 'alto'
 };
 
+const reportTypeEnum = {
+    USER: 'utente',
+    LISTING: 'inserzione',
+    CONVERSATION: 'conversazione',
+    MESSAGE: 'messaggio',
+    CUSTOM: 'personalizzato'
+};
+
+const reportStatusEnum = {
+    PENDING: 'in attesa',
+    REVIEWED: 'revisionato',
+    RESOLVED: 'risolto'
+};
+
 const hobbiesEnum = [
     'Lettura',
     'Corsa',
@@ -165,5 +179,7 @@ module.exports = {
     matchPriorityEnum,
     notificationTypeEnum,
     notificationStatusEnum,
-    notificationPriorityEnum
+    notificationPriorityEnum,
+    reportTypeEnum,
+    reportStatusEnum
 };
