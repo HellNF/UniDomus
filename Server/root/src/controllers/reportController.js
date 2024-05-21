@@ -1,12 +1,44 @@
-const { reportTypeEnum, reportStatusEnum } = require('./enums');
+const { reportTypeEnum, reportStatusEnum } = require('../models/enums');
 const ReportModel = require('../models/reportModel');
 const UserModel = require('../models/userModel');
 const MatchModel = require('../models/matchModel');
+const ListingModel = require('../models/listingModel');
 
 /**
- * Controller function for creating a report.
- * @param {Request} req - The Express request object.
- * @param {Response} res - The Express response object.
+ * Validate the existence of the target entity based on the report type.
+ * @param {string} reportType - The type of the report.
+ * @param {string} targetID - The ID of the target.
+ * @param {string} [messageID] - The ID of the message (optional, required if reportType is MESSAGE).
+ * @returns {boolean} True if the target exists, otherwise false.
+ */
+async function validateTarget(reportType, targetID, messageID) {
+    switch (reportType) {
+        case reportTypeEnum.USER:
+            return await UserModel.exists({ _id: targetID });
+        case reportTypeEnum.LISTING:
+            return await ListingModel.exists({ _id: targetID });
+        case reportTypeEnum.MESSAGE:
+            const match = await MatchModel.findById(targetID);
+            return match && match.messages[messageID];
+        case reportTypeEnum.CONVERSATION:
+            return await MatchModel.exists({ _id: targetID });
+        default:
+            return false;
+    }
+}
+
+/**
+ * Creates a new report.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The request body.
+ * @param {string} req.body.reporterID - The ID of the reporter.
+ * @param {string} req.body.reportType - The type of the report.
+ * @param {string} req.body.targetID - The ID of the target.
+ * @param {string} req.body.description - The description of the report.
+ * @param {string} req.body.messageID - The ID of the message (optional, required if reportType is MESSAGE).
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object with the created report or an error message.
  */
 async function createReport(req, res) {
     const { reporterID, reportType, targetID, description, messageID } = req.body;
@@ -22,8 +54,7 @@ async function createReport(req, res) {
             [reportTypeEnum.USER]: 'User',
             [reportTypeEnum.LISTING]: 'Listing',
             [reportTypeEnum.CONVERSATION]: 'Match',
-            [reportTypeEnum.MESSAGE]: 'Match' // Matches will contain messages
-
+            [reportTypeEnum.MESSAGE]: 'Match'
         };
 
         const targetModel = targetModelMap[reportType];
@@ -31,17 +62,13 @@ async function createReport(req, res) {
             return res.status(400).json({ message: "Invalid report type" });
         }
 
-        // Validate messageID if reportType is MESSAGE
-        if (reportType === reportTypeEnum.MESSAGE) {
-            const match = await MatchModel.findById(targetID);
-            if (!match) {
-                return res.status(404).json({ message: "Match not found" });
-            }
-            if (!match.messages[messageID]) {
-                return res.status(404).json({ message: "Message not found in the specified match" });
-            }
+        // Validate target
+        const targetExists = await validateTarget(reportType, targetID, messageID);
+        if (!targetExists) {
+            return res.status(404).json({ message: "Target not found" });
         }
 
+        // Create report
         const newReport = await ReportModel.create({
             reporterID,
             reportType,

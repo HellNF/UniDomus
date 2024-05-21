@@ -44,6 +44,7 @@ const reportSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const Report = mongoose.model('Report', reportSchema);
+// Check if the model already exists before defining it
+const ReportModel = mongoose.models.Report || mongoose.model('Report', reportSchema);
 
-module.exports = Report;
+module.exports = ReportModel;
