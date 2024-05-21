@@ -89,11 +89,11 @@ async function deleteNotificationById(req, res) {
  * @param {Response} res - The Express response object.
  */
 async function getNotificationsByUserId(req, res) {
-    const { userId } = req.params;
+    const { userID } = req.params;
     const { type, status, priority } = req.query;
 
     try {
-        const query = { userId };
+        const query = { userID };
 
         if (type) {
             query.type = type;
@@ -122,10 +122,10 @@ async function getNotificationsByUserId(req, res) {
  * @param {Response} res - The Express response object.
  */
 async function deleteAllNotificationsByUserId(req, res) {
-    const { userId } = req.params;
+    const { userID } = req.params;
 
     try {
-        await NotificationModel.deleteMany({ userId });
+        await NotificationModel.deleteMany({ userID });
 
         return res.status(200).json({ message: "All notifications deleted successfully" });
     } catch (error) {

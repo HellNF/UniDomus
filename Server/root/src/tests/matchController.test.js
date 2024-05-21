@@ -5,7 +5,7 @@ const app = require('../../app.js');
 const MatchModel = require('../models/matchModel');
 const UserModel = require('../models/userModel');
 const NotificationModel = require('../models/notificationModel');
-const { matchStatusEnum, notificationPriorityEnum } = require('../models/enums');
+const { matchStatusEnum, notificationPriorityEnum, matchTypeEnum } = require('../models/enums');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: '../../.env' });
@@ -168,7 +168,7 @@ describe('Match Controller', () => {
 
     describe('PUT /api/matches/status/:matchID', () => {
     it('should update match status successfully', async () => {
-        const mockMatch = { _id: 'matchId', matchStatus: matchStatusEnum.PENDING };
+        const mockMatch = { _id: 'matchId',receiverID: "receiverID",requesterID:"requesterID",matchType: matchTypeEnum.APARTMENT, matchStatus: matchStatusEnum.PENDING };
 
         MatchModel.findById.mockResolvedValue(mockMatch);
         MatchModel.findByIdAndUpdate.mockResolvedValue({ ...mockMatch, matchStatus: matchStatusEnum.ACCEPTED });
@@ -219,7 +219,7 @@ describe('Match Controller', () => {
             const response = await request(app)
                 .post('/api/matches/matchId/messages')
                 .set('x-access-token', `${token}`)
-                .send({ text: 'Hello!', userID: 'testUserId' });
+                .send({ text: "Hello!", userID: "testUserId" });
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ message: 'Message added successfully', match: mockMatch });
