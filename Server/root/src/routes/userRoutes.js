@@ -18,9 +18,12 @@ router.get('/', getAllUsers);
 router.get('/housingseekers', getHousingSeekers);
 
 router.get('/:id', getUserById);
-router.put('/:id',tokenChecker, updateUserById);
+router.put('/:id',updateUserById);
 router.post('/forgotpassword', requestPasswordChange);
 router.put('/resetpassword/:token', updatePassword);
+
+
+
 
 // Export router
 module.exports = router;

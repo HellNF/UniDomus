@@ -1,5 +1,6 @@
 const NotificationModel = require('../models/notificationModel');
 const UserModel = require('../models/userModel');
+const {notificationStatusEnum, notificationTypeEnum, notificationPriorityEnum} = require('../models/enums');
 
 /**
  * Controller function for creating a notification.
@@ -84,6 +85,25 @@ async function deleteNotificationById(req, res) {
 }
 
 /**
+ * Controller function for setting all notifications as read by user ID.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function setAllNotificationsAsRead(req, res) {
+    const { userID } = req.params;
+
+    try {
+        await NotificationModel.updateMany({ userID }, { status: notificationStatusEnum.SEEN  });
+
+        return res.status(200).json({ message: "All notifications set as read" });
+    } catch (error) {
+        console.error("Error updating notification status:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+
+/**
  * Controller function for retrieving notifications by user ID with filtering on the notification fields.
  * @param {Request} req - The Express request object.
  * @param {Response} res - The Express response object.
@@ -141,5 +161,6 @@ module.exports = {
     updateNotificationStatus,
     deleteNotificationById,
     getNotificationsByUserId,
-    deleteAllNotificationsByUserId
+    deleteAllNotificationsByUserId,
+    setAllNotificationsAsRead
 };

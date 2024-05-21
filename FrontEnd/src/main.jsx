@@ -14,6 +14,7 @@ import FindAFlat from './pages/FindAFlat.jsx'
 import AddListing from "./pages/AddListing.jsx"
 import PasswordReset from './pages/PasswordReset.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
+import MatchDisplayer from './pages/MatchDisplayer.jsx'
 
 
 const router= createBrowserRouter([
@@ -51,6 +52,9 @@ const router= createBrowserRouter([
   },{
     path: "/resetpassword/:token",
     element: <PasswordReset></PasswordReset>
+  },{
+    path: "/matches/:id",
+    element: <MatchDisplayer></MatchDisplayer>
   }
 
 ])
