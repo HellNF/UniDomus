@@ -123,7 +123,7 @@ import { API_BASE_URL } from "../constant";
                         {listings.map((element)=>(<Card listing={element} key={element._id}></Card>))}
                         
                 </div>
-                <div className="h-full md:w-5/12 xl:w-6/12 2xl:w-5/12">
+                <div className="h-full z-10 md:w-5/12 xl:w-6/12 2xl:w-5/12">
                     <MapComponent tags={addressCordinates}></MapComponent>
                 </div>
                 

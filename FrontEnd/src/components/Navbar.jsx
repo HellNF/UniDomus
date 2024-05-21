@@ -1,63 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import UniDomusLogo from "/UniDomusLogoWhite.png"
-import { Fragment } from 'react'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import React, { useState, useEffect, Fragment } from 'react';
+import UniDomusLogo from '/UniDomusLogoWhite.png';
+import { Disclosure, Menu, Transition } from '@headlessui/react';
+import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../AuthContext'; // Import the useAuth hook
-import { API_BASE_URL } from "../constant";
+import { useAuth } from '../AuthContext';
+import { API_BASE_URL } from '../constant';
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(' ');
 }
 
-function Navbar({current}) {
-  const { isLoggedIn, logout } = useAuth(); // Access authentication state and functions
+function Navbar({ current }) {
+  const { isLoggedIn, logout, userId } = useAuth();
   const [profilePic, setProfilePic] = useState(null);
-  const [publisherIDAvailable, setPublisherIDAvaiilable] = useState(false);
-  const { userId } = useAuth();
-  
+  const [publisherIDAvailable, setPublisherIDAvailable] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
-  const navigation = [
+  const initialNavigation = [
     { name: 'Home', href: '/', current: false },
     { name: 'Trova un appartamento', href: '/findaflat', current: false },
     { name: 'Trova un coinquilino', href: '/displayTenants', current: false },
-  ]
-  navigation.map((item)=>{
-    if(item.name==current) item.current=true
-  })
+  ];
 
-  
-  
-  
-   
- 
+  const [navigation, setNavigation] = useState(
+    initialNavigation.map(item => ({ ...item, current: item.name === current }))
+  );
 
   useEffect(() => {
     if (isLoggedIn) {
-      // Fetch user data to get profile picture URL
-      fetchUserData(); // Define fetchUserData function to fetch user data
+      fetchUserData();
+      fetchNotifications();
     }
   }, [isLoggedIn]);
 
-  const fetchUserData = () => {
-    // Fetch user data from the backend
-    fetch(`${API_BASE_URL}users/${userId}?proPic=1`)
-      .then(response => response.json())
-      .then(data => {
-        const userData = data.user;
-        console.log(userData);
-        setPublisherIDAvaiilable(userData && userData.hasOwnProperty('listingID'))
-        if (userData && userData.proPic && userData.proPic.length > 0) {
-          // Set profile picture URL
-          setProfilePic(`data:image/png;base64,${userData.proPic[0]}`);
-        }
-
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-      });
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}users/${userId}?proPic=1`);
+      const data = await response.json();
+      const userData = data.user;
+      setPublisherIDAvailable(userData && !userData.hasOwnProperty('listingID'));
+      if (userData && userData.proPic && userData.proPic.length > 0) {
+        setProfilePic(`data:image/png;base64,${userData.proPic[0]}`);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
   };
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}notifications/user/${userId}`, {
+        headers: {
+          'x-access-token': localStorage.getItem("token"),
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
+      setNotifications(data.notifications);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+  
 
   return (
     <Disclosure as="nav" className="bg-blue-950 z-50">
@@ -66,7 +70,7 @@ function Navbar({current}) {
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
             <div className="relative flex h-16 items-center justify-between">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                {/* Mobile menu button*/}
+                {/* Mobile menu button */}
                 <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="absolute -inset-0.5" />
                   <span className="sr-only">Open main menu</span>
@@ -77,23 +81,19 @@ function Navbar({current}) {
                   )}
                 </Disclosure.Button>
               </div>
-              <div className="flex flex-1 items-center  justify-center sm:items-stretch sm:justify-start">
-                <div className="flex  items-center">
-                  <img
-                    className="h-8 sm:h-8 md:h-10 lg:h-12"
-                    src={UniDomusLogo}
-                    alt="Your Company"
-                  />
+              <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+                <div className="flex items-center">
+                  <img className="h-8 sm:h-8 md:h-10 lg:h-12" src={UniDomusLogo} alt="Your Company" />
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
-                  <div className="flex space-x-4 py-4  text-lg">
+                  <div className="flex space-x-4 py-4 text-lg">
                     {navigation.map((item) => (
                       <Link
                         key={item.name}
                         to={item.href}
                         className={classNames(
                           item.current ? 'bg-white bg-opacity-5 text-white' : 'text-blue-100 hover:bg-blue-100 hover:bg-opacity-5 hover:text-white',
-                          'rounded-md px-3 py-2 '
+                          'rounded-md px-3 py-2'
                         )}
                         aria-current={item.current ? 'page' : undefined}
                       >
@@ -106,15 +106,39 @@ function Navbar({current}) {
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 {isLoggedIn ? (
                   <>
-                    <button
-                      type="button"
-                      className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                    >
-                      <span className="absolute -inset-1.5" />
-                      <span className="sr-only">View notifications</span>
-                      <BellIcon className="h-6 w-6" aria-hidden="true" />
-                    </button>
-                    <Menu as="div" className="relative ml-3">
+                    <Menu as="div" className="relative ml-3 z-20" >
+                      <Menu.Button className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                        <span className="absolute -inset-1.5" />
+                        <span className="sr-only">View notifications</span>
+                        <BellIcon className="h-6 w-6" aria-hidden="true" />
+                      </Menu.Button>
+                      <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-100"
+                        enterFrom="transform opacity-0 scale-95"
+                        enterTo="transform opacity-100 scale-100"
+                        leave="transition ease-in duration-75"
+                        leaveFrom="transform opacity-100 scale-100"
+                        leaveTo="transform opacity-0 scale-95"
+                      >
+                        <Menu.Items className="absolute right-0 z-10 mt-2 mb-2 w-64 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-60 overflow-y-auto">
+                          {notifications.map((notification) => (
+                            <Menu.Item key={notification._id}>
+                              {({ active }) => (
+                                <Link
+                                  to={notification.link}
+                                  className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                                >
+                                  <p className="font-bold">{notification.message}</p>
+                                  <p className="text-xs text-gray-500">{new Date(notification.createdAt).toLocaleString()}</p>
+                                </Link>
+                              )}
+                            </Menu.Item>
+                          ))}
+                        </Menu.Items>
+                      </Transition>
+                    </Menu>
+                    <Menu as="div" className="relative ml-3 z-20">
                       <div>
                         <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                           <span className="absolute -inset-1.5" />
@@ -146,7 +170,7 @@ function Navbar({current}) {
                               </a>
                             )}
                           </Menu.Item>
-                          { publisherIDAvailable && (
+                          {publisherIDAvailable && (
                             <Menu.Item>
                               {({ active }) => (
                                 <a
@@ -158,7 +182,6 @@ function Navbar({current}) {
                               )}
                             </Menu.Item>
                           )}
-
                           <Menu.Item>
                             {({ active }) => (
                               <a
@@ -221,8 +244,7 @@ function Navbar({current}) {
         </>
       )}
     </Disclosure>
-  )
-
+  );
 }
 
 export default Navbar;
