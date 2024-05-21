@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import {createBrowserRouter, RouterProvider} from "react-router-dom"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
 
 import App from './App.jsx'
 import './index.css'
@@ -15,20 +15,21 @@ import AddListing from "./pages/AddListing.jsx"
 import PasswordReset from './pages/PasswordReset.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import MatchDisplayer from './pages/MatchDisplayer.jsx'
+import TestPage from './pages/TestPage.jsx'
 
 
-const router= createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: "/registration",
-    element: <Registration></Registration> 
+    element: <Registration></Registration>
   },
   {
     path: "/login",
-    element: <Login></Login> 
+    element: <Login></Login>
   },
   {
     path: "/editprofile",
-    element: <EditProfile></EditProfile> 
+    element: <EditProfile></EditProfile>
   },
   {
     path: "/displayTenants",
@@ -49,12 +50,15 @@ const router= createBrowserRouter([
   {
     path: "/forgotpassword",
     element: <ForgotPassword></ForgotPassword>
-  },{
+  }, {
     path: "/resetpassword/:token",
     element: <PasswordReset></PasswordReset>
-  },{
+  }, {
     path: "/matches/:id",
     element: <MatchDisplayer></MatchDisplayer>
+  }, {
+    path: "/test",
+    element: <TestPage></TestPage>
   }
 
 ])
@@ -62,9 +66,9 @@ const router= createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
-      
-        <RouterProvider router={router}/>
-      
+
+      <RouterProvider router={router} />
+
     </AuthProvider>
   </React.StrictMode>,
 )

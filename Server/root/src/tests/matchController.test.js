@@ -30,7 +30,7 @@ describe('Match Controller', () => {
         it('should create a match successfully', async () => {
             const mockRequester = { _id: 'requesterID', name: 'John', surname: 'Doe' };
             const mockReceiver = { _id: 'receiverID' };
-            const mockMatch = { _id: 'matchId', requesterID: 'requesterID', receiverID: 'receiverID', matchType: 'Coinquilino', matchStatus: matchStatusEnum.PENDING };
+            const mockMatch = { _id: 'matchId', requesterID: 'requesterID', receiverID: 'receiverID', matchType: 'coinquilino', matchStatus: matchStatusEnum.PENDING };
 
             UserModel.findById.mockResolvedValueOnce(mockRequester).mockResolvedValueOnce(mockReceiver);
             MatchModel.create.mockResolvedValue(mockMatch);
@@ -42,7 +42,7 @@ describe('Match Controller', () => {
                 .send({
                     requesterID: 'requesterID',
                     receiverID: 'receiverID',
-                    matchType: 'Coinquilino'
+                    matchType: 'coinquilino'
                 });
 
             expect(response.status).toBe(200);
@@ -58,7 +58,7 @@ describe('Match Controller', () => {
                 .send({
                     requesterID: 'requesterID',
                     receiverID: 'receiverID',
-                    matchType: 'Coinquilino'
+                    matchType: 'coinquilino'
                 });
 
             expect(response.status).toBe(404);
@@ -74,7 +74,7 @@ describe('Match Controller', () => {
                 .send({
                     requesterID: 'requesterID',
                     receiverID: 'receiverID',
-                    matchType: 'Coinquilino'
+                    matchType: 'coinquilino'
                 });
 
             expect(response.status).toBe(500);
@@ -85,7 +85,7 @@ describe('Match Controller', () => {
     describe('GET /api/matches/user/:userID', () => {
         it('should retrieve matches by user ID', async () => {
             const mockMatches = [
-                { _id: 'match1', requesterID: 'requesterID', receiverID: 'receiverID', matchType: 'Coinquilino', matchStatus: matchStatusEnum.PENDING }
+                { _id: 'match1', requesterID: 'requesterID', receiverID: 'receiverID', matchType: 'coinquilino', matchStatus: matchStatusEnum.PENDING }
             ];
 
             MatchModel.find.mockResolvedValue(mockMatches);
@@ -113,7 +113,7 @@ describe('Match Controller', () => {
     describe('GET /api/matches/received/:userID', () => {
         it('should retrieve matches received by user', async () => {
             const mockMatches = [
-                { _id: 'match1', requesterID: 'requesterID', receiverID: 'testUserId', matchType: 'Coinquilino', matchStatus: matchStatusEnum.PENDING }
+                { _id: 'match1', requesterID: 'requesterID', receiverID: 'testUserId', matchType: 'coinquilino', matchStatus: matchStatusEnum.PENDING }
             ];
 
             MatchModel.find.mockResolvedValue(mockMatches);
@@ -141,7 +141,7 @@ describe('Match Controller', () => {
     describe('GET /api/matches/sent/:userID', () => {
         it('should retrieve matches sent by user', async () => {
             const mockMatches = [
-                { _id: 'match1', requesterID: 'testUserId', receiverID: 'receiverID', matchType: 'Coinquilino', matchStatus: matchStatusEnum.PENDING }
+                { _id: 'match1', requesterID: 'testUserId', receiverID: 'receiverID', matchType: 'coinquilino', matchStatus: matchStatusEnum.PENDING }
             ];
 
             MatchModel.find.mockResolvedValue(mockMatches);
@@ -220,7 +220,7 @@ describe('Match Controller', () => {
                 .post('/api/matches/matchId/messages')
                 .set('x-access-token', `${token}`)
                 .send({ text: "Hello!", userID: "testUserId" });
-
+            console.log(response.body);
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ message: 'Message added successfully', match: mockMatch });
         });
@@ -300,7 +300,7 @@ describe('Match Controller', () => {
 
     describe('GET /api/matches/:matchID', () => {
         it('should retrieve a match by ID successfully', async () => {
-            const mockMatch = { _id: 'matchId', requesterID: 'requesterID', receiverID: 'receiverID', matchType: 'Coinquilino', matchStatus: matchStatusEnum.PENDING };
+            const mockMatch = { _id: 'matchId', requesterID: 'requesterID', receiverID: 'receiverID', matchType: 'coinquilino', matchStatus: matchStatusEnum.PENDING };
 
             MatchModel.findById.mockResolvedValue(mockMatch);
 
@@ -337,14 +337,14 @@ describe('Match Controller', () => {
 
     describe('PUT /api/matches/:matchID', () => {
         it('should update match details successfully', async () => {
-            const mockMatch = { _id: 'matchId', requesterID: 'requesterID', receiverID: 'receiverID', matchType: 'Coinquilino', matchStatus: matchStatusEnum.PENDING };
+            const mockMatch = { _id: 'matchId', requesterID: 'requesterID', receiverID: 'receiverID', matchType: 'coinquilino', matchStatus: matchStatusEnum.PENDING };
 
             MatchModel.findByIdAndUpdate.mockResolvedValue(mockMatch);
 
             const response = await request(app)
                 .put('/api/matches/matchId')
                 .set('x-access-token', `${token}`)
-                .send({ matchType: 'Appartamento' });
+                .send({ matchType: 'appartamento' });
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ message: 'Match updated successfully', match: mockMatch });
@@ -356,7 +356,7 @@ describe('Match Controller', () => {
             const response = await request(app)
                 .put('/api/matches/matchId')
                 .set('x-access-token', `${token}`)
-                .send({ matchType: 'Appartamento' });
+                .send({ matchType: 'appartamento' });
 
             expect(response.status).toBe(404);
             expect(response.body).toEqual({ message: 'Match not found' });
@@ -368,7 +368,7 @@ describe('Match Controller', () => {
             const response = await request(app)
                 .put('/api/matches/matchId')
                 .set('x-access-token', `${token}`)
-                .send({ matchType: 'Appartamento' });
+                .send({ matchType: 'appartamento' });
 
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: 'Internal server error' });

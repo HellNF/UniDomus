@@ -5,12 +5,23 @@ import { Link } from 'react-router-dom';
 import { useAuth } from './../AuthContext';
 import UniDomusLogo from "/UniDomusLogoWhite.png";
 import { matchStatusEnum } from "../constant";
+import useReport from '../hooks/useReport';
+import ReportPopup from '../components/ReportPopup';
 
 export default function MatchesList() {
   const navigate = useNavigate();
   const { userId } = useAuth();
   const [matches, setMatches] = useState([]);
   const [users, setUsers] = useState({});
+  const {
+    showPopup,
+    currentReportType,
+    currentTargetID,
+    currentMessageID,
+    handleButtonClick,
+    handleClosePopup,
+    handleSubmitReport
+  } = useReport();
 
   useEffect(() => {
     if (userId) {
@@ -153,6 +164,12 @@ export default function MatchesList() {
                             >
                               Rifiuta
                             </button>
+                            <button
+                              onClick={() => handleButtonClick('match', match._id)} // Report button for the match
+                              className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-700"
+                            >
+                              Segnala
+                            </button>
                           </div>
                         </div>
                       );
@@ -171,6 +188,14 @@ export default function MatchesList() {
           </div>
         </div>
       </div>
+      <ReportPopup
+        show={showPopup}
+        onClose={handleClosePopup}
+        onSubmit={handleSubmitReport}
+        reportType={currentReportType}
+        targetID={currentTargetID}
+        messageID={currentMessageID}
+      />
     </div>
   );
 }
