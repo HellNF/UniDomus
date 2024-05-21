@@ -1,4 +1,4 @@
-import Carousel from "./ImageSlider";
+import Carousel from "./Carousel";
 import typo from "../assets/typology.svg"
 import heart from "../assets/favorite.svg"
 import calendar from "../assets/calendar.svg"
