@@ -20,7 +20,7 @@ async function validateTarget(reportType, targetID, messageID) {
         case reportTypeEnum.MESSAGE:
             const match = await MatchModel.findById(targetID);
             return match && match.messages[messageID];
-        case reportTypeEnum.CONVERSATION:
+        case reportTypeEnum.MATCH:
             return await MatchModel.exists({ _id: targetID });
         default:
             return false;
@@ -43,6 +43,7 @@ async function validateTarget(reportType, targetID, messageID) {
 async function createReport(req, res) {
     const { reporterID, reportType, targetID, description, messageID } = req.body;
 
+    
     try {
         // Validate reporter
         const reporter = await UserModel.findById(reporterID);
@@ -53,7 +54,7 @@ async function createReport(req, res) {
         const targetModelMap = {
             [reportTypeEnum.USER]: 'User',
             [reportTypeEnum.LISTING]: 'Listing',
-            [reportTypeEnum.CONVERSATION]: 'Match',
+            [reportTypeEnum.MATCH]: 'Match',
             [reportTypeEnum.MESSAGE]: 'Match'
         };
 

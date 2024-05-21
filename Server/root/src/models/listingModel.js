@@ -59,12 +59,12 @@ const listingSchema = new mongoose.Schema({
   },
   publisherID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user' // Reference to the collection "user"
+    ref: 'User' // Reference to the collection "user"
   },
   tenantsID: {
     type: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'user' //Reference to the collection "user"
+      ref: 'User' //Reference to the collection "user"
     }],
     validate: {
       validator: function(arr) {// Ensure that the array contains up to 12 items
@@ -105,6 +105,6 @@ const listingSchema = new mongoose.Schema({
 });
 
 // Creazione del modello "listings" basato sullo schema
-const listing = mongoose.model('listing', listingSchema);
+const listing = mongoose.model('Listing', listingSchema);
 
 module.exports = listing;

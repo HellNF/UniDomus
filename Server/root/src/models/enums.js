@@ -6,26 +6,26 @@ const sexEnum = {
 };
 
 const activeEnum = {
-    ACTIVE: 'Attivo',
-    INACTIVE: 'Inattivo',
-    RECENTLY_ACTIVE: 'Recentemente Attivo'
+    ACTIVE: 'attivo',
+    INACTIVE: 'inattivo',
+    RECENTLY_ACTIVE: 'recentemente Attivo'
 };
 
 const matchStatusEnum = {
-    PENDING: 'In attesa',
-    ACCEPTED: 'Accettato',
-    REJECTED: 'Rifiutato'
+    PENDING: 'in attesa',
+    ACCEPTED: 'accettato',
+    REJECTED: 'rifiutato'
 };
 
 const matchTypeEnum = {
-    APARTMENT: 'Appartamento',
-    ROOMMATE: 'Coinquilino'
+    APARTMENT: 'appartamento',
+    ROOMMATE: 'coinquilino'
 };
 
 const matchPriorityEnum = {
-    LOW: 'Basso',
-    MEDIUM: 'Medio',
-    HIGH: 'Alto'
+    LOW: 'basso',
+    MEDIUM: 'medio',
+    HIGH: 'alto'
 };
 
 const notificationTypeEnum = {
@@ -49,7 +49,7 @@ const notificationPriorityEnum = {
 const reportTypeEnum = {
     USER: 'utente',
     LISTING: 'inserzione',
-    CONVERSATION: 'conversazione',
+    MATCH: 'match',
     MESSAGE: 'messaggio'
 };
 

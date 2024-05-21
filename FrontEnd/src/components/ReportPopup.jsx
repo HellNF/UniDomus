@@ -1,4 +1,16 @@
 // src/components/ReportPopup.jsx
+
+/**
+ * ReportPopup is a component that renders a popup form for submitting reports.
+ * @param {object} props - The properties passed to the component.
+ * @param {boolean} props.show - Controls the visibility of the popup.
+ * @param {function} props.onClose - Function to call when closing the popup.
+ * @param {function} props.onSubmit - Function to call when submitting the report.
+ * @param {string} props.reportType - The type of the report (e.g., 'user', 'listing', 'message', 'conversation').
+ * @param {string} props.targetID - The ID of the target entity to be reported.
+ * @param {string} [props.messageID] - The optional ID of the message to be reported (if applicable).
+ * @returns {JSX.Element|null} - The rendered component.
+ */
 import React, { useState } from 'react';
 import UniDomusLogo from '/UniDomusLogo.png';
 
@@ -25,10 +37,10 @@ const ReportPopup = ({ show, onClose, onSubmit, reportType, targetID, messageID 
                         alt="Unidomus"
                     />
                     <h2 className="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-                        Report {reportType}
+                        Segnalazione
                     </h2>
                     <p className="mt-2 text-center text-sm text-gray-500">
-                        This report is anonymous.
+                        Grazie del contributo! Segnala il contenuto inappropriato.
                     </p>
                 </div>
 
@@ -36,7 +48,7 @@ const ReportPopup = ({ show, onClose, onSubmit, reportType, targetID, messageID 
                     <form onSubmit={handleSubmit}>
                         <div className="mt-4">
                             <label htmlFor="description" className="block text-sm font-medium leading-6 text-gray-900">
-                                Description
+                                Descrizione
                             </label>
                             <textarea
                                 id="description"
@@ -53,13 +65,13 @@ const ReportPopup = ({ show, onClose, onSubmit, reportType, targetID, messageID 
                                 onClick={onClose}
                                 className="flex justify-center rounded-md bg-red-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
                             >
-                                Cancel
+                                Annulla
                             </button>
                             <button
                                 type="submit"
                                 className="flex justify-center rounded-md bg-blue-950 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                             >
-                                Submit
+                                Invia
                             </button>
                         </div>
                     </form>

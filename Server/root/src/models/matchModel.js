@@ -1,55 +1,54 @@
 const mongoose = require('mongoose');
-const { reportTypeEnum, reportStatusEnum } = require('./enums'); 
+const { matchStatusEnum, matchTypeEnum } = require('./enums'); // Adjust the import according to your project structure
 
-const reportSchema = new mongoose.Schema({
-    reporterID: {
+const matchSchema = new mongoose.Schema({
+    requesterID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // Use consistent naming conventions
+        required: true,
+        index: true
+    },
+    receiverID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
         index: true
     },
-    reportType: {
-        type: String,
-        enum: Object.values(reportTypeEnum),
-        required: true
-    },
-    reportStatus: {
-        type: String,
-        enum: Object.values(reportStatusEnum),
-        default: reportStatusEnum.PENDING
-    },
-    reportDate: {
+    requestDate: {
         type: Date,
         default: () => new Date(),
         immutable: true
     },
-    reviewedDate: Date,
-    resolvedDate: Date,
-    targetID: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        refPath: 'targetModel'
-    },
-    targetModel: {
+    confirmationDate: Date,
+    matchStatus: {
         type: String,
-        required: true,
-        enum: ['User', 'Listing', 'Match', 'Message']
+        enum: Object.values(matchStatusEnum), // Ensure enum values are used correctly
+        default: matchStatusEnum.PENDING
     },
-    messageID: {
-        type: Number, // assuming it refers to the index of the message in the array
-        required: function() {
-            return this.reportType === reportTypeEnum.MESSAGE;
+    matchType: {
+        type: String,
+        enum: Object.values(matchTypeEnum),
+        required: true
+    },
+    messages: [{
+        text: {
+            type: String,
+            required: true
+        },
+        date: {
+            type: Date,
+            default: () => new Date()
+        },
+        userID: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'User'
         }
-    },
-    description: {
-        type: String,
-        required: true,
-        maxlength: 1000
-    }
+    }]
 }, {
     timestamps: true
 });
 
-const Report = mongoose.model('Report', reportSchema);
+const Match = mongoose.model('Match', matchSchema);
 
-module.exports = Report;
+module.exports = Match;
