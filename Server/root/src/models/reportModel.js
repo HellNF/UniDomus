@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { reportTypeEnum, reportStatusEnum } = require('./enums'); 
+const { reportTypeEnum, reportStatusEnum } = require('./enums');
 
 const reportSchema = new mongoose.Schema({
     reporterID: {
@@ -28,7 +28,12 @@ const reportSchema = new mongoose.Schema({
     targetID: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        refPath: 'reportType'
+        refPath: 'targetModel'
+    },
+    targetModel: {
+        type: String,
+        required: true,
+        enum: ['User', 'Listing', 'Match', 'Message']
     },
     description: {
         type: String,

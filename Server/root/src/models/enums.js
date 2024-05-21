@@ -50,8 +50,7 @@ const reportTypeEnum = {
     USER: 'utente',
     LISTING: 'inserzione',
     CONVERSATION: 'conversazione',
-    MESSAGE: 'messaggio',
-    CUSTOM: 'personalizzato'
+    MESSAGE: 'messaggio'
 };
 
 const reportStatusEnum = {

@@ -1,54 +1,55 @@
 const mongoose = require('mongoose');
-const { matchStatusEnum, matchTypeEnum } = require('./enums'); // Adjust the import according to your project structure
+const { reportTypeEnum, reportStatusEnum } = require('./enums'); 
 
-const matchSchema = new mongoose.Schema({
-    requesterID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Use consistent naming conventions
-        required: true,
-        index: true
-    },
-    receiverID: {
+const reportSchema = new mongoose.Schema({
+    reporterID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
         index: true
     },
-    requestDate: {
+    reportType: {
+        type: String,
+        enum: Object.values(reportTypeEnum),
+        required: true
+    },
+    reportStatus: {
+        type: String,
+        enum: Object.values(reportStatusEnum),
+        default: reportStatusEnum.PENDING
+    },
+    reportDate: {
         type: Date,
         default: () => new Date(),
         immutable: true
     },
-    confirmationDate: Date,
-    matchStatus: {
-        type: String,
-        enum: Object.values(matchStatusEnum), // Ensure enum values are used correctly
-        default: matchStatusEnum.PENDING
+    reviewedDate: Date,
+    resolvedDate: Date,
+    targetID: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        refPath: 'targetModel'
     },
-    matchType: {
+    targetModel: {
         type: String,
-        enum: Object.values(matchTypeEnum),
-        required: true
+        required: true,
+        enum: ['User', 'Listing', 'Match', 'Message']
     },
-    messages: [{
-        text: {
-            type: String,
-            required: true
-        },
-        date: {
-            type: Date,
-            default: () => new Date()
-        },
-        userID: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-            ref: 'User'
+    messageID: {
+        type: Number, // assuming it refers to the index of the message in the array
+        required: function() {
+            return this.reportType === reportTypeEnum.MESSAGE;
         }
-    }]
+    },
+    description: {
+        type: String,
+        required: true,
+        maxlength: 1000
+    }
 }, {
     timestamps: true
 });
 
-const Match = mongoose.model('Match', matchSchema);
+const Report = mongoose.model('Report', reportSchema);
 
-module.exports = Match;
+module.exports = Report;
