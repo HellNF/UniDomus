@@ -41,7 +41,7 @@ function Card({ listing }) {
             matchType: "Appartamento"
         };
 
-        fetch('http://localhost:5050/api/matches', {
+        fetch(`${API_BASE_URL}matches`, {
             method: 'POST',
             headers: {
                 'x-access-token': sessionToken,

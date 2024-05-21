@@ -4,7 +4,7 @@ import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
-import { API_BASE_URL } from '../constant';
+import { API_BASE_URL, notificationStatusEnum } from '../constant';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -15,6 +15,7 @@ function Navbar({ current }) {
   const [profilePic, setProfilePic] = useState(null);
   const [publisherIDAvailable, setPublisherIDAvailable] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [unseenNotifications, setUnseenNotifications] = useState(0);
 
   const initialNavigation = [
     { name: 'Home', href: '/', current: false },
@@ -57,11 +58,31 @@ function Navbar({ current }) {
       });
       const data = await response.json();
       setNotifications(data.notifications);
+      setUnseenNotifications(data.notifications.filter(notification => notification.status === notificationStatusEnum.NOT_SEEN).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
   };
-  
+
+  const markNotificationsAsSeen = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}notifications/user/${userId}/seen`, {
+        method: 'PUT',
+        headers: {
+          'x-access-token': localStorage.getItem("token"),
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        const updatedNotifications = notifications.map(notification => ({ ...notification, status: notificationStatusEnum.SEEN }));
+        setNotifications(updatedNotifications);
+        setUnseenNotifications(0);
+      }
+    } catch (error) {
+      console.error('Error updating notifications:', error);
+    }
+  };
 
   return (
     <Disclosure as="nav" className="bg-blue-950 z-50">
@@ -106,11 +127,16 @@ function Navbar({ current }) {
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 {isLoggedIn ? (
                   <>
-                    <Menu as="div" className="relative ml-3 z-20" >
-                      <Menu.Button className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                    <Menu as="div" className="relative ml-3 z-20">
+                      <Menu.Button onClick={markNotificationsAsSeen} className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                         <span className="absolute -inset-1.5" />
                         <span className="sr-only">View notifications</span>
                         <BellIcon className="h-6 w-6" aria-hidden="true" />
+                        {unseenNotifications > 0 && (
+                          <span className="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 text-white rounded-full h-4 w-4 flex items-center justify-center text-xs">
+                            {unseenNotifications}
+                          </span>
+                        )}
                       </Menu.Button>
                       <Transition
                         as={Fragment}
@@ -138,6 +164,7 @@ function Navbar({ current }) {
                         </Menu.Items>
                       </Transition>
                     </Menu>
+
                     <Menu as="div" className="relative ml-3 z-20">
                       <div>
                         <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
