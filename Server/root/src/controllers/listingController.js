@@ -231,10 +231,53 @@ async function addressToCoordinates(req, res) {
     }
 }
 
+async function getCoordinatesById(req, res) {
+    try {
+        const { id } = req.params;
+        const listing = await Listing.findById(id);
+
+
+        if (!listing) {
+            console.log("Listing not found.");
+            return res.status(400).json({ message: "Listing not found" });
+        }
+
+        console.log("Listing retrieved successfully.");
+        await fetch("http://api.positionstack.com/v1/forward?" + new URLSearchParams({
+            access_key: process.env.GEOCODING_API_KEY,
+            query: `${listing.address.street} ${listing.address.houseNum}, ${listing.address.cap}`,
+            country: "IT",
+            region: "Trento",
+            limit: 1
+        })
+        )
+        .then(response => {
+            if (!response.ok) {
+                return null;
+            } else {
+                return response.json();
+            }
+        }).then(body => {
+            if (body && body.data && body.data.length) {
+                return res.status(200).json({ data: { latitude: body.data[0].latitude, longitude: body.data[0].longitude, label: body.data[0].label } });
+            } else {
+                return res.status(200).json({ data: [] });
+            }
+        })
+        .catch(error => {
+            console.error('Error converting address:', error);
+            return res.status(500).json({ message: "Error converting address", error: error.message });
+        });
+    } catch (error) {
+        console.error("Error retrieving listing:", error);
+        return res.status(500).json({ message: "Error retrieving listing", error: error.message });
+    }
+}
 module.exports = {
     listings,
     addListing,
     getListingById,
-    addressToCoordinates
+    addressToCoordinates,
+    getCoordinatesById
 };
 

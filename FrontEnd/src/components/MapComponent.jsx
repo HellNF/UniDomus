@@ -9,18 +9,30 @@ function MapComponent({tags}) {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
-            {
-                tags.length ?(
-                    tags.map((item)=>(
-                        <Marker position={[item.latitude, item.longitude]}>
-                            <Popup>
-                                {item.label}
-                            </Popup>
-                            </Marker>
-                        
-                    ))) :""
+            { !Array.isArray(tags) ?(
                 
+                    <Marker position={[tags.latitude, tags.longitude]}>
+                        <Popup>
+                            {tags.label}
+                        </Popup>
+                    </Marker>
+                )
+            :(
+                
+                    tags.length ?(
+                        tags.map((item)=>(
+                            <Marker position={[item.latitude, item.longitude]}>
+                                <Popup>
+                                    {item.label}
+                                </Popup>
+                                </Marker>
+                            
+                        ))) :"" 
+            )
             }
+                
+                
+            
         </MapContainer>
             
     );

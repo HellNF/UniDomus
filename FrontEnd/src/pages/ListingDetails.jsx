@@ -10,6 +10,7 @@ export default function ListingDetails() {
   const { id } = useParams();
   const { isLoggedIn, logout } = useAuth();
   const { userId } = useAuth();
+const [addressCordinates, setAddressCordinates] = useState({})
   const [listing, setListing] = useState({});
   const [publisher, setPublisher] = useState({ img: "", username: "" });
   useEffect(() => {
@@ -19,8 +20,10 @@ export default function ListingDetails() {
   useEffect(() => {
     if (listing.publisherID) {
       fetchUserData();
+      getCordinatesFromId();
     }
   }, [listing.publisherID]);
+  
   async function fetchListingData() {
     await fetch(`${API_BASE_URL}listings/${id}`)
       .then((response) => response.json())
@@ -49,7 +52,26 @@ export default function ListingDetails() {
         console.error("Error fetching user data:", error);
       });
   }
-
+  function getCordinatesFromId(){
+        
+    fetch(`${API_BASE_URL}listings/coordinates/${id}`)
+    .then((res)=>{
+        if(res.ok){
+            res.json().then((json)=>{
+                setAddressCordinates(
+                    json.data
+                )
+            })
+            
+        }
+        else{
+            console.log("Error retrieving coordinates")
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching coordinates data:', error);
+    });
+  }
   return (
     <>
       <div className="flex flex-col bg-blue-950 items-center">
@@ -152,7 +174,7 @@ export default function ListingDetails() {
                     
                 </div>
                 <div className="h-40vh w-10/12   bg-slate-500 my-3">
-                    <MapComponent tags={[]}></MapComponent>
+                    <MapComponent tags={addressCordinates}></MapComponent>
                 </div>
             </div>
         </div>
