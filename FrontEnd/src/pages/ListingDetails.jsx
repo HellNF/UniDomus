@@ -16,7 +16,23 @@ export default function ListingDetails() {
   const [addressCordinates, setAddressCordinates] = useState({})
   const [listing, setListing] = useState({});
   const [publisher, setPublisher] = useState({ img: "", username: "" });
-  const [formData, setFormData] = useState(listing)
+  const [formData, setFormData] = useState({
+    "address": {
+      "street": "",
+      "city": "",
+      "cap": "",
+      "houseNum": "",
+      "province": "",
+      "country": "",
+    },
+    "typology": "",
+    "description": "",
+    "price": "",
+    "floorArea": "",
+    "availability": "",
+    "photos": [],
+    "publisherID": ""
+  })
   const [formDataErr, setFormDataErr] = useState({
     "addressErr": {
       "streetErr": "",
@@ -48,7 +64,7 @@ export default function ListingDetails() {
   }, []);
 
   useEffect(() => {
-    setFormData(listing);
+    setFormData({...listing.address, typology: listing.typology, description: listing.description, price: listing.price, floorArea: listing.floorArea, availability: listing.availability, photos: listing.photos, publisherID: listing.publisherID});
     if (listing.publisherID && modifyMode === false) {
       
         fetchUserData();
@@ -135,7 +151,7 @@ export default function ListingDetails() {
     <>
       <div className="flex flex-col bg-blue-950 items-center h-full">
         <div className="flex flex-col items-center bg-white w-5/6 h-fit p-4 rounded-md  border-2 shadow overflow-x-hidden  overflow-hidden ">
-            { modifyMode? (
+            { !modifyMode? (
             <><div className="max-w-3xl h-96  object-cover p-4 ">
                           <Carousel>
                               {listing.photos
@@ -152,9 +168,9 @@ export default function ListingDetails() {
                                   : null}
                           </Carousel>
 
-                      </div><div className="w-2/3 flex flex-col  items-center ">
-                              <div className="flex flex-row ">
-                                  <div className="flex flex-col   w-1/2">
+                      </div><div className="w-2/3 flex flex-col items-center justify-center">
+                              <div className="flex flex-row w-full">
+                                  <div className="flex flex-col  w-1/2 mx-4">
                                       <div className="flex flex-row items-center">
                                           <div className="p-3 ">
                                               <Link
@@ -206,14 +222,14 @@ export default function ListingDetails() {
                                   </div>
 
                                   <div className="flex flex-row  w-1/2">
-                                      <div className="flex flex-col items-center justify-center m-5 shadow-lg bg-blue-950 w-5/6 h-3/5 text-white rounded-xl space-y-2">
+                                      <div className="flex flex-col items-center justify-center m-4 shadow-lg bg-blue-950 w- h-3/5 text-white rounded-xl space-y-2">
                                           <h1 className="font-bold text-2xl">{listing.price} €/mese</h1>
                                           <div className="flex">
                                               <label className="font-semibold">Disponibilità: </label>
                                               <h2>{listing.availability}</h2>
                                           </div>
                                           <div className="flex flex-row items-center ">
-                                              {isLoggedIn && listing.publisherID === userId ? (<button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2">Modifica</button>) : (<></>)}
+                                              {isLoggedIn && listing.publisherID === userId ? (<button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2" onClick={()=>{setModifyMode(true)}}>Modifica</button>) : (<></>)}
                                               <button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2">Segnala</button>
                                               <button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2">
                                                   <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="blue-950"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" /></svg>
@@ -226,11 +242,11 @@ export default function ListingDetails() {
                                   </div>
 
                               </div>
-                              <div className="h-40vh w-10/12   bg-slate-500 my-3">
+                              <div className="h-40vh w-full   bg-slate-500 my-3">
                                   {addressCordinates.latitude && addressCordinates.longitude && <MapComponent tags={addressCordinates}></MapComponent>}
                               </div>
                           </div></> )
-            :(<form action="" className="w-4/6">
+            :(<form  className="w-4/6">
                 
                     <div className="col-span-full">
                     <h2 className="text-2xl font-semibold leading-7 text-gray-900">Inserisci foto</h2>
@@ -329,7 +345,7 @@ export default function ListingDetails() {
                                     type="text"
                                     autoComplete="street"
                                     required
-                                    value={formData.address.street}
+                                    value={formData.street}
                                     onChange={handleChangeInput}
                                     className="block max-w-xs w-full  rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
@@ -347,7 +363,7 @@ export default function ListingDetails() {
                                         type="text"
                                         autoComplete="houseNum"
                                         required
-                                        value={formData.address.houseNum}
+                                        value={formData.houseNum}
                                         onChange={handleChangeInput}
                                         className="block  rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
@@ -365,7 +381,7 @@ export default function ListingDetails() {
                                         type="text"
                                         autoComplete="=city"
                                         required
-                                        value={formData.address.city}
+                                        value={formData.city}
                                         onChange={handleChangeInput}
                                         className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
@@ -386,7 +402,7 @@ export default function ListingDetails() {
                                         type="text"
                                         autoComplete="province"
                                         required
-                                        value={formData.address.province}
+                                        value={formData.province}
                                         onChange={handleChangeInput}
                                         className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
@@ -404,7 +420,7 @@ export default function ListingDetails() {
                                         type="text"
                                         autoComplete="cap"
                                         required
-                                        value={formData.address.cap}
+                                        value={formData.cap}
                                         onChange={handleChangeInput}
                                         className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
@@ -421,7 +437,7 @@ export default function ListingDetails() {
                                         name="country"
                                         autoComplete="country"
                                         required
-                                        value={formData.address.country}
+                                        value={formData.country}
                                         onChange={handleChangeInput}
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                     >
@@ -440,7 +456,7 @@ export default function ListingDetails() {
                         <div>
                             {/* prima riga */}
                             <div className="flex flex-row space-x-6 justify-evenly p-2">
-                                <div className="flex flex-col">
+                                <div className="flex flex-col w-1/3">
                                     <label htmlFor="typology" className="block text-sm font-medium leading-6 text-gray-900">
                                         Tipologia
                                     </label>
@@ -461,7 +477,7 @@ export default function ListingDetails() {
                                         </select>
                                     </div>
                                 </div>
-                                <div className="flex flex-col">
+                                <div className="flex flex-col w-1/3">
                                     <label htmlFor="floorArea" className="block text-sm font-medium leading-6 text-gray-900">
                                         Metratura
                                     </label>
@@ -479,7 +495,7 @@ export default function ListingDetails() {
                                         {formDataErr.floorAreaErr && <p className="text-red-600 text-xs mt-1">{formDataErr.floorAreaErr}</p>}
                                     </div>
                                 </div>
-                                <div className="flex flex-col">
+                                <div className="flex flex-col w-1/3">
                                     <label htmlFor="price" className="block text-sm font-medium leading-6 text-gray-900">
                                         Price
                                     </label>
@@ -545,8 +561,20 @@ export default function ListingDetails() {
 
                     </div>
                     
-                <div>
-
+                <div className="flex flex-row items-center justify-evenly">
+                    <button
+                        type="button"
+                        onClick={()=>{e.preventDefault(); setModifyMode(false)}}
+                        className="rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        >
+                        annulla
+                    </button>
+                    <button
+                        type="submit"
+                        className="rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >
+                        Conferma
+                    </button>
                 </div> 
             </form>)}
             
