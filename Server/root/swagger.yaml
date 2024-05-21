@@ -472,6 +472,396 @@ paths:
           description: Invalid or expired token.
         '500':
           description: Internal server error occurred.
+  /api/matches:
+    post:
+      summary: Create a new match
+      description: Create a new match between users.
+      tags:
+        - Matches
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Match'
+      responses:
+        "201":
+          description: Match created successfully.
+        "400":
+          description: Invalid input.
+        "500":
+          description: Internal server error.
+
+  /api/matches/user/{userID}:
+    get:
+      summary: Get matches by user ID
+      description: Retrieve all matches for a given user.
+      tags:
+        - Matches
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the user.
+      responses:
+        "200":
+          description: Matches retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Match'
+        "400":
+          description: Invalid user ID.
+        "500":
+          description: Internal server error.
+
+  /api/matches/received/{userID}:
+    get:
+      summary: Get received matches by user ID
+      description: Retrieve all received matches for a given user.
+      tags:
+        - Matches
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the user.
+      responses:
+        "200":
+          description: Received matches retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Match'
+        "400":
+          description: Invalid user ID.
+        "500":
+          description: Internal server error.
+
+  /api/matches/sent/{userID}:
+    get:
+      summary: Get sent matches by user ID
+      description: Retrieve all sent matches for a given user.
+      tags:
+        - Matches
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the user.
+      responses:
+        "200":
+          description: Sent matches retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Match'
+        "400":
+          description: Invalid user ID.
+        "500":
+          description: Internal server error.
+
+  /api/matches/status/{matchID}:
+    put:
+      summary: Update match status
+      description: Update the status of a match.
+      tags:
+        - Matches
+      parameters:
+        - in: path
+          name: matchID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the match.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matchStatus:
+                  type: string
+                  enum: [In attesa, Accettato, Rifiutato]
+      responses:
+        "200":
+          description: Match status updated successfully.
+        "400":
+          description: Invalid input.
+        "500":
+          description: Internal server error.
+
+  /api/matches/{matchID}/messages:
+    post:
+      summary: Add message to match
+      description: Add a message to a match.
+      tags:
+        - Matches
+      parameters:
+        - in: path
+          name: matchID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the match.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                userID:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: Message added successfully.
+        "400":
+          description: Invalid input.
+        "500":
+          description: Internal server error.
+
+  /api/matches/{matchID}:
+    get:
+      summary: Get match by ID
+      description: Retrieve a match by its unique identifier.
+      tags:
+        - Matches
+      parameters:
+        - in: path
+          name: matchID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the match.
+      responses:
+        "200":
+          description: Match retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        "400":
+          description: Invalid match ID.
+        "500":
+          description: Internal server error.
+
+    put:
+      summary: Update match details
+      description: Update details of a match.
+      tags:
+        - Matches
+      parameters:
+        - in: path
+          name: matchID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the match.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Match'
+      responses:
+        "200":
+          description: Match details updated successfully.
+        "400":
+          description: Invalid input.
+        "500":
+          description: Internal server error.
+
+    delete:
+      summary: Delete match by ID
+      description: Delete a match by its unique identifier.
+      tags:
+        - Matches
+      parameters:
+        - in: path
+          name: matchID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the match.
+      responses:
+        "200":
+          description: Match deleted successfully.
+        "400":
+          description: Invalid match ID.
+        "500":
+          description: Internal server error.
+
+  /api/notifications:
+    post:
+      summary: Create a new notification
+      description: Create a new notification for a user.
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+      responses:
+        "201":
+          description: Notification created successfully.
+        "400":
+          description: Invalid input.
+        "500":
+          description: Internal server error.
+
+  /api/notifications/user/{userID}:
+    get:
+      summary: Get notifications by user ID
+      description: Retrieve all notifications for a given user.
+      tags:
+        - Notifications
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the user.
+      responses:
+        "200":
+          description: Notifications retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        "400":
+          description: Invalid user ID.
+        "500":
+          description: Internal server error.
+    delete:
+      summary: Delete all notifications by user ID
+      description: Delete all notifications for a given user.
+      tags:
+        - Notifications
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the user.
+      responses:
+        "200":
+          description: All notifications deleted successfully.
+        "400":
+          description: Invalid user ID.
+        "500":
+          description: Internal server error.
+
+  /api/notifications/{notificationID}/status:
+    put:
+      summary: Update notification status
+      description: Update the status of a notification.
+      tags:
+        - Notifications
+      parameters:
+        - in: path
+          name: notificationID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the notification.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [visto, non visto]
+      responses:
+        "200":
+          description: Notification status updated successfully.
+        "400":
+          description: Invalid input.
+        "500":
+          description: Internal server error.
+
+  /api/notifications/user/{userID}/seen:
+    put:
+      summary: Mark all notifications as read
+      description: Mark all notifications for a user as read.
+      tags:
+        - Notifications
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the user.
+      responses:
+        "200":
+          description: All notifications marked as read.
+        "400":
+          description: Invalid user ID.
+        "500":
+          description: Internal server error.
+
+  /api/notifications/{notificationID}:
+    delete:
+      summary: Delete notification by ID
+      description: Delete a notification by its unique identifier.
+      tags:
+        - Notifications
+      parameters:
+        - in: path
+          name: notificationID
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the notification.
+      responses:
+        "200":
+          description: Notification deleted successfully.
+        "400":
+          description: Invalid notification ID.
+        "500":
+          description: Internal server error.
+
+    
+
 components:
   schemas:
     Token:
@@ -490,6 +880,7 @@ components:
           type: string
           format: date-time
           description: The expiration date of the token.
+
     Listing:
       type: object
       properties:
@@ -554,6 +945,7 @@ components:
         publicationDate:
           type: string
           format: date-time
+
     User:
       type: object
       properties:
@@ -610,7 +1002,10 @@ components:
           description: The profile picture URLs of the user.
         activityStatus:
           type: string
-          enum: [attivo, "attivo recentemente", inattivo]
+          enum:
+            - attivo
+            - attivo recentemente
+            - inattivo
           description: The activity status of the user.
         active:
           type: boolean
@@ -625,3 +1020,106 @@ components:
             type: string
             format: uuid
           description: The IDs of the matches associated with the user.
+
+    Match:
+      type: object
+      properties:
+        requesterID:
+          type: string
+          format: uuid
+          description: The ID of the user who requested the match.
+        receiverID:
+          type: string
+          format: uuid
+          description: The ID of the user who received the match request.
+        requestDate:
+          type: string
+          format: date-time
+          description: The date when the match request was made.
+        confirmationDate:
+          type: string
+          format: date-time
+          description: The date when the match was confirmed.
+        matchStatus:
+          type: string
+          $ref: '#/components/schemas/MatchStatusEnum'
+        matchType:
+          type: string
+          $ref: '#/components/schemas/MatchTypeEnum'
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+              date:
+                type: string
+                format: date-time
+              userID:
+                type: string
+                format: uuid
+
+    Notification:
+      type: object
+      properties:
+        userID:
+          type: string
+          format: uuid
+          description: The ID of the user receiving the notification.
+        type:
+          type: string
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        message:
+          type: string
+          description: The content of the notification.
+        status:
+          type: string
+          $ref: '#/components/schemas/NotificationStatusEnum'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        link:
+          type: string
+          description: URL or route related to the notification.
+        priority:
+          type: string
+          $ref: '#/components/schemas/NotificationPriorityEnum'
+
+    # Enums
+    MatchStatusEnum:
+      type: string
+      enum:
+        - In attesa
+        - Accettato
+        - Rifiutato
+
+    MatchTypeEnum:
+      type: string
+      enum:
+        - Appartamento
+        - Coinquilino
+
+    NotificationTypeEnum:
+      type: string
+      enum:
+        - match
+        - messaggio
+        - alert
+        - promemoria
+
+    NotificationStatusEnum:
+      type: string
+      enum:
+        - visto
+        - non visto
+
+    NotificationPriorityEnum:
+      type: string
+      enum:
+        - basso
+        - medio
+        - alto
