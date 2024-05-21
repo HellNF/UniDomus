@@ -1,7 +1,6 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-const { hobbiesEnum, habitsEnum, sexEnum, activeEnum } = require("./enums");
-
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const { hobbiesEnum, habitsEnum, sexEnum, activeEnum } = require('./enums'); // Adjust the import according to your project structure
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -53,28 +52,24 @@ const userSchema = new mongoose.Schema({
     },
     creationDate: {
         type: Date,
-        default: () => Date.now() + (2 * 60 * 60 * 1000),
-        mutable: false,
+        default: () => new Date(),
+        immutable: true
     },
-    lastUpdate: {
-        type: Date
-    },
-    gender:{
+    lastUpdate: Date,
+    gender: {
         type: String,
-        enum: sexEnum,
+        enum: Object.values(sexEnum),
         default: sexEnum.OTHER
     },
     habits: {
-
-        type: [String], 
-        enum: habitsEnum,
-        default: [] 
+        type: [String],
+        enum: Object.values(habitsEnum),
+        default: []
     },
     hobbies: {
-        type: [String], 
-        enum: hobbiesEnum,
-        default: [] 
-
+        type: [String],
+        enum: Object.values(hobbiesEnum),
+        default: []
     },
     proPic: {
         type: [String],
@@ -88,7 +83,7 @@ const userSchema = new mongoose.Schema({
     },
     activityStatus: {
         type: String,
-        enum: activeEnum,
+        enum: Object.values(activeEnum),
         default: activeEnum.INACTIVE
     },
     active: {
@@ -101,12 +96,12 @@ const userSchema = new mongoose.Schema({
     },
     listingID: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'listings'
+        ref: 'Listing'
     },
     matchListID: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'matches'
+            ref: 'Match'
         }],
         default: []
     }
@@ -114,22 +109,13 @@ const userSchema = new mongoose.Schema({
 
 // Pre-save hook to hash the password before saving
 userSchema.pre('save', async function (next) {
-    // Only hash the password if it's new or modified
     if (!this.isModified('password')) {
         return next();
     }
 
     try {
-        // Generate a salt with a cost factor of 10
         const salt = await bcrypt.genSalt(10);
-
-        // Hash the password using the generated salt
-        const hashedPassword = await bcrypt.hash(this.password, salt);
-
-        // Replace the plain-text password with the hashed password
-        this.password = hashedPassword;
-
-        // Call next to continue saving the user
+        this.password = await bcrypt.hash(this.password, salt);
         next();
     } catch (error) {
         next(error);
@@ -138,14 +124,13 @@ userSchema.pre('save', async function (next) {
 
 // Method to compare provided password with stored hashed password
 userSchema.methods.isValidPassword = async function (password) {
-  try {
-      // Use bcrypt to compare the provided password with the hashed password stored in the database
-      return await bcrypt.compare(password, this.password);
-  } catch (error) {
-      throw new Error(error);
-  }
+    try {
+        return await bcrypt.compare(password, this.password);
+    } catch (error) {
+        throw new Error(error);
+    }
 };
 
-// Create your UserModel
 const User = mongoose.model('User', userSchema);
+
 module.exports = User;

@@ -1,66 +1,54 @@
 const mongoose = require('mongoose');
-const { matchStatusEnum, matchTypeEnum } = require('./enums'); // Changed import to require for consistency
+const { matchStatusEnum, matchTypeEnum } = require('./enums'); // Adjust the import according to your project structure
 
-// Schema for the "matches" collection
 const matchSchema = new mongoose.Schema({
-  requesterID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user', // Reference to the "user" collection
-    required: true,
-    index: true // Adding an index for performance
-  },
-  receiverID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user', // Reference to the "user" collection
-    required: true,
-    index: true // Adding an index for performance
-  },
-  requestDate: {
-    type: Date,
-    default: () => new Date(Date.now() ),
-    immutable: true // Making the field immutable
-  },
-  confirmationDate: {
-    type: Date,
-  },
-  matchStatus: {
-    type: String,
-    enum: matchStatusEnum, // Possible values for match status
-    default: matchStatusEnum.PENDING // Assuming the third enum is 'PENDING'
-  },
-  matchType: {
-    type: String,
-    enum: matchTypeEnum, // Possible match types
-    required: true
-  },
-  messages: [{
-    text: {
-      type: String,
-      required: true
+    requesterID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // Use consistent naming conventions
+        required: true,
+        index: true
     },
-    date: {
-      type: Date,
-      default: () => new Date(Date.now()), 
+    receiverID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true
     },
-    userID: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: 'user' // Reference to the "user" collection
-    }
-  }]
+    requestDate: {
+        type: Date,
+        default: () => new Date(),
+        immutable: true
+    },
+    confirmationDate: Date,
+    matchStatus: {
+        type: String,
+        enum: Object.values(matchStatusEnum), // Ensure enum values are used correctly
+        default: matchStatusEnum.PENDING
+    },
+    matchType: {
+        type: String,
+        enum: Object.values(matchTypeEnum),
+        required: true
+    },
+    messages: [{
+        text: {
+            type: String,
+            required: true
+        },
+        date: {
+            type: Date,
+            default: () => new Date()
+        },
+        userID: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'User'
+        }
+    }]
 }, {
-  timestamps: true // Automatically add createdAt and updatedAt timestamps
+    timestamps: true
 });
 
-// Middleware to set default values (if needed)
-matchSchema.pre('save', function (next) {
-  if (!this.requestDate) {
-    this.requestDate = new Date(Date.now());
-  }
-  next();
-});
-
-// Creating the "matches" model based on the schema
-const Match = mongoose.model('Match', matchSchema); // Changed model name to singular
+const Match = mongoose.model('Match', matchSchema);
 
 module.exports = Match;

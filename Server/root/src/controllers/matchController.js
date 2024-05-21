@@ -14,8 +14,10 @@ async function createMatch(req, res) {
 
     try {
         // Check if the requester and receiver are valid users
-        const requester = await UserModel.findById(requesterID);
-        const receiver = await UserModel.findById(receiverID);
+        const [requester, receiver] = await Promise.all([
+            UserModel.findById(requesterID),
+            UserModel.findById(receiverID)
+        ]);
 
         if (!requester || !receiver) {
             return res.status(404).json({ message: "One or both users not found" });
@@ -29,7 +31,7 @@ async function createMatch(req, res) {
             matchStatus: matchStatusEnum.PENDING
         });
 
-        //create a notification for the receiver
+        // Create a notification for the receiver
         await NotificationModel.create({
             userID: receiverID,
             type: "match",
@@ -37,13 +39,14 @@ async function createMatch(req, res) {
             link: `/matches/${newMatch._id}`,
             priority: notificationPriorityEnum.MEDIUM
         });
-        
+
         return res.status(200).json({ message: "Match created successfully", match: newMatch });
     } catch (error) {
         console.error("Error creating match:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
 
 /**
  * Controller function for retrieving matches by user ID.
@@ -56,8 +59,7 @@ async function getMatchesByUserID(req, res) {
     try {
         const matches = await MatchModel.find({
             $or: [{ requesterID: userID }, { receiverID: userID }]
-        }).populate('requesterID receiverID');
-
+        });
         return res.status(200).json({ matches });
     } catch (error) {
         console.error("Error retrieving matches:", error);
@@ -74,7 +76,7 @@ async function getReceivedMatches(req, res) {
     const { userID } = req.params;
 
     try {
-        const matches = await MatchModel.find({ receiverID: userID }).populate('requesterID receiverID');
+        const matches = await MatchModel.find({ receiverID: userID });
 
         return res.status(200).json({ matches });
     } catch (error) {
@@ -92,7 +94,7 @@ async function getSentMatches(req, res) {
     const { userID } = req.params;
 
     try {
-        const matches = await MatchModel.find({ requesterID: userID }).populate('requesterID receiverID');
+        const matches = await MatchModel.find({ requesterID: userID });
 
         return res.status(200).json({ matches });
     } catch (error) {
@@ -203,7 +205,7 @@ async function getMatchByID(req, res) {
 
     try {
         // Find the match by ID
-        const match = await MatchModel.findById(matchID).populate('requesterID receiverID');
+        const match = await MatchModel.findById(matchID);
 
         if (!match) {
             return res.status(404).json({ message: "Match not found" });
