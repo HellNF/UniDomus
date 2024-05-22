@@ -5,7 +5,6 @@ function FindAFlat(){
 
     return(
     <>
-        <Navbar current={'Trova un appartamento'}></Navbar>
         <DisplayListings></DisplayListings>
     
     </>)

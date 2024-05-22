@@ -34,7 +34,7 @@ export default function DisplayTenantsPage() {
 
   return (
     <>
-      <Navbar />
+      
       <div className="flex flex-col  w-1/4 h-screen py-2 bg-white shadow-xl">
       <div className="px-8 py-3">
       <h2 className="text-4xl font-semibold leading-7 text-gray-900">Filtri</h2>

@@ -12,7 +12,7 @@ function App() {
     "https://i.ibb.co/yg7BSdM/4.png"]
   return (
     <div className="App">
-      <Navbar current={'Home'}/>
+      
       <Homepage />
       <div className='w-full'>
         

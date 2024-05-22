@@ -1,79 +1,128 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import App from './App.jsx'
-import './index.css'
-import { AuthProvider } from './AuthContext'; // Import the AuthProvide
-import Registration from "./pages/Registration.jsx"
-import Login from "./pages/Login.jsx"
+import './index.css';
+import { AuthProvider } from './AuthContext'; // Import the AuthProvider
 
-import EditProfile from './pages/EditProfile.jsx'
-import DisplayTenants from './pages/displayTenants.jsx'
-import FindAFlat from './pages/FindAFlat.jsx'
-import AddListing from "./pages/AddListing.jsx"
-import PasswordReset from './pages/PasswordReset.jsx'
-import ForgotPassword from './pages/ForgotPassword.jsx'
-import MatchDisplayer from './pages/MatchDisplayer.jsx'
-import TestPage from './pages/TestPage.jsx'
-import ListingDetails from './pages/ListingDetails.jsx'
-
+// Importing components and pages
+import App from './App';
+import Registration from './pages/Registration';
+import Login from './pages/Login';
+import EditProfile from './pages/EditProfile';
+import DisplayTenantsPage from './pages/displayTenants';
+import FindAFlat from './pages/FindAFlat';
+import AddListing from './pages/AddListing';
+import PasswordReset from './pages/PasswordReset';
+import ForgotPassword from './pages/ForgotPassword';
+import MatchDisplayer from './pages/MatchDisplayer';
+import TestPage from './pages/TestPage';
+import ListingDetails from './pages/ListingDetails';
+import Layout from './components/Layout'; // Import the Layout component
 
 const router = createBrowserRouter([
   {
-    path: "/registration",
-    element: <Registration></Registration>
+    path: '/',
+    element: (
+      <Layout>
+        <App />
+      </Layout>
+    ),
   },
   {
-    path: "/login",
-    element: <Login></Login>
+    path: '/registration',
+    element: (
+      <Layout>
+        <Registration />
+      </Layout>
+    ),
   },
   {
-    path: "/editprofile",
-    element: <EditProfile></EditProfile>
+    path: '/login',
+    element: (
+      <Layout>
+        <Login />
+      </Layout>
+    ),
   },
   {
-    path: "/displayTenants",
-    element: <DisplayTenants></DisplayTenants>
+    path: '/editprofile',
+    element: (
+      <Layout>
+        <EditProfile />
+      </Layout>
+    ),
   },
   {
-    path: "/",
-    element: <App></App>
+    path: '/displayTenants',
+    element: (
+      <Layout>
+        <DisplayTenantsPage />
+      </Layout>
+    ),
   },
   {
-    path: "/findaflat",
-    element: <FindAFlat></FindAFlat>
+    path: '/findaflat',
+    element: (
+      <Layout>
+        <FindAFlat />
+      </Layout>
+    ),
   },
   {
-    path: "/findaflat/:id",
-    element: <ListingDetails></ListingDetails>
+    path: '/findaflat/:id',
+    element: (
+      <Layout>
+        <ListingDetails />
+      </Layout>
+    ),
   },
   {
-    path: "/addListing",
-    element: <AddListing></AddListing>
+    path: '/addListing',
+    element: (
+      <Layout>
+        <AddListing />
+      </Layout>
+    ),
   },
   {
-    path: "/forgotpassword",
-    element: <ForgotPassword></ForgotPassword>
-  }, {
-    path: "/resetpassword/:token",
-    element: <PasswordReset></PasswordReset>
-  }, {
-    path: "/matches/:id",
-    element: <MatchDisplayer></MatchDisplayer>
-  }, {
-    path: "/test",
-    element: <TestPage></TestPage>
-  }
-
-])
+    path: '/forgotpassword',
+    element: (
+      <Layout>
+        <ForgotPassword />
+      </Layout>
+    ),
+  },
+  {
+    path: '/resetpassword/:token',
+    element: (
+      <Layout>
+        <PasswordReset />
+      </Layout>
+    ),
+  },
+  {
+    path: '/matches/:id',
+    element: (
+      <Layout>
+        <MatchDisplayer />
+      </Layout>
+    ),
+  },
+  {
+    path: '/test',
+    element: (
+      <Layout>
+        <TestPage />
+      </Layout>
+    ),
+  },
+]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
-
       <RouterProvider router={router} />
-
     </AuthProvider>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);
