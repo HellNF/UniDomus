@@ -1,12 +1,12 @@
+import Carousel from "./Carousel";
+import typo from "../assets/typology.svg"
+import heart from "../assets/favorite.svg"
+import calendar from "../assets/calendar.svg"
+import location from "../assets/location.svg"
+import squareFoot from "../assets/square_foot.svg"
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import Carousel from "./ImageSlider";
-import typo from "../assets/typology.svg";
-import heart from "../assets/favorite.svg";
 import heartFilled from "../assets/favorite_filled.svg"; // Import a filled heart icon
-import calendar from "../assets/calendar.svg";
-import location from "../assets/location.svg";
-import squareFoot from "../assets/square_foot.svg";
 import { API_BASE_URL } from "../constant";
 import { useAuth } from './../AuthContext';
 
@@ -21,18 +21,19 @@ function Card({ listing }) {
 
     const fetchUserData = () => {
         fetch(`${API_BASE_URL}users/${listing.publisherID}?proPic=1`)
-            .then(response => response.json())
-            .then(data => {
-                const userData = data.user;
-                setPublisher({
-                    img: userData.proPic[0] ? userData.proPic[0] : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-                    username: userData.username
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-            });
-    };
+          .then(response => response.json())
+          .then(data => {
+            
+            const userData = data.user;
+            console.log(userData.username)
+            setPublisher({  img: userData.proPic[0]?userData.proPic[0]:'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', username: userData.username})
+            
+          })
+          .catch(error => {
+            console.error('Error fetching user data:', error);
+          });
+      };
+
 
     const handleLikeButtonClick = () => {
         const matchData = {
@@ -98,7 +99,7 @@ function Card({ listing }) {
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row p-5 item-center md:justify-between md:w-full">
-                        <button type="button" className="flex justify-center rounded-md bg-blue-950 p-1 m-1 md:p-3 text-sm font-semibold leading-6 text-center text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Dettagli</button>
+                    <Link to={`/findaflat/${listing._id}`}><button type="button" className="flex  justify-center rounded-md bg-blue-950  p-1 m-1 md:p-3  text-sm font-semibold leading-6 text-center text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ">Dettagli</button></Link>
                         <button type="button" onClick={handleLikeButtonClick} className="flex justify-center rounded-md bg-blue-950 p-1 m-1 md:p-3 text-sm font-semibold leading-6 text-center text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
                             <img src={isLiked ? heartFilled : heart} alt="Like" />
                         </button>

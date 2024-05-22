@@ -16,6 +16,7 @@ import PasswordReset from './pages/PasswordReset.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import MatchDisplayer from './pages/MatchDisplayer.jsx'
 import TestPage from './pages/TestPage.jsx'
+import ListingDetails from './pages/ListingDetails.jsx'
 
 
 const router = createBrowserRouter([
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
   {
     path: "/findaflat",
     element: <FindAFlat></FindAFlat>
+  },
+  {
+    path: "/findaflat/:id",
+    element: <ListingDetails></ListingDetails>
   },
   {
     path: "/addListing",
