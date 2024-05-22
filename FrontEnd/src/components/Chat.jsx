@@ -9,9 +9,11 @@ import {
   MainContainer,
   MessageContainer,
   MessageList,
-  MessageHeader
+  MessageHeader,
+  Message
 } from "@minchat/react-chat-ui";
 import sendIcon from '../assets/send.svg';
+
 
 const socket = io('http://localhost:5050', { transports: ['websocket'] });
 
@@ -26,6 +28,8 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    if (!matchID) return;
+
     const fetchMatchDetails = async () => {
       try {
         console.log('Fetching match details'); // Debug log
@@ -72,6 +76,7 @@ const Chat = () => {
       console.log('New message received:', newMessage); // Debug log
       if (newMessage.matchID === matchID) {
         setMessages((prevMessages) => [...prevMessages, { ...newMessage, read: false }]);
+        scrollToBottom();
       }
     });
 
@@ -134,16 +139,27 @@ const Chat = () => {
     navigate(-1); // Go back to the previous page
   };
 
+  if (!matchID) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-200">
+        <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+          <h2 className="text-2xl font-semibold text-gray-900">No chat selected</h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <MinChatUiProvider theme="#6ea9d7">
+
       <div className="flex items-center justify-center min-h-screen bg-blue-950">
         <div className="bg-white max-w-7xl w-full p-6 rounded-lg shadow-lg">
           <div className="flex flex-col items-center justify-center bg-white py-4">
             <h1 className="text-3xl font-semibold leading-7 text-gray-900">Chat Room</h1>
+            
           </div>
           <div className="flex h-full">
-
-            <div className=" bg-gray-100 pt-10 pl-2 overflow-y-auto rounded-lg shadow-md flex flex-col">
+            <div className="bg-gray-100 pt-10 pl-2 overflow-y-auto rounded-lg shadow-md flex flex-col">
               <h2 className="text-2xl font-semibold leading-7 text-gray-900">Matches</h2>
               <div className="mt-4 pt-2 h-flex h-full">
                 {matches.length > 0 ? (
@@ -181,10 +197,6 @@ const Chat = () => {
                 Go Back
               </button>
             </div>
-
-
-
-
             <div className="flex flex-1 flex-col bg-white p-2 overflow-y-auto" style={{ height: 'calc(100vh - 200px)' }}>
               <MainContainer style={{ height: '100%' }}>
                 <MessageContainer>
@@ -208,7 +220,7 @@ const Chat = () => {
                       className="flex-1 p-2 border border-gray-300 rounded"
                     />
                     <button onClick={handleSend} className="ml-2 p-2">
-                      <img src={sendIcon} alt="Send" className="h-12 w-12 bg-slate-300 rounded-md" />
+                      <img src={sendIcon} alt="Send" className="h-12 w-12 bg-slate-300 rounded-md" />
                     </button>
                   </div>
                 </MessageContainer>
@@ -218,6 +230,7 @@ const Chat = () => {
           </div>
         </div>
       </div>
+
     </MinChatUiProvider>
   );
 };
