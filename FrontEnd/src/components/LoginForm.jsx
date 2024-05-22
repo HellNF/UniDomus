@@ -161,12 +161,15 @@ export default function LoginForm() {
               Log in
             </button>
           </div>
-          <GoogleLogin
-            onSuccess={(credentialResponse)=>handleGoogleLogin(credentialResponse)}
-            onError={() => {
-              console.log("Login Failed");
-            }}
-          />
+          <div className="w-full flex items-center justify-center">
+              <GoogleLogin
+                onSuccess={(credentialResponse)=>handleGoogleLogin(credentialResponse)}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+              />
+          </div>
+          
           
         </form>
       </div>
