@@ -10,12 +10,13 @@ router.post('/registration', registerUser);
 // Define routes for user authentication
 router.post('/authentication', authenticateUser);
 
+// Use query parameters for filtering users
+router.get('/housingseekers', getHousingSeekers);
+
+
 router.get('/tags', getTags);
 router.get('/', getAllUsers);
 
-
-// Use query parameters for filtering users
-router.get('/housingseekers', getHousingSeekers);
 
 router.get('/:id', getUserById);
 router.put('/:id',tokenChecker, updateUserById);
