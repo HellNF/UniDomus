@@ -148,7 +148,7 @@ function Navbar({ current }) {
                         leaveTo="transform opacity-0 scale-95"
                       >
                         <Menu.Items className="absolute right-0 z-10 mt-2 mb-2 w-64 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-60 overflow-y-auto">
-                          {notifications.map((notification) => (
+                          {notifications && notifications.map((notification) => (
                             <Menu.Item key={notification._id}>
                               {({ active }) => (
                                 <Link

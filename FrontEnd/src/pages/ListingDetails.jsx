@@ -6,12 +6,14 @@ import { API_BASE_URL } from "../constant";
 import MapComponent from "../components/MapComponent";
 import { useAuth } from "../AuthContext";
 import { PhotoIcon } from '@heroicons/react/24/solid'
+import heartFilled from "../assets/favorite_filled.svg";
 
 export default function ListingDetails() {
   const { id } = useParams();
   const [modifyMode, setModifyMode] = useState(false);
   const { isLoggedIn, logout } = useAuth();
-  const { userId } = useAuth();
+  const { userId, sessionToken} = useAuth();
+  const [isLiked, setIsLiked] = useState(false);
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [addressCordinates, setAddressCordinates] = useState({})
   const [listing, setListing] = useState({});
@@ -50,7 +52,30 @@ export default function ListingDetails() {
     "photosErr": [],
     "publisherIDErr": ""
   })
+  const handleLikeButtonClick = () => {
+    const matchData = {
+        requesterID: userId,
+        receiverID: listing.publisherID,
+        matchType: "Appartamento"
+    };
 
+    fetch(`${API_BASE_URL}matches`, {
+        method: 'POST',
+        headers: {
+            'x-access-token': sessionToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(matchData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Match request sent successfully:', data);
+            setIsLiked(true); // Set the liked state to true
+        })
+        .catch(error => {
+            console.error('Error sending match request:', error);
+        });
+};
   function handleChangeInput(e) {
     const { name, value } = e.target;
     setFormData({
@@ -236,8 +261,13 @@ const handleCancelModify = (e) => {
                                           <div className="flex flex-row items-center justify-evenly min-w-52">
                                               {isLoggedIn && listing.publisherID === userId ? (<button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2" onClick={()=>{setModifyMode(true)}}>Modifica</button>) : (<></>)}
                                               <button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2">Segnala</button>
-                                              <button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2">
-                                                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="blue-950"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" /></svg>
+                                              <button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2" onClick={handleLikeButtonClick}>
+                                                  {
+                                                    !isLiked?
+                                                    (<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="blue-950"><path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" /></svg>)
+                                                    :
+                                                    (<img src={heartFilled} alt="Like" />)
+                                                  }
                                               </button>
                                           </div>
 

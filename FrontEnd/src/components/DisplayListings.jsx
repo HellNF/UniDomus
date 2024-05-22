@@ -126,8 +126,8 @@ import { API_BASE_URL } from "../constant";
                 <div className="h-82vh z-10 md:w-5/12 xl:w-6/12 2xl:w-5/12">
                     <MapComponent tags={addressCordinates} ></MapComponent>
                
-                 
                 </div>
+            </div>
             
         </>
     )
