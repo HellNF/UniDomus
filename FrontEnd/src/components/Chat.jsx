@@ -9,8 +9,7 @@ import {
   MainContainer,
   MessageContainer,
   MessageList,
-  MessageHeader,
-  Message
+  MessageHeader
 } from "@minchat/react-chat-ui";
 import sendIcon from '../assets/send.svg';
 
@@ -73,7 +72,6 @@ const Chat = () => {
       console.log('New message received:', newMessage); // Debug log
       if (newMessage.matchID === matchID) {
         setMessages((prevMessages) => [...prevMessages, { ...newMessage, read: false }]);
-        scrollToBottom();
       }
     });
 
@@ -142,12 +140,10 @@ const Chat = () => {
         <div className="bg-white max-w-7xl w-full p-6 rounded-lg shadow-lg">
           <div className="flex flex-col items-center justify-center bg-white py-4">
             <h1 className="text-3xl font-semibold leading-7 text-gray-900">Chat Room</h1>
-            {otherUser && (
-              <h2 className="text-xl font-semibold leading-7 text-gray-600">{otherUser.username}</h2>
-            )}
           </div>
           <div className="flex h-full">
-            <div className="bg-gray-100 pt-10 pl-2 overflow-y-auto rounded-lg shadow-md flex flex-col">
+
+            <div className=" bg-gray-100 pt-10 pl-2 overflow-y-auto rounded-lg shadow-md flex flex-col">
               <h2 className="text-2xl font-semibold leading-7 text-gray-900">Matches</h2>
               <div className="mt-4 pt-2 h-flex h-full">
                 {matches.length > 0 ? (
@@ -185,27 +181,22 @@ const Chat = () => {
                 Go Back
               </button>
             </div>
+
+
+
+
             <div className="flex flex-1 flex-col bg-white p-2 overflow-y-auto" style={{ height: 'calc(100vh - 200px)' }}>
               <MainContainer style={{ height: '100%' }}>
                 <MessageContainer>
                   <MessageHeader title={otherUser ? otherUser.username : "Loading..."} />
                   <MessageList
                     currentUserId={userId}
-                    messages={messages.map(msg => (
-                      <Message
-                        key={msg.date}
-                        model={{
-                          message: msg.text,
-                          sentTime: msg.date,
-                          sender: msg.userID === userId ? 'You' : otherUser?.username,
-                          direction: msg.userID === userId ? 'outgoing' : 'incoming',
-                          position: 'single',
-                          avatarSpacer: msg.userID !== userId && otherUser?.proPic ? (
-                            <img src={otherUser.proPic} alt="propic" className="h-6 w-6 rounded-full" />
-                          ) : null,
-                        }}
-                      />
-                    ))}
+                    messages={messages.map(msg => ({
+                      text: msg.text,
+                      user: { id: msg.userID },
+                      timestamp: msg.date,
+                      read: msg.read
+                    }))}
                   />
                   <div className="flex mt-2">
                     <input
@@ -217,7 +208,7 @@ const Chat = () => {
                       className="flex-1 p-2 border border-gray-300 rounded"
                     />
                     <button onClick={handleSend} className="ml-2 p-2">
-                      <img src={sendIcon} alt="Send" className="h-12 w-12 bg-slate-300 rounded-md" />
+                      <img src={sendIcon} alt="Send" className="h-12 w-12 bg-slate-300 rounded-md" />
                     </button>
                   </div>
                 </MessageContainer>
