@@ -116,7 +116,22 @@ const router = createBrowserRouter([
         <TestPage />
       </Layout>
     ),
+  },{
+    path: "/chats",
+    element: (
+      <Layout>
+        <ChatsList />
+       </Layout>),
   },
+  {
+    path: "/chat/:matchID",
+    element: (
+     <Layout>
+        <Chat />
+     </Layout>
+      )
+  }
+
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(

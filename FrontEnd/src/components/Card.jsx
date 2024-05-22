@@ -7,7 +7,7 @@ import squareFoot from "../assets/square_foot.svg"
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import heartFilled from "../assets/favorite_filled.svg"; // Import a filled heart icon
-import { API_BASE_URL } from "../constant";
+import { API_BASE_URL, matchTypeEnum } from "../constant";
 import { useAuth } from './../AuthContext';
 
 function Card({ listing }) {
@@ -39,7 +39,7 @@ function Card({ listing }) {
         const matchData = {
             requesterID: userId,
             receiverID: listing.publisherID,
-            matchType: "Appartamento"
+            matchType: matchTypeEnum.APARTMENT
         };
 
         fetch(`${API_BASE_URL}matches`, {

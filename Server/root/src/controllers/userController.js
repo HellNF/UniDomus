@@ -356,20 +356,26 @@ async function updatePassword(req, res) {
     }
   }
 
-async function getHousingSeekers(req, res) {
+  async function getHousingSeekers(req, res) {
     try {
-        const { gender,etaMin, etaMax, hobbies, habits } = req.query;
+        const { etaMin, etaMax, gender, hobbies, habits } = req.query;
 
-        const dataMin = calculateDOBFromAge(etaMax + 1);
-        const dataMax = calculateDOBFromAge(etaMin);
+        // If etaMin and etaMax are used, uncomment and adjust accordingly
+        const dataMin = calculateDOBFromAge(parseInt(etaMax) + 1);
+        const dataMax = calculateDOBFromAge(parseInt(etaMin));
 
         let query = {
             housingSeeker: true,
             birthDate: { $gte: dataMin, $lte: dataMax }
         };
 
+        // Ensure gender is handled correctly whether it's a single value or an array
         if (gender) {
-            query.gender = {$eq: gender};
+            if (Array.isArray(gender)) {
+                query.gender = { $in: gender };
+            } else {
+                query.gender = gender;
+            }
         }
 
         if (hobbies && hobbies.length > 0) {
