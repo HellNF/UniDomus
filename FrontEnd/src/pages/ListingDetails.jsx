@@ -247,7 +247,7 @@ const handleCancelModify = (e) => {
                                   </div>
 
                               </div>
-                              <div className="h-40vh w-full   bg-slate-500 my-3">
+                              <div className="h-40vh w-full bg-slate-500 my-3">
                                   {addressCordinates.latitude && addressCordinates.longitude && <MapComponent tags={addressCordinates}></MapComponent>}
                               </div>
                           </div></> )
