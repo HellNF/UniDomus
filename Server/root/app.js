@@ -11,7 +11,7 @@ const swaggerUi = require('swagger-ui-express');
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.json());
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "http://localhost:5173" })); // Update the origin to your frontend URL
 
 // Import routes from the index
 const routes = require('./src/routes');
