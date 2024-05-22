@@ -53,6 +53,10 @@ notificationSchema.pre('save', function(next) {
 
 // Post-save middleware to send email
 notificationSchema.post('save', async function(doc, next) {
+    //i only want to send email notifications if the priority is high or medium
+    if (doc.priority === notificationPriorityEnum.LOW) {
+        return next();
+    }
     try {
         const user = await UserModel.findById(doc.userID);
         if (user) {

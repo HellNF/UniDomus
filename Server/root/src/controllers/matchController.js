@@ -3,7 +3,7 @@
 const MatchModel = require('../models/matchModel');
 const UserModel = require('../models/userModel');
 const NotificationModel = require('../models/notificationModel');
-const { matchStatusEnum , matchPriorityEnum, notificationPriorityEnum} = require('../models/enums');
+const { matchStatusEnum , matchPriorityEnum, notificationPriorityEnum, notificationTypeEnum} = require('../models/enums');
 /**
  * Controller function for creating a match.
  * @param {Request} req - The Express request object.
@@ -148,22 +148,40 @@ async function updateMatchStatus(req, res) {
 async function addMessageToMatch(req, res) {
     const { matchID } = req.params;
     const { text, userID } = req.body;
+    
+    
+    
 
     try {
+        //messages can only be added if the match is confirmed
+
+        const match = await MatchModel.findById(matchID);
+        if (!match) {
+            return res.status(404).json({ message: "Match not found" });
+        }
+        if (match.matchStatus !== matchStatusEnum.ACCEPTED) {
+            return res.status(400).json({ message: "Messages can only be added to confirmed matches" });
+        }
         // Validate user
         const user = await UserModel.findById(userID);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Find the match and add the message
-        const match = await MatchModel.findById(matchID);
-        if (!match) {
-            return res.status(404).json({ message: "Match not found" });
-        }
+        // add the message
 
         match.messages.push({ text, userID });
         await match.save();
+
+        //create a notification for the other user
+        const otherUserID = match.requesterID === userID ? match.receiverID : match.requesterID;
+        await NotificationModel.create({
+            userID: otherUserID,
+            type: notificationTypeEnum.MESSAGE,
+            message: `You have a new message from ${user.username}`,
+            link: `/chat/${match._id}`,
+            priority: notificationPriorityEnum.LOW
+        });
 
         return res.status(200).json({ message: "Message added successfully", match });
     } catch (error) {
