@@ -18,7 +18,7 @@ router.get('/', getAllUsers);
 router.get('/housingseekers', getHousingSeekers);
 
 router.get('/:id', getUserById);
-router.put('/:id',updateUserById);
+router.put('/:id',tokenChecker,updateUserById);
 router.post('/forgotpassword', requestPasswordChange);
 router.put('/resetpassword/:token', updatePassword);
 

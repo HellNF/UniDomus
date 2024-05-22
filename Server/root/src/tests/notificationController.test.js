@@ -1,5 +1,3 @@
-// notificationController.test.js
-
 const request = require('supertest');
 const app = require('../../app.js'); 
 const NotificationModel = require('../models/notificationModel');
@@ -13,6 +11,7 @@ jest.mock('../models/userModel'); // Mock the User model for testing
 jest.mock('../models/notificationModel'); // Mock the Notification model for testing
 
 jest.spyOn(mongoose, 'connect').mockImplementation(() => Promise.resolve());
+jest.spyOn(mongoose, 'disconnect').mockImplementation(() => Promise.resolve());
 
 describe('Notification Controller', () => {
     let token;
@@ -22,6 +21,10 @@ describe('Notification Controller', () => {
 
         // Generate a valid JWT token for testing
         token = jwt.sign({ id: 'testUserId' }, process.env.SUPER_SECRET, { expiresIn: '1h' });
+    });
+
+    afterAll(async () => {
+        await mongoose.disconnect();
     });
 
     describe('POST /api/notifications', () => {
@@ -86,7 +89,11 @@ describe('Notification Controller', () => {
 
     describe('PUT /api/notifications/:notificationId/status', () => {
         it('should update notification status successfully', async () => {
-            const mockNotification = { _id: 'notificationId', status: notificationStatusEnum.NOT_SEEN };
+            const mockNotification = { 
+                _id: 'notificationId', 
+                status: notificationStatusEnum.NOT_SEEN,
+                save: jest.fn().mockResolvedValue(true)
+            };
 
             NotificationModel.findById.mockResolvedValue(mockNotification);
 
@@ -95,8 +102,14 @@ describe('Notification Controller', () => {
                 .set('x-access-token', `${token}`)
                 .send({ status: notificationStatusEnum.SEEN });
 
+            // Adjust expected notification object to exclude the save method
+            const expectedNotification = {
+                _id: 'notificationId',
+                status: notificationStatusEnum.SEEN
+            };
+
             expect(response.status).toBe(200);
-            expect(response.body).toEqual({ message: 'Notification status updated', notification: mockNotification });
+            expect(response.body).toEqual({ message: 'Notification status updated', notification: expectedNotification });
         });
 
         it('should return 404 if notification is not found', async () => {
@@ -166,7 +179,11 @@ describe('Notification Controller', () => {
                 { _id: 'notification2', userID: 'testUserId', type: notificationTypeEnum.MESSAGE, message: 'Test Message 2', link: '/link2', priority: notificationPriorityEnum.HIGH }
             ];
 
-            NotificationModel.find.mockResolvedValue(mockNotifications);
+            const findMock = jest.fn().mockReturnValue({
+                sort: jest.fn().mockResolvedValue(mockNotifications)
+            });
+
+            NotificationModel.find.mockImplementation(findMock);
 
             const response = await request(app)
                 .get('/api/notifications/user/testUserId')
@@ -178,7 +195,9 @@ describe('Notification Controller', () => {
         });
 
         it('should handle errors and return 500 status code', async () => {
-            NotificationModel.find.mockRejectedValue(new Error('Database error'));
+            NotificationModel.find.mockReturnValue({
+                sort: jest.fn().mockRejectedValue(new Error('Database error'))
+            });
 
             const response = await request(app)
                 .get('/api/notifications/user/testUserId')
@@ -190,7 +209,7 @@ describe('Notification Controller', () => {
         });
     });
 
-    describe('DELETE /api/notifications/user/:userId', () => {
+    describe('DELETE /api/notifications/user/:userID', () => {
         it('should delete all notifications by user ID', async () => {
             NotificationModel.deleteMany.mockResolvedValue({ deletedCount: 2 });
 

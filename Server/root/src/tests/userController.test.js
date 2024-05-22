@@ -15,6 +15,12 @@ jest.mock('../services/emailService');
 jest.mock('../utils/tokenUtils');
 jest.mock('../database/databaseQueries');
 
+// Mock the tokenChecker middleware
+jest.mock('../middleware/tokenChecker', () => (req, res, next) => {
+    req.userId = 'testUserId'; // Mock user ID or other relevant data
+    next();
+});
+
 describe('UserController', () => {
 
     beforeEach(() => {
@@ -303,6 +309,7 @@ describe('UserController', () => {
 
             const response = await request(app)
                 .put('/api/users/1')
+                .set('x-access-token', 'valid_token') // Mock token
                 .send({
                     username: 'updatedUser',
                     email: 'update@example.com'
@@ -328,6 +335,7 @@ describe('UserController', () => {
             const response = await request(app)
                 .put('/api/users/1')
                 .query({ proPic: 'true' })
+                .set('x-access-token', 'valid_token') // Mock token
                 .send({
                     username: 'updatedUser',
                     email: 'update@example.com'
@@ -348,6 +356,7 @@ describe('UserController', () => {
             const response = await request(app)
                 .put('/api/users/1')
                 .query({ proPic: 'false' })
+                .set('x-access-token', 'valid_token') // Mock token
                 .send({
                     username: 'updatedUser',
                     email: 'update@example.com'
@@ -368,6 +377,7 @@ describe('UserController', () => {
             const response = await request(app)
                 .put('/api/users/1')
                 .query({ proPic: '2' })
+                .set('x-access-token', 'valid_token') // Mock token
                 .send({
                     username: 'updatedUser',
                     email: 'update@example.com'
@@ -381,6 +391,7 @@ describe('UserController', () => {
 
             const response = await request(app)
                 .put('/api/users/1')
+                .set('x-access-token', 'valid_token') // Mock token
                 .send({
                     username: 'updatedUser',
                     email: 'update@example.com'
@@ -395,6 +406,7 @@ describe('UserController', () => {
 
             const response = await request(app)
                 .put('/api/users/1')
+                .set('x-access-token', 'valid_token') // Mock token
                 .send({
                     username: 'updatedUser',
                     email: 'update@example.com'
