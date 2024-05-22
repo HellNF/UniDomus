@@ -260,6 +260,31 @@ async function updateMatchDetails(req, res) {
     }
 }
 
+/**
+ * Controller function for retrieving all messages in a match.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function getMessagesByMatchID(req, res) {
+    const { matchID } = req.params;
+
+    try {
+        // Find the match by ID
+        const match = await MatchModel.findById(matchID);
+
+        if (!match) {
+            return res.status(404).json({ message: "Match not found" });
+        }
+
+        return res.status(200).json({ messages: match.messages });
+    } catch (error) {
+        console.error("Error retrieving messages:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+
+
 // Export controller functions
 module.exports = {
     createMatch,
@@ -270,5 +295,6 @@ module.exports = {
     addMessageToMatch,
     deleteMatchByID,
     getMatchByID,
-    updateMatchDetails
+    updateMatchDetails,
+    getMessagesByMatchID
 };
