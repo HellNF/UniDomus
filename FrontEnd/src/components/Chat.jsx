@@ -1,9 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from './../AuthContext';
+import { useAuth } from '../AuthContext';
 import UniDomusLogo from "/UniDomusLogoWhite.png";
 import { API_BASE_URL } from '../constant';
+import {
+  MainContainer,
+  ChatContainer,
+  MessageList,
+  Message,
+  MessageInput,
+  MessageSeparator
+} from '@chatscope/chat-ui-kit-react';
+import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 
 const socket = io('http://localhost:5050', { transports: ['websocket'] }); // Ensure this URL matches your backend server
 
@@ -26,9 +35,13 @@ const Chat = () => {
           },
         });
         const data = await response.json();
-        setMessages(data.match.messages);
+        setMessages(data.match.messages.map((msg) => ({
+          message: msg.text,
+          direction: msg.userID === userId ? "outgoing" : "incoming",
+          sentTime: msg.date,
+          sender: msg.userID
+        })));
 
-        // Fetch details of the other user
         const otherUserId = data.match.requesterID !== userId ? data.match.requesterID : data.match.receiverID;
         fetchUserDetails(otherUserId);
       } catch (error) {
@@ -45,11 +58,7 @@ const Chat = () => {
           },
         });
         const userData = await response.json();
-        const user = userData.user;
-        if (user.proPic) {
-          user.proPic = `data:image/png;base64,${user.proPic}`;
-        }
-        setOtherUser(user);
+        setOtherUser(userData.user);
       } catch (error) {
         console.error('Error fetching user details:', error);
       }
@@ -58,7 +67,6 @@ const Chat = () => {
     fetchMatchDetails();
 
     socket.on('message', (newMessage) => {
-      // Only add the message if it's not from the current user
       if (newMessage.userID !== userId) {
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       }
@@ -77,45 +85,42 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const sendMessage = async () => {
-    if (message.trim()) {
-      const tempMessage = { text: message, userID: userId, date: new Date().toISOString(), _id: `temp-${Date.now()}` };
+  const sendMessage = async (innerMessage) => {
+    if (innerMessage.trim()) {
+      const newMessage = {
+        text: innerMessage,
+        userID: userId,
+        date: new Date().toISOString()
+      };
 
-      // Add the message to the UI immediately
-      setMessages((prevMessages) => [...prevMessages, tempMessage]);
-      setMessage(''); // Clear the input after sending
-
-      // Emit the message to the socket for real-time update
-      socket.emit('message', tempMessage);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          message: newMessage.text,
+          direction: "outgoing",
+          sentTime: newMessage.date,
+          sender: userId
+        }
+      ]);
 
       try {
-        const response = await fetch(`${API_BASE_URL}matches/${matchID}/messages`, {
+        await fetch(`${API_BASE_URL}matches/${matchID}/messages`, {
           method: 'POST',
           headers: {
             'x-access-token': localStorage.getItem('token'),
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ text: tempMessage.text, userID: tempMessage.userID }),
+          body: JSON.stringify(newMessage),
         });
-        const data = await response.json();
-        
-        // Replace the temporary message with the one from the server
-        setMessages((prevMessages) =>
-          prevMessages.map((msg) =>
-            msg._id === tempMessage._id ? data.match.messages[data.match.messages.length - 1] : msg
-          )
-        );
       } catch (error) {
         console.error('Error sending message:', error);
-        // Remove the temporary message if there was an error
-        setMessages((prevMessages) => prevMessages.filter((msg) => msg._id !== tempMessage._id));
       }
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    sendMessage();
+  const handleSend = (innerMessage) => {
+    sendMessage(innerMessage);
+    setMessage(''); // Clear the input after sending
   };
 
   const handleGoBack = () => {
@@ -135,32 +140,29 @@ const Chat = () => {
                   <h2 className="text-2xl font-semibold leading-7 text-white">{otherUser.username}</h2>
                 )}
               </div>
-              <div className="bg-white rounded-lg p-8 shadow-md">
-                <div className="messages flex flex-col space-y-2 overflow-y-auto h-80">
-                  {messages.map((msg) => (
-                    <div key={msg._id} className={`message p-2 rounded ${msg.userID === userId ? 'bg-blue-200 self-end' : 'bg-gray-200 self-start'}`}>
-                      <strong>{msg.userID === userId ? 'You' : otherUser ? otherUser.username : 'Unknown User'}: </strong>
-                      <span>{msg.text}</span>
-                    </div>
+              <div className="bg-white rounded-lg p-8 shadow-md flex flex-col" style={{ height: '70vh' }}>
+                <div className="messages flex-grow overflow-y-auto px-4">
+                  <MessageSeparator content="Start of conversation" />
+                  {messages.map((msg, i) => (
+                    <Message key={i} model={{
+                      message: msg.message,
+                      direction: msg.direction,
+                      sentTime: msg.sentTime,
+                      sender: msg.sender
+                    }} />
                   ))}
                   <div ref={messagesEndRef} />
                 </div>
-                <form onSubmit={handleSubmit} className="mt-4 flex">
-                  <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Type a message"
-                    className="flex-1 p-2 border border-gray-300 rounded-md"
-                  />
-                  <button type="submit" className="ml-2 rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                    Send
-                  </button>
-                </form>
+                <MessageInput
+                  placeholder="Type message here"
+                  value={message}
+                  onChange={(val) => setMessage(val)}
+                  onSend={handleSend}
+                />
               </div>
               <button onClick={handleGoBack} className="mt-4 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700">
-                  Go Back
-                </button>
+                Go Back
+              </button>
             </div>
           </div>
         </div>
