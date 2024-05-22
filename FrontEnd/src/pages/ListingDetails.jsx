@@ -173,8 +173,8 @@ const handleCancelModify = (e) => {
                                   : null}
                           </Carousel>
 
-                      </div><div className="w-2/3 flex flex-col items-center justify-center">
-                              <div className="flex flex-row w-full">
+                      </div><div className="w-2/3 flex flex-col items-center ">
+                              <div className="flex flex-col md:flex-row w-full   justify-between">
                                   <div className="flex flex-col  w-1/2 mx-4">
                                       <div className="flex flex-row items-center">
                                           <div className="p-3 ">
@@ -227,13 +227,13 @@ const handleCancelModify = (e) => {
                                   </div>
 
                                   <div className="flex flex-row ">
-                                      <div className="flex flex-col items-center justify-center m-4 shadow-lg bg-blue-950 w- h-3/5 text-white rounded-xl space-y-2">
+                                      <div className="flex flex-col items-center justify-center m-4 px-4 shadow-lg bg-blue-950  min-h-56 h-3/5 text-white rounded-xl space-y-2">
                                           <h1 className="font-bold text-2xl">{listing.price} €/mese</h1>
                                           <div className="flex">
                                               <label className="font-semibold">Disponibilità: </label>
                                               <h2>{listing.availability}</h2>
                                           </div>
-                                          <div className="flex flex-row items-center ">
+                                          <div className="flex flex-row items-center justify-evenly min-w-52">
                                               {isLoggedIn && listing.publisherID === userId ? (<button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2" onClick={()=>{setModifyMode(true)}}>Modifica</button>) : (<></>)}
                                               <button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2">Segnala</button>
                                               <button className="bg-white font-bold text-blue-950 p-2 rounded-md m-2">
