@@ -1,8 +1,9 @@
 openapi: 3.0.0
 info:
-  title: Token Confirmation API
-  version: 1.0.0
-  description: API documentation for confirming tokens and activating user accounts
+  title: Unidomus API
+  version: 2.0.0
+  description: API for the Unidomus application, a platform for real estate listings and roommate matching.
+  
 paths:
   
   /api/token/token/{token}:
@@ -859,6 +860,37 @@ paths:
           description: Invalid notification ID.
         "500":
           description: Internal server error.
+  /api/reports:
+    post:
+      summary: Create a new report
+      description: Creates a new report for a user, listing, match, or message.
+      tags:
+        - Reports
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Report'
+      responses:
+        '201':
+          description: Report created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Report created successfully
+                  report:
+                    $ref: '#/components/schemas/Report'
+        '400':
+          description: Invalid report type.
+        '404':
+          description: Reporter or target not found.
+        '500':
+          description: Internal server error.
 
     
 
@@ -1089,6 +1121,44 @@ components:
           type: string
           $ref: '#/components/schemas/NotificationPriorityEnum'
 
+    Report:
+      type: object
+      properties:
+        reporterID:
+          type: string
+          format: uuid
+          description: The ID of the user who reported the issue.
+        reportType:
+          type: string
+          $ref: '#/components/schemas/ReportTypeEnum'
+        reportStatus:
+          type: string
+          $ref: '#/components/schemas/ReportStatusEnum'
+        reportDate:
+          type: string
+          format: date-time
+          description: The date when the report was created.
+        reviewedDate:
+          type: string
+          format: date-time
+          description: The date when the report was reviewed.
+        resolvedDate:
+          type: string
+          format: date-time
+          description: The date when the report was resolved.
+        targetID:
+          type: string
+          format: uuid
+          description: The ID of the target of the report.
+        targetModel:
+          type: string
+          enum: ['User', 'Listing', 'Match', 'Message']
+          description: The model type of the target.
+        description:
+          type: string
+          maxLength: 1000
+          description: The description of the report.
+
     # Enums
     MatchStatusEnum:
       type: string
@@ -1123,3 +1193,18 @@ components:
         - basso
         - medio
         - alto
+
+    ReportTypeEnum:
+      type: string
+      enum:
+        - utente
+        - inserzione
+        - match
+        - messaggio
+
+    ReportStatusEnum:
+      type: string
+      enum:
+        - in attesa
+        - revisionato
+        - risolto

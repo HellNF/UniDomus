@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const tokenSchema = new mongoose.Schema({
   userID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user', // Reference to the user collection
+    ref: 'User', // Reference to the user collection
     required: true
   },
   token: {
@@ -23,6 +23,6 @@ const tokenSchema = new mongoose.Schema({
 });
 
 // Creation of the "tokens" model based on the schema
-const Token = mongoose.model('tokens', tokenSchema);
+const Token = mongoose.model('Token', tokenSchema);
 
 module.exports = Token;
