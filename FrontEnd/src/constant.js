@@ -1,5 +1,6 @@
 // constants.js
 
+
 export const API_BASE_URL = "http://localhost:5050/api/";
 
 export const notificationStatusEnum = {
@@ -10,5 +11,30 @@ export const matchStatusEnum = {
     PENDING: 'in attesa',
     ACCEPTED : 'accettato',
     DECLINED : 'rifiutato',
+};
+
+export const matchPriorityEnum = {
+    HIGH: 'alta',
+    MEDIUM: 'media',
+    LOW: 'bassa',
+};
+
+export const notificationPriorityEnum = {
+    HIGH: 'alta',
+    MEDIUM: 'media',
+    LOW: 'bassa',
+};
+
+export const reportTypeEnum = {
+    MESSAGE: 'messaggio',
+    USER: 'utente',
+    MATCH: 'match',
+    LISTING: 'inserzione'
+};
+export const notificationTypeEnum = {
+    MATCH: 'match',
+    MESSAGE: 'messaggio',
+    ALERT: 'alert',
+    REMINDER: 'promemria'
 };
 

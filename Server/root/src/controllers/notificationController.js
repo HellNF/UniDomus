@@ -137,22 +137,30 @@ async function getNotificationsByUserId(req, res) {
 }
 
 /**
- * Controller function for deleting all notifications by user ID.
+ * Controller function for deleting notifications by user ID with filters.
  * @param {Request} req - The Express request object.
  * @param {Response} res - The Express response object.
  */
-async function deleteAllNotificationsByUserId(req, res) {
+async function deleteNotificationsByUserId(req, res) {
     const { userID } = req.params;
+    const { type, status, priority } = req.query;
+
+    const filter = { userID };
+
+    if (type) filter.type = type;
+    if (status) filter.status = status;
+    if (priority) filter.priority = priority;
 
     try {
-        await NotificationModel.deleteMany({ userID });
+        await NotificationModel.deleteMany(filter);
 
-        return res.status(200).json({ message: "All notifications deleted successfully" });
+        return res.status(200).json({ message: "Filtered notifications deleted successfully" });
     } catch (error) {
         console.error("Error deleting notifications:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
 
 
 module.exports = {
@@ -161,6 +169,6 @@ module.exports = {
     updateNotificationStatus,
     deleteNotificationById,
     getNotificationsByUserId,
-    deleteAllNotificationsByUserId,
+    deleteNotificationsByUserId,
     setAllNotificationsAsRead
 };

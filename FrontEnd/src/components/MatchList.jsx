@@ -4,9 +4,10 @@ import { API_BASE_URL } from "../constant";
 import { Link } from 'react-router-dom';
 import { useAuth } from './../AuthContext';
 import UniDomusLogo from "/UniDomusLogoWhite.png";
-import { matchStatusEnum } from "../constant";
+import { matchStatusEnum, notificationTypeEnum  } from "../constant";
 import useReport from '../hooks/useReport';
 import ReportPopup from '../components/ReportPopup';
+import reportIcon from '../assets/report.svg'; // Import the report icon
 
 export default function MatchesList() {
   const navigate = useNavigate();
@@ -25,9 +26,30 @@ export default function MatchesList() {
 
   useEffect(() => {
     if (userId) {
+      deleteMatchNotifications();
       fetchMatches();
     }
   }, [userId]);
+
+  const deleteMatchNotifications = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}notifications/user/${userId}?type=${notificationTypeEnum.MATCH}`, {
+        method: 'DELETE',
+        headers: {
+          'x-access-token': localStorage.getItem("token"),
+          'content-type': 'application/json'
+        },
+      });
+
+      if (response.ok) {
+        console.log('Match notifications deleted successfully');
+      } else {
+        console.error('Failed to delete match notifications');
+      }
+    } catch (error) {
+      console.error('Error deleting match notifications:', error);
+    }
+  };
 
   const fetchMatches = async () => {
     try {
@@ -166,9 +188,9 @@ export default function MatchesList() {
                             </button>
                             <button
                               onClick={() => handleButtonClick('match', match._id)} // Report button for the match
-                              className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-700"
+                              className="p-1 rounded-md hover:bg-yellow-700"
                             >
-                              Segnala
+                              <img src={reportIcon} alt="Report" className="h-6 w-6" />
                             </button>
                           </div>
                         </div>

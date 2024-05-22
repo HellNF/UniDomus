@@ -5,7 +5,7 @@ const {
     getNotificationsByUserId,
     updateNotificationStatus,
     deleteNotificationById,
-    deleteAllNotificationsByUserId,
+    deleteNotificationsByUserId,
     setAllNotificationsAsRead
 } = require('../controllers/notificationController');
 const tokenChecker = require('../middleware/tokenChecker');
@@ -17,7 +17,7 @@ router.get('/user/:userID', getNotificationsByUserId);
 router.put('/:notificationId/status', updateNotificationStatus);
 router.put('/user/:userID/seen', setAllNotificationsAsRead);
 router.delete('/:notificationId', deleteNotificationById);
-router.delete('/user/:userID', deleteAllNotificationsByUserId);
+router.delete('/user/:userID', deleteNotificationsByUserId);
 
 
 module.exports = router;

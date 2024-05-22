@@ -215,7 +215,7 @@ function Navbar({ current }) {
                                 href="/matches/index"
                                 className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                               >
-                                Matches
+                                Richieste di Match
                               </a>
                             )}
                           </Menu.Item>
