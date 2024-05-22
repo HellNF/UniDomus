@@ -85,7 +85,8 @@ function Navbar({ current }) {
   };
 
   return (
-    <Disclosure as="nav" className="bg-blue-950 z-50">
+    <Disclosure as="nav" className="bg-blue-950 z-50 border-b border-white">
+
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -216,6 +217,16 @@ function Navbar({ current }) {
                                 className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                               >
                                 Richieste di Match
+                              </a>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                href="/chats/"
+                                className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                              >
+                                Chats
                               </a>
                             )}
                           </Menu.Item>
