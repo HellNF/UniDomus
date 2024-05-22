@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from './../AuthContext';
@@ -14,6 +14,7 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [otherUser, setOtherUser] = useState(null);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     const fetchMatchDetails = async () => {
@@ -28,7 +29,7 @@ const Chat = () => {
         setMessages(data.match.messages);
 
         // Fetch details of the other user
-        const otherUserId = data.match.requesterID !== userId ? data.match.requesterID : data.match.responderID;
+        const otherUserId = data.match.requesterID !== userId ? data.match.requesterID : data.match.receiverID;
         fetchUserDetails(otherUserId);
       } catch (error) {
         console.error('Error fetching match details:', error);
@@ -44,7 +45,11 @@ const Chat = () => {
           },
         });
         const userData = await response.json();
-        setOtherUser(userData.user);
+        const user = userData.user;
+        if (user.proPic) {
+          user.proPic = `data:image/png;base64,${user.proPic}`;
+        }
+        setOtherUser(user);
       } catch (error) {
         console.error('Error fetching user details:', error);
       }
@@ -52,8 +57,11 @@ const Chat = () => {
 
     fetchMatchDetails();
 
-    socket.on('message', (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+    socket.on('message', (newMessage) => {
+      // Only add the message if it's not from the current user
+      if (newMessage.userID !== userId) {
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      }
     });
 
     return () => {
@@ -61,12 +69,47 @@ const Chat = () => {
     };
   }, [matchID, userId]);
 
-  const sendMessage = () => {
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const sendMessage = async () => {
     if (message.trim()) {
-      const newMessage = { user: userId, text: message, date: new Date().toISOString() };
-      socket.emit('message', newMessage);
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setMessage('');
+      const tempMessage = { text: message, userID: userId, date: new Date().toISOString(), _id: `temp-${Date.now()}` };
+
+      // Add the message to the UI immediately
+      setMessages((prevMessages) => [...prevMessages, tempMessage]);
+      setMessage(''); // Clear the input after sending
+
+      // Emit the message to the socket for real-time update
+      socket.emit('message', tempMessage);
+
+      try {
+        const response = await fetch(`${API_BASE_URL}matches/${matchID}/messages`, {
+          method: 'POST',
+          headers: {
+            'x-access-token': localStorage.getItem('token'),
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: tempMessage.text, userID: tempMessage.userID }),
+        });
+        const data = await response.json();
+        
+        // Replace the temporary message with the one from the server
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg._id === tempMessage._id ? data.match.messages[data.match.messages.length - 1] : msg
+          )
+        );
+      } catch (error) {
+        console.error('Error sending message:', error);
+        // Remove the temporary message if there was an error
+        setMessages((prevMessages) => prevMessages.filter((msg) => msg._id !== tempMessage._id));
+      }
     }
   };
 
@@ -75,19 +118,8 @@ const Chat = () => {
     sendMessage();
   };
 
-  const handleRemoveChat = async () => {
-    try {
-      await fetch(`${API_BASE_URL}matches/${matchID}`, {
-        method: 'DELETE',
-        headers: {
-          'x-access-token': localStorage.getItem("token"),
-          'content-type': 'application/json'
-        },
-      });
-      navigate('/chats'); // Redirect to chats list after deleting the chat
-    } catch (error) {
-      console.error("Error removing chat:", error);
-    }
+  const handleGoBack = () => {
+    navigate(-1); // Go back to the previous page
   };
 
   return (
@@ -105,12 +137,13 @@ const Chat = () => {
               </div>
               <div className="bg-white rounded-lg p-8 shadow-md">
                 <div className="messages flex flex-col space-y-2 overflow-y-auto h-80">
-                  {messages.map((msg, index) => (
-                    <div key={index} className={`message p-2 rounded ${msg.user === userId ? 'bg-blue-200 self-end' : 'bg-gray-200 self-start'}`}>
-                      <strong>{msg.user === userId ? 'You' : otherUser ? otherUser.username : 'Unknown User'}: </strong>
+                  {messages.map((msg) => (
+                    <div key={msg._id} className={`message p-2 rounded ${msg.userID === userId ? 'bg-blue-200 self-end' : 'bg-gray-200 self-start'}`}>
+                      <strong>{msg.userID === userId ? 'You' : otherUser ? otherUser.username : 'Unknown User'}: </strong>
                       <span>{msg.text}</span>
                     </div>
                   ))}
+                  <div ref={messagesEndRef} />
                 </div>
                 <form onSubmit={handleSubmit} className="mt-4 flex">
                   <input
@@ -125,22 +158,9 @@ const Chat = () => {
                   </button>
                 </form>
               </div>
-            </div>
-            <div className="mt-6 flex items-center justify-between">
-              <button
-                type="button"
-                className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                onClick={() => window.history.back()}
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                onClick={handleRemoveChat}
-              >
-                Remove Chat
-              </button>
+              <button onClick={handleGoBack} className="mt-4 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700">
+                  Go Back
+                </button>
             </div>
           </div>
         </div>

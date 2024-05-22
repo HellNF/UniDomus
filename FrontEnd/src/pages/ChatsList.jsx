@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL, matchStatusEnum } from "../constant";
 import { useAuth } from '../AuthContext';
 import UniDomusLogo from "/UniDomusLogoWhite.png";
 import useReport from '../hooks/useReport';
 import ReportPopup from '../components/ReportPopup';
 import reportIcon from '../assets/report.svg';
+import trashIcon from '../assets/trash.svg'; // Import the trash icon
 
 export default function ChatsList() {
   const { userId } = useAuth();
   const [matches, setMatches] = useState([]);
   const [users, setUsers] = useState({});
+  const navigate = useNavigate();
   const {
     showPopup,
     currentReportType,
@@ -85,6 +87,22 @@ export default function ChatsList() {
     setUsers(usersMap);
   };
 
+  const handleRemoveChat = async (matchID) => {
+    try {
+      await fetch(`${API_BASE_URL}matches/${matchID}`, {
+        method: 'DELETE',
+        headers: {
+          'x-access-token': localStorage.getItem("token"),
+          'content-type': 'application/json'
+        },
+      });
+      // Update matches after deleting
+      setMatches(matches.filter(match => match._id !== matchID));
+    } catch (error) {
+      console.error("Error removing chat:", error);
+    }
+  };
+
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
@@ -135,9 +153,15 @@ export default function ChatsList() {
                           <div className="flex space-x-2">
                             <button
                               onClick={() => handleButtonClick('match', match._id)} // Report button for the match
-                              className="p-1 rounded-md hover:bg-yellow-700"
+                              className="p-1 rounded-md "
                             >
                               <img src={reportIcon} alt="Report" className="h-6 w-6" />
+                            </button>
+                            <button
+                              onClick={() => handleRemoveChat(match._id)}
+                              className="p-1 rounded-md"
+                            >
+                              <img src={trashIcon} alt="Remove" className="h-6 w-6" /> {/* Use the trash icon */}
                             </button>
                           </div>
                         </div>
