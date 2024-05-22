@@ -9,7 +9,7 @@ import Registration from "./pages/Registration.jsx"
 import Login from "./pages/Login.jsx"
 
 import EditProfile from './pages/EditProfile.jsx'
-import DisplayTenants from './pages/displayTenants.jsx'
+import FindATenant from './pages/FindATenant.jsx'
 import FindAFlat from './pages/FindAFlat.jsx'
 import AddListing from "./pages/AddListing.jsx"
 import PasswordReset from './pages/PasswordReset.jsx'
@@ -17,6 +17,7 @@ import ForgotPassword from './pages/ForgotPassword.jsx'
 import MatchDisplayer from './pages/MatchDisplayer.jsx'
 import TestPage from './pages/TestPage.jsx'
 import ListingDetails from './pages/ListingDetails.jsx'
+import TenantDetails from './pages/TenantDetails.jsx'
 
 
 const router = createBrowserRouter([
@@ -33,8 +34,12 @@ const router = createBrowserRouter([
     element: <EditProfile></EditProfile>
   },
   {
-    path: "/displayTenants",
-    element: <DisplayTenants></DisplayTenants>
+    path: "/findatenant",
+    element: <FindATenant></FindATenant>
+  },
+  {
+    path: "/findatenant/:id",
+    element: <TenantDetails></TenantDetails>
   },
   {
     path: "/",
