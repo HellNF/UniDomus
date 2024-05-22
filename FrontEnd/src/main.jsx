@@ -19,6 +19,8 @@ import MatchDisplayer from './pages/MatchDisplayer';
 import TestPage from './pages/TestPage';
 import ListingDetails from './pages/ListingDetails';
 import Layout from './components/Layout'; // Import the Layout component
+import ChatsList from './pages/ChatsList';
+import Chat from './components/Chat';
 
 const router = createBrowserRouter([
   {
