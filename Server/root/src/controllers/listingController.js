@@ -237,6 +237,7 @@ module.exports = {
     listings,
     addListing,
     getListingById,
-    addressToCoordinates
+    addressToCoordinates,
+    getCoordinatesById
 };
 

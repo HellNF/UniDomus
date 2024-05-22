@@ -14,9 +14,12 @@
    display: none;
 }
 
+.h-40vh{
+   height: 40vh;
+}
 .h-83vh{
   height: 82vh;
 }
 .leaflet-container{
-  height: 82vh;
+  height: 100%;
 }
