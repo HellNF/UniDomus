@@ -37,4 +37,9 @@ export const notificationTypeEnum = {
     ALERT: 'alert',
     REMINDER: 'promemria'
 };
+export const matchTypeEnum = {
+    APARTMENT: 'appartamento',
+    ROOMMATE: 'coinquilino'
+};
+
 

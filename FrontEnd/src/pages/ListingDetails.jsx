@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Carousel from "../components/Carousel";
-import { API_BASE_URL } from "../constant";
+import { API_BASE_URL,matchTypeEnum } from "../constant";
 import MapComponent from "../components/MapComponent";
 import { useAuth } from "../AuthContext";
 import { PhotoIcon } from '@heroicons/react/24/solid'
@@ -56,7 +56,7 @@ export default function ListingDetails() {
     const matchData = {
         requesterID: userId,
         receiverID: listing.publisherID,
-        matchType: "Appartamento"
+        matchType: matchTypeEnum.APARTMENT
     };
 
     fetch(`${API_BASE_URL}matches`, {
