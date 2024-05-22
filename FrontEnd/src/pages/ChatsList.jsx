@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL, matchStatusEnum } from "../constant";
 import { useAuth } from '../AuthContext';
@@ -7,11 +7,11 @@ import useReport from '../hooks/useReport';
 import ReportPopup from '../components/ReportPopup';
 import reportIcon from '../assets/report.svg';
 import trashIcon from '../assets/trash.svg'; // Import the trash icon
+import useMatches from '../hooks/useMatches';
 
 export default function ChatsList() {
   const { userId } = useAuth();
-  const [matches, setMatches] = useState([]);
-  const [users, setUsers] = useState({});
+  const { matches, users, fetchMatches } = useMatches();
   const navigate = useNavigate();
   const {
     showPopup,
@@ -23,70 +23,6 @@ export default function ChatsList() {
     handleSubmitReport
   } = useReport();
 
-  useEffect(() => {
-    if (userId) {
-      fetchMatches();
-    }
-  }, [userId]);
-
-  const fetchMatches = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}matches/user/${userId}`, {
-        headers: {
-          'x-access-token': localStorage.getItem("token"),
-          'content-type': 'application/json'
-        },
-      });
-      const data = await response.json();
-      // Filter matches to show only those with status ACCEPTED
-      const filteredMatches = data.matches.filter(match => match.matchStatus === matchStatusEnum.ACCEPTED);
-      setMatches(filteredMatches);
-      fetchUsers(filteredMatches);
-    } catch (error) {
-      console.error("Error fetching matches:", error);
-    }
-  };
-
-  const fetchUsers = async (matches) => {
-    // Map through matches to find the other user ID
-    const userIds = matches.map(match => match.requesterID === userId ? match.receiverID : match.requesterID);
-    const uniqueUserIds = [...new Set(userIds)];
-
-    const userPromises = uniqueUserIds.map(async (id) => {
-      if (id) {
-        try {
-          const response = await fetch(`${API_BASE_URL}users/${id}?proPic=1`, {
-            headers: {
-              'x-access-token': localStorage.getItem("token"),
-              'content-type': 'application/json'
-            },
-          });
-          const userData = await response.json();
-          const user = userData.user;
-
-          if (user && user.proPic) {
-            const proPicData = user.proPic;
-            user.proPic = `data:image/png;base64,${proPicData}`;
-          }
-
-          return { id, userData: user };
-        } catch (error) {
-          console.error(`Error fetching user data for ID ${id}:`, error);
-          return { id, userData: null };
-        }
-      }
-    });
-
-    const userDataArray = await Promise.all(userPromises);
-    const usersMap = userDataArray.reduce((acc, { id, userData }) => {
-      if (userData) {
-        acc[id] = userData;
-      }
-      return acc;
-    }, {});
-    setUsers(usersMap);
-  };
-
   const handleRemoveChat = async (matchID) => {
     try {
       await fetch(`${API_BASE_URL}matches/${matchID}`, {
@@ -97,7 +33,7 @@ export default function ChatsList() {
         },
       });
       // Update matches after deleting
-      setMatches(matches.filter(match => match._id !== matchID));
+      fetchMatches();
     } catch (error) {
       console.error("Error removing chat:", error);
     }

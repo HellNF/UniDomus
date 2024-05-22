@@ -150,7 +150,8 @@ async function addMessageToMatch(req, res) {
     const { text, userID } = req.body;
     
     
-    
+    //log request
+    console.log("Request to add message to match: ", req.body);
 
     try {
         //messages can only be added if the match is confirmed

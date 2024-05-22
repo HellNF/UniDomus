@@ -21,6 +21,7 @@ import ListingDetails from './pages/ListingDetails';
 import Layout from './components/Layout'; // Import the Layout component
 import ChatsList from './pages/ChatsList';
 import Chat from './components/Chat';
+import ChatApp from './pages/ChatApp';
 
 const router = createBrowserRouter([
   {
@@ -124,7 +125,15 @@ const router = createBrowserRouter([
       <Layout>
         <ChatsList />
        </Layout>),
+  },{
+    path: "/chat2/:matchID",
+    element: (
+     <Layout>
+        <ChatApp />
+     </Layout>
+      )
   },
+  
   {
     path: "/chat/:matchID",
     element: (
