@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import Navbar from './Navbar';
 import Slider from './Slider';
 import { API_BASE_URL } from "../constant";
+//import { calculateAge } from "../utils/dateUtils";
+
 
 const MIN = 0;
 const MAX = 120;
@@ -20,6 +22,7 @@ export default function DisplayTenantsPage() {
   const [hobbies, setHobbies] = useState([]);
   const [habitsTag, setHabitsTag] = useState([]);
   const [hobbiesTag, setHobbiesTag] = useState([]);
+  const [isLiked, setIsLiked] = useState(false);
   
 
 
@@ -75,7 +78,6 @@ export default function DisplayTenantsPage() {
       });
   };
 
-
   function calculateAge(birthdateISO) {
     const birthdate = new Date(birthdateISO);
     const today = new Date();
@@ -89,6 +91,7 @@ export default function DisplayTenantsPage() {
     
     return age;
   }
+  
 
 
 
@@ -124,6 +127,16 @@ export default function DisplayTenantsPage() {
     e.preventDefault()
     fetchUsers();
 }
+
+const resetFilters = () => {
+  setValues([0, 120]);
+  setGenders([]);
+  setHabitsTag([]);
+  setHobbiesTag([]);
+ 
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(checkbox => checkbox.checked = false);
+};
 
 
 
@@ -215,9 +228,9 @@ export default function DisplayTenantsPage() {
           </div>
           <div className="p-4">
             <div className="mt-6  flex items-center justify-between">
-              <Link to="/.." className="rounded-md bg-red-600  px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+              <button onClick={resetFilters} className="rounded-md bg-red-600  px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                 Resetta
-              </Link>
+              </button>
 
               <button
                 type="submit"
@@ -232,7 +245,8 @@ export default function DisplayTenantsPage() {
         <h3 className="mb-4 text-lg font-semibold">Utenti in cerca di appartamento</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
           {users.map(user => (
-            <button key={user.id} className="relative p-4  hover:bg-gray-100 border rounded-lg shadow flex flex-col items-center">
+
+            <Link to={`/findatenant/${user._id}`} className="relative p-4  hover:bg-gray-100 border rounded-lg shadow flex flex-col items-center">
              {user.proPic.length > 0 ? (
               <Carousel className="w-1/2 flex items-center justify-center">
                 {user.proPic.map((element, id) => (
@@ -240,7 +254,7 @@ export default function DisplayTenantsPage() {
                     src={element.includes("http") || element.includes("data:image/png;base64,") ? element : `data:image/png;base64,${element}`} 
                     alt="ciao" 
                     key={id} 
-                    className="h-1/2 min-w-full rounded-full object-cover" 
+                    className=" rounded-full object-cover" 
                   />
                 ))}
               </Carousel>
@@ -261,7 +275,7 @@ export default function DisplayTenantsPage() {
                     {user.surname && user.birthDate?`, `:``}
                     {user.birthDate?`${calculateAge(user.birthDate)} `:``}</p>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       </div>

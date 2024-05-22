@@ -10,14 +10,15 @@ import App from './App';
 import Registration from './pages/Registration';
 import Login from './pages/Login';
 import EditProfile from './pages/EditProfile';
-import DisplayTenantsPage from './pages/displayTenants';
 import FindAFlat from './pages/FindAFlat';
+import FindATenant from './pages/FindATenant.jsx'
 import AddListing from './pages/AddListing';
 import PasswordReset from './pages/PasswordReset';
 import ForgotPassword from './pages/ForgotPassword';
 import MatchDisplayer from './pages/MatchDisplayer';
 import TestPage from './pages/TestPage';
 import ListingDetails from './pages/ListingDetails';
+import TenantDetails from './pages/TenantDetails.jsx'
 import Layout from './components/Layout'; // Import the Layout component
 import ChatsList from './pages/ChatsList';
 import Chat from './components/Chat';
@@ -56,12 +57,16 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: '/displayTenants',
-    element: (
-      <Layout>
-        <DisplayTenantsPage />
-      </Layout>
-    ),
+    path: "/findatenant",
+    element: <FindATenant></FindATenant>
+  },
+  {
+    path: "/findatenant/:id",
+    element: <TenantDetails></TenantDetails>
+  },
+  {
+    path: "/",
+    element: <App></App>
   },
   {
     path: '/findaflat',
