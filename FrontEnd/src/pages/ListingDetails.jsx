@@ -65,6 +65,7 @@ export default function ListingDetails() {
 
   useEffect(() => {
     setFormData({...listing.address, typology: listing.typology, description: listing.description, price: listing.price, floorArea: listing.floorArea, availability: listing.availability, photos: listing.photos, publisherID: listing.publisherID});
+    setPhotoPreviews(listing.photos);
     if (listing.publisherID && modifyMode === false) {
       
         fetchUserData();
@@ -147,6 +148,10 @@ export default function ListingDetails() {
     newPhotoPreviews.splice(index, 1);
     setPhotoPreviews(newPhotoPreviews);
 };
+const handleCancelModify = (e) => {
+    e.preventDefault();
+    setModifyMode(false);
+}
   return (
     <>
       <div className="flex flex-col bg-blue-950 items-center h-full">
@@ -221,7 +226,7 @@ export default function ListingDetails() {
 
                                   </div>
 
-                                  <div className="flex flex-row  w-1/2">
+                                  <div className="flex flex-row ">
                                       <div className="flex flex-col items-center justify-center m-4 shadow-lg bg-blue-950 w- h-3/5 text-white rounded-xl space-y-2">
                                           <h1 className="font-bold text-2xl">{listing.price} €/mese</h1>
                                           <div className="flex">
@@ -299,7 +304,7 @@ export default function ListingDetails() {
                               {photoPreviews.map((imgSrc, index) => (
                                 <div key={index} className="relative overflow-hidden">
                                 <img
-                                    src={imgSrc}
+                                    src={imgSrc.includes("http") || imgSrc.includes("data:image/png;base64,")? imgSrc: `data:image/png;base64,${imgSrc}`}
                                     alt={`Uploaded ${index + 1}`}
                                     className="" key={index} width={200} height={200} // Adjust size based on index
                                 />
@@ -564,7 +569,7 @@ export default function ListingDetails() {
                 <div className="flex flex-row items-center justify-evenly">
                     <button
                         type="button"
-                        onClick={()=>{e.preventDefault(); setModifyMode(false)}}
+                        onClick={handleCancelModify}
                         className="rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
                         annulla
