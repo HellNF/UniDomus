@@ -188,7 +188,7 @@ export default function MatchesList() {
                             </button>
                             <button
                               onClick={() => handleButtonClick('match', match._id)} // Report button for the match
-                              className="p-1 rounded-md hover:bg-yellow-700"
+                              className="p-1 rounded-md "
                             >
                               <img src={reportIcon} alt="Report" className="h-6 w-6" />
                             </button>

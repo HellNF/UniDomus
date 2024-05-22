@@ -131,7 +131,8 @@ export default function DisplayTenantsPage() {
 
   return (
     <>
-      <Navbar />
+
+      
       <div className="flex">
         <form onSubmit={handleSubmit} method="GET" className="flex flex-col w-1/4 h-screen py-2 bg-white shadow-xl">
           <div className="px-8 py-3">
@@ -176,6 +177,7 @@ export default function DisplayTenantsPage() {
                 <span className="ml-2">Altro</span>
               </label>
             </div>
+
 
             <h2 className="text-xl py-8 font-semibold leading-7 text-gray-900">Abitudini:</h2>
             {habits.map((habit, index) => (
