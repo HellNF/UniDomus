@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Carousel from "./ImageSlider";
+import Carousel from "./Carousel";
 import UniDomusLogo from "/UniDomusLogo.png";
 import heart from "../assets/favorite.svg"
 import genericUser from "../assets/genericUser.svg"
