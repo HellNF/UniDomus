@@ -1,4 +1,4 @@
-//app.js
+// app.js
 require('dotenv').config({ path: '../.env' });
 const express = require('express');
 const app = express();

@@ -24,6 +24,7 @@
     "mongoose": "^8.3.3",
     "node": "^22.0.0",
     "node-mailjet": "^6.0.5",
+    "socket.io": "^4.7.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0"
   },

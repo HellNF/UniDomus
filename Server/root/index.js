@@ -1,23 +1,26 @@
 // index.js
-const app= require('./app')
-
-
-const PORT = process.env.PORT; // Set the port to either the environment port or 5050
-
-
-// Import MongoDB connection function and Mongoose instance
+const app = require('./app');
+const http = require('http');
 const { connectToMongoDB, mongoose } = require('./src/database/connection');
+const initializeSocket = require('./src/socket'); // Import the socket initialization function
+
+const PORT = process.env.PORT || 5050; // Set the port to either the environment port or 5050
+
+// Create an HTTP server and integrate with the Express app
+const server = http.createServer(app);
 
 // Connect to MongoDB
 connectToMongoDB()
   .then(async () => {
-    // Use routes
+    // Initialize Socket.io
+    const io = initializeSocket(server);
+
     // Start the server
-    const server = await app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
     });
 
-    //close MongoDB connection on process exit
+    // Close MongoDB connection on process exit
     process.on('SIGINT', async () => {
       try {
         await mongoose.disconnect();
@@ -36,5 +39,3 @@ connectToMongoDB()
     console.error('Error connecting to MongoDB:', error);
     process.exit(1); // Exit the process with an error code
   });
-
- 

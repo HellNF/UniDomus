@@ -17,6 +17,7 @@ import ForgotPassword from './pages/ForgotPassword.jsx'
 import MatchDisplayer from './pages/MatchDisplayer.jsx'
 import TestPage from './pages/TestPage.jsx'
 import ListingDetails from './pages/ListingDetails.jsx'
+import Chat from './components/Chat.jsx'
 
 
 const router = createBrowserRouter([
@@ -64,6 +65,10 @@ const router = createBrowserRouter([
   }, {
     path: "/test",
     element: <TestPage></TestPage>
+  },
+  {
+    path: "/chat",
+    element: <Chat></Chat>
   }
 
 ])
