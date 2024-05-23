@@ -155,6 +155,28 @@ async function getListingById(req, res) {
     }
 }
 
+
+const updateListingById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+
+        // Update the user document with all fields provided in the request body
+        const listing = await Listing.findByIdAndUpdate(id, updates, { new: true });
+
+        if (!listing) {
+            console.log("Listing not found.");
+            return res.status(404).json({ message: "Listing not found" });
+        }
+
+        console.log("Lisiting updated successfully.");
+        return res.status(200).json({ listing });
+    } catch (error) {
+        console.error("Error updating listing:", error);
+        return res.status(500).json({ message: "Error updating listing", error: error.message });
+    }
+};
+
 async function addressToCoordinates(req, res) {
     try {
         // Parse query parameters
@@ -281,6 +303,7 @@ module.exports = {
     listings,
     addListing,
     getListingById,
+    updateListingById,
     addressToCoordinates,
     getCoordinatesById
 };
