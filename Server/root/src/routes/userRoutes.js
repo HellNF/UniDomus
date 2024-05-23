@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { registerUser, authenticateUser, getTags, getUserById, updateUserById, updatePassword, requestPasswordChange, getHousingSeekers,getAllUsers } = require('../controllers/userController');
+const { registerUser, authenticateUser, getTags, getUserById, updateUserById, updatePassword, requestPasswordChange, getHousingSeekers,getAllUsers, googleLogin } = require('../controllers/userController');
 const tokenChecker = require('../middleware/tokenChecker');
 
 // Define routes for user registration
@@ -22,6 +22,7 @@ router.get('/:id', getUserById);
 router.put('/:id',tokenChecker,updateUserById);
 router.post('/forgotpassword', requestPasswordChange);
 router.put('/resetpassword/:token', updatePassword);
+router.post("/auth/google", googleLogin);
 
 
 

@@ -1,23 +1,23 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import App from './App.jsx'
+import './index.css'
+import { AuthProvider } from './AuthContext'; // Import the AuthProvide
+import Registration from "./pages/Registration.jsx"
+import Login from "./pages/Login.jsx"
 
-import './index.css';
-import { AuthProvider } from './AuthContext'; // Import the AuthProvider
-
-// Importing components and pages
-import App from './App';
-import Registration from './pages/Registration';
-import Login from './pages/Login';
-import EditProfile from './pages/EditProfile';
-import DisplayTenantsPage from './pages/displayTenants';
-import FindAFlat from './pages/FindAFlat';
-import AddListing from './pages/AddListing';
-import PasswordReset from './pages/PasswordReset';
-import ForgotPassword from './pages/ForgotPassword';
-import MatchDisplayer from './pages/MatchDisplayer';
-import TestPage from './pages/TestPage';
-import ListingDetails from './pages/ListingDetails';
+import EditProfile from './pages/EditProfile.jsx'
+import FindAFlat from './pages/FindAFlat.jsx'
+import FindATenant from './pages/FindATenant.jsx'
+import AddListing from "./pages/AddListing.jsx"
+import PasswordReset from './pages/PasswordReset.jsx'
+import ForgotPassword from './pages/ForgotPassword.jsx'
+import MatchDisplayer from './pages/MatchDisplayer.jsx'
+import TestPage from './pages/TestPage.jsx'
+import ListingDetails from './pages/ListingDetails.jsx'
+import TenantDetails from './pages/TenantDetails.jsx'
 import Layout from './components/Layout'; // Import the Layout component
 import ChatsList from './pages/ChatsList';
 import Chat from './components/Chat';
@@ -56,13 +56,15 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: '/displayTenants',
-    element: (
-      <Layout>
-        <DisplayTenantsPage />
-      </Layout>
-    ),
+    path: "/findatenant",
+    element: (<Layout><FindATenant></FindATenant></Layout>
+    )
   },
+  {
+    path: "/findatenant/:id",
+    element: (<Layout><TenantDetails></TenantDetails></Layout>)
+  },
+  
   {
     path: '/findaflat',
     element: (
@@ -138,8 +140,12 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
-  </React.StrictMode>
+    <GoogleOAuthProvider clientId="761215580808-bhje7mp4bnl80einl3ri0db5bb1sk0kn.apps.googleusercontent.com">
+      <AuthProvider>
+
+        <RouterProvider router={router} />
+
+      </AuthProvider>
+    </GoogleOAuthProvider>
+  </React.StrictMode>,
 );
