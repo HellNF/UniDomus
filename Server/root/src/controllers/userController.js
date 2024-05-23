@@ -10,6 +10,9 @@ const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 require('dotenv').config() //to use environment variables
 const { sendConfirmationEmail,sendPasswordResetEmail } = require('../services/emailService'); // Import the function to send confirmation email
 const { hobbiesEnum, habitsEnum } = require('./../models/enums');
+const { OAuth2Client } = require('google-auth-library');
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const User = require('../models/userModel');
 
@@ -396,6 +399,49 @@ async function updatePassword(req, res) {
     }
 }
 
+async function googleLogin(req, res) {
+    const { token }  = req.body;
+    
+
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+    // Verify if the ticket is valid
+    if (!ticket) {
+        // Ticket is not valid, handle the error
+        return res.status(401).json({ message: 'Invalid ticket' });
+    }
+
+  const {email, picture, sub: googleId ,given_name: name, family_name:surname} = ticket.getPayload();
+
+    // Find the user by googleId    
+    
+
+    const alreadyRegistered = await User.findOne({email:email});
+    if(alreadyRegistered && alreadyRegistered.googleId===null){
+        alreadyRegistered.googleId=googleId;
+        await alreadyRegistered.save();
+    }
+    // If the user does not exist, create a new user without a password
+    const user = await User.findOne({ googleId });
+    if (!user) {
+        // Create a new user with the email obtained from the token
+        const username=email.split('@')[0];
+        await User.create({googleId, email, username,name,surname ,proPic: [picture], active: true});
+    }
+    
+
+  // Genera un JWT per l'utente
+  const userJwt = jwt.sign({
+    id: user.id,
+    email: user.email,
+    username: user.username
+  }, process.env.SUPER_SECRET, { expiresIn: '4h' });
+
+  // Invia il JWT all'utente
+    return  res.status(200).json({ token: userJwt });
+}
  
   
 
@@ -409,6 +455,7 @@ module.exports = {
     updateUserById,
     updatePassword,
     requestPasswordChange,
-    getAllUsers
+    getAllUsers,
+    googleLogin
 };
 

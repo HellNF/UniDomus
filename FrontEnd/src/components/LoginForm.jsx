@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import UniDomusLogo from "/UniDomusLogo.png";
 import { API_BASE_URL } from "../constant";
 import { useAuth } from "../AuthContext";
+import { GoogleLogin } from "@react-oauth/google";
+
 
 export default function LoginForm() {
-  const { login } = useAuth(); 
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
   const navigate = useNavigate();
 
@@ -16,7 +18,7 @@ export default function LoginForm() {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   }
 
@@ -24,36 +26,66 @@ export default function LoginForm() {
     e.preventDefault();
     const bodyForm = {
       email: formData.email,
-      password: formData.password
+      password: formData.password,
     };
 
     fetch(`${API_BASE_URL}users/authentication`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(bodyForm)
+      body: JSON.stringify(bodyForm),
     })
-    .then(res => {
-      if (res.ok) {
-        return res.json();
-      } else if (res.status === 400) {
-        throw new Error("Invalid email or password");
-      } else if (res.status === 500) {
-        throw new Error("Internal server error. Please try again later.");
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else if (res.status === 400) {
+          throw new Error("Invalid email or password");
+        } else if (res.status === 500) {
+          throw new Error("Internal server error. Please try again later.");
+        } else {
+          throw new Error("An unexpected error occurred");
+        }
+      })
+      .then((data) => {
+        // Store JWT in local storage
+        login(data.token); // Assume server sends token as { token: 'jwt_token' }
+        navigate("/");
+      })
+      .catch((error) => {
+        console.error("Error:", error.message);
+        alert(error.message);
+      });
+  }
+  async function handleGoogleLogin(credentialResponse) {
+    try {
+      console.log(credentialResponse);
+      const id_token  = credentialResponse.credential;
+      console.log(id_token);
+      const bodyForm = {
+        token: id_token,
+      };
+
+      const response = await fetch(`${API_BASE_URL}users/auth/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bodyForm),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Store JWT in local storage
+        login(data.token); // Assume server sends token as { token: 'jwt_token' }
+        navigate("/");
       } else {
-        throw new Error("An unexpected error occurred");
+        throw new Error("Google authentication failed");
       }
-    })
-    .then(data => {
-      // Store JWT in local storage
-      login(data.token); // Assume server sends token as { token: 'jwt_token' }
-      navigate('/');
-    })
-    .catch(error => {
-      console.error('Error:', error.message);
+    } catch (error) {
+      console.error("Error:", error.message);
       alert(error.message);
-    });
+    }
   }
 
   return (
@@ -72,7 +104,10 @@ export default function LoginForm() {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" onSubmit={handleSubmit} method="POST">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
               Email address
             </label>
             <div className="mt-2">
@@ -88,14 +123,19 @@ export default function LoginForm() {
               />
             </div>
           </div>
-
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
                 Password
               </label>
               <div className="text-sm">
-                <a href="/forgotpassword" className="font-semibold text-blue-950 hover:text-blue-700">
+                <a
+                  href="/forgotpassword"
+                  className="font-semibold text-blue-950 hover:text-blue-700"
+                >
                   Forgot password?
                 </a>
               </div>
@@ -113,7 +153,6 @@ export default function LoginForm() {
               />
             </div>
           </div>
-
           <div>
             <button
               type="submit"
@@ -122,6 +161,16 @@ export default function LoginForm() {
               Log in
             </button>
           </div>
+          <div className="w-full flex items-center justify-center">
+              <GoogleLogin
+                onSuccess={(credentialResponse)=>handleGoogleLogin(credentialResponse)}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+              />
+          </div>
+          
+          
         </form>
       </div>
     </div>

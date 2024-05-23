@@ -20,7 +20,7 @@ function Navbar({ current }) {
   const initialNavigation = [
     { name: 'Home', href: '/', current: false },
     { name: 'Trova un appartamento', href: '/findaflat', current: false },
-    { name: 'Trova un coinquilino', href: '/displayTenants', current: false },
+    { name: 'Trova un coinquilino', href: '/findatenant', current: false },
   ];
 
   const [navigation, setNavigation] = useState(
