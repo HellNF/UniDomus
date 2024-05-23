@@ -196,9 +196,10 @@ async function addressToCoordinates(req, res) {
                 region: "Trento",
                 limit: 1
             }))
-            .then(response => {
+            .then(async (response) => {
                 if (!response.ok) {
-                    return null;
+                    const errorBody = await response.json();
+                    throw new Error({ message: 'Error converting address' });
                 } else {
                     return response.json();
                 }
@@ -214,6 +215,7 @@ async function addressToCoordinates(req, res) {
             })
             .catch(error => {
                 console.error('Error converting address:', error);
+                throw new Error( "Error converting address" );
             });
         }));
 
@@ -226,8 +228,8 @@ async function addressToCoordinates(req, res) {
         }
         
     } catch (error) {
-        console.error("Error retrieving listings with filters:", error);
-        return res.status(500).json({ message: "Error retrieving listings", error: error.message });
+        console.error("Error retrieving listings with filters:", error.message);
+        return res.status(500).json({ message: "Error retrieving listings", error: error.message  });
     }
 }
 async function getCoordinatesById(req, res) {
@@ -250,9 +252,10 @@ async function getCoordinatesById(req, res) {
             limit: 1
         })
         )
-        .then(response => {
+        .then(async (response) => {
             if (!response.ok) {
-                return null;
+                const errorBody = await response.json();
+                throw new Error(errorBody.error || 'Error converting address');
             } else {
                 return response.json();
             }

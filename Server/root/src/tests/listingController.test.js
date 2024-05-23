@@ -241,4 +241,232 @@ describe('Listing Controller', () => {
             expect(response.body).toEqual({ message: "error", reason: "Internal server error" });
         });
     });
+
+    describe('GET /api/listings/coordinates/:id', () => {
+        it('should return coordinates for a valid listing ID', async () => {
+            const id = 'validId';
+            const mockListing = {
+                _id: id,
+                address: {
+                    street: 'via Roma',
+                    houseNum: '20A',
+                    cap: '38122'
+                }
+            };
+
+            Listing.findById.mockResolvedValue(mockListing);
+
+            const mockGeocodeResponse = {
+                data: [
+                    {
+                        latitude: 46.066,
+                        longitude: 11.121,
+                        label: 'via Roma 20A, 38122 Trento, Italy'
+                    }
+                ]
+            };
+
+            // Mock the fetch function to return a successful geocoding response
+            global.fetch = jest.fn(() =>
+                Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve(mockGeocodeResponse)
+                })
+            );
+
+            const response = await request(app)
+                .get(`/api/listings/coordinates/${id}`);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                data: {
+                    latitude: 46.066,
+                    longitude: 11.121,
+                    label: 'via Roma 20A, 38122 Trento, Italy'
+                }
+            });
+        });
+
+        it('should return 400 if listing is not found', async () => {
+            const id = 'invalidId';
+
+            Listing.findById.mockResolvedValue(null);
+
+            const response = await request(app)
+                .get(`/api/listings/coordinates/${id}`);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toEqual({ message: 'Listing not found' });
+        });
+
+        it('should return 500 if there is an error retrieving the listing', async () => {
+            const id = 'validId';
+
+            Listing.findById.mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .get(`/api/listings/coordinates/${id}`);
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: 'Error retrieving listing', error: 'Database error' });
+        });
+
+        it('should return 500 if there is an error during geocoding', async () => {
+            const id = 'validId';
+            const mockListing = {
+                _id: id,
+                address: {
+                    street: 'via Roma',
+                    houseNum: '20A',
+                    cap: '38122'
+                }
+            };
+
+            Listing.findById.mockResolvedValue(mockListing);
+
+            // Mock the fetch function to return a geocoding error
+            global.fetch = jest.fn(() =>
+                Promise.resolve({
+                    ok: false,
+                    json: () => Promise.resolve({ error: 'Error converting address' }) // Mocked error response
+                })
+            );
+
+            const response = await request(app)
+                .get(`/api/listings/coordinates/${id}`);
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: 'Error converting address', error: 'Error converting address' });
+        });
+    });
+
+    describe('GET /api/listings/coordinates', () => {
+        it('should return coordinates for listings matching the filters', async () => {
+            const mockListings = [
+                {
+                    _id: 'listing1',
+                    address: {
+                        street: 'via Roma',
+                        houseNum: '20A',
+                        cap: '38122'
+                    }
+                },
+                {
+                    _id: 'listing2',
+                    address: {
+                        street: 'via Milano',
+                        houseNum: '10B',
+                        cap: '20121'
+                    }
+                }
+            ];
+
+            Listing.find.mockResolvedValue(mockListings);
+
+            const mockGeocodeResponse1 = {
+                data: [
+                    {
+                        latitude: 46.066,
+                        longitude: 11.121,
+                        label: 'via Roma 20A, 38122 Trento, Italy'
+                    }
+                ]
+            };
+
+            const mockGeocodeResponse2 = {
+                data: [
+                    {
+                        latitude: 45.465,
+                        longitude: 9.19,
+                        label: 'via Milano 10B, 20121 Milano, Italy'
+                    }
+                ]
+            };
+
+            // Mock delle risposte di fetch per ogni indirizzo
+            global.fetch = jest.fn()
+                .mockResolvedValueOnce({
+                    ok: true,
+                    json: () => Promise.resolve(mockGeocodeResponse1)
+                })
+                .mockResolvedValueOnce({
+                    ok: true,
+                    json: () => Promise.resolve(mockGeocodeResponse2)
+                });
+
+            const response = await request(app)
+                .get('/api/listings/coordinates')
+                .query({ city: 'Trento' });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                data: [
+                    {
+                        latitude: 46.066,
+                        longitude: 11.121,
+                        label: 'via Roma 20A, 38122 Trento, Italy'
+                    },
+                    {
+                        latitude: 45.465,
+                        longitude: 9.19,
+                        label: 'via Milano 10B, 20121 Milano, Italy'
+                    }
+                ]
+            });
+        });
+
+        it('should return an empty array if no listings match the filters', async () => {
+            Listing.find.mockResolvedValue([]);
+
+            const response = await request(app)
+                .get('/api/listings/coordinates')
+                .query({ city: 'NonExistentCity' });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ listings: [] });
+        });
+
+        it('should return 500 if there is an error retrieving the listings', async () => {
+            Listing.find.mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .get('/api/listings/coordinates');
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: 'Error retrieving listings', error: 'Database error' });
+        });
+
+        it('should handle errors during geocoding', async () => {
+            const mockListings = [
+                {
+                    _id: 'listing1',
+                    address: {
+                        street: 'via Roma',
+                        houseNum: '20A',
+                        cap: '38122'
+                    }
+                }
+            ];
+
+            Listing.find.mockResolvedValue(mockListings);
+
+            // Mock della risposta di fetch con errore
+            global.fetch = jest.fn(() =>
+                Promise.resolve({
+                    ok: false,
+                    json: () => Promise.resolve({ error: 'Error converting address' }) // Mocked error response
+                })
+            );
+
+            const response = await request(app)
+                .get('/api/listings/coordinates')
+                .query({ city: 'Trento' });
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: 'Error retrieving listings', error: 'Error converting address' });
+        });
+    });
+
 });
+
+
