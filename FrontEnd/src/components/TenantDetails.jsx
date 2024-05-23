@@ -5,11 +5,11 @@ import Carousel from "../components/Carousel";
 import genericUser from "../assets/genericUser.svg";
 import { API_BASE_URL, reportTypeEnum } from "../constant";
 import { useAuth } from "../AuthContext";
-import { Link } from "react-router-dom";
 import heartFilled from "../assets/favorite_filled.svg";
 import reportIcon from "../assets/report.svg"; // Import the report icon
 import useReport from "../hooks/useReport";
 import ReportPopup from "../components/ReportPopup";
+
 
 export default function TenantDetails() {
   const { id } = useParams();
@@ -65,6 +65,9 @@ export default function TenantDetails() {
     return `${day} - ${month} - ${year}`;
   }
 
+  const handleClickModify = () => {
+    window.location.href = '/editprofile?editMode=true';
+};
   return (
     <form onSubmit={(e) => e.preventDefault()}>
       <div className="bg-blue-950 min-h-screen flex flex-col items-center p-8 pt-20">
@@ -148,7 +151,7 @@ export default function TenantDetails() {
                   </button>
                 )}
                 {isLoggedIn && user._id === userId && (
-                  <Link className="bg-blue-950 font-bold text-white p-2 rounded-md m-2" to="/editprofile">Modifica</Link>
+                  <button className="bg-blue-950 font-bold text-white p-2 rounded-md m-2" onClick={handleClickModify}>Modifica</button>
                 )}
                 {isLoggedIn && user._id !== userId && (
                   <button className="bg-blue-950 font-bold text-white p-2 rounded-md m-2" >

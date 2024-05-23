@@ -3,7 +3,7 @@ import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import { Switch } from '@headlessui/react'
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './../AuthContext';
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { API_BASE_URL } from '../constant';
 
 
@@ -35,6 +35,14 @@ export default function EditProfileForm() {
             })
             .catch(error => console.error('Error fetching data:', error));
     }, []);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const editModeParam = params.get('editMode');
+        if (editModeParam === 'true') {
+            setEditMode(true);
+        }
+    }, [location.search]);
 
     // Effect hook to fetch user data when userId changes
     useEffect(() => {
