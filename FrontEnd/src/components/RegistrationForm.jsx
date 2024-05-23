@@ -4,7 +4,11 @@ import { useState} from "react"
 import PopoverInfo from "./PopoverInfo.jsx";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../constant";
+import { GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../AuthContext";
+
 export default function RegistrationForm() {
+  const { login } = useAuth();
   const navigate = useNavigate();
     const [formData, setFormData]= useState({
       "username":"",
@@ -68,6 +72,36 @@ export default function RegistrationForm() {
           
       }
       ).catch((e)=>console.log(e))
+    }
+    async function handleGoogleLogin(credentialResponse) {
+      try {
+        console.log(credentialResponse);
+        const id_token  = credentialResponse.credential;
+        console.log(id_token);
+        const bodyForm = {
+          token: id_token,
+        };
+  
+        const response = await fetch(`${API_BASE_URL}users/auth/google`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(bodyForm),
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+          // Store JWT in local storage
+          login(data.token); // Assume server sends token as { token: 'jwt_token' }
+          navigate("/");
+        } else {
+          throw new Error("Google authentication failed");
+        }
+      } catch (error) {
+        console.error("Error:", error.message);
+        alert(error.message);
+      }
     }
 
     return (
@@ -163,6 +197,14 @@ export default function RegistrationForm() {
                 >
                   Sign up
                 </button>
+              </div>
+              <div className="w-full flex items-center justify-center">
+                  <GoogleLogin
+                    onSuccess={(credentialResponse)=>handleGoogleLogin(credentialResponse)}
+                    onError={() => {
+                      console.log("Login Failed");
+                    }}
+                  />
               </div>
             </form>
             <div>
