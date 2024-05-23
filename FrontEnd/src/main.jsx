@@ -22,6 +22,7 @@ import Layout from './components/Layout'; // Import the Layout component
 import ChatsList from './pages/ChatsList';
 import Chat from './components/Chat';
 import ChatApp from './pages/ChatApp';
+import ChatOld from './components/ChatOld';
 
 const router = createBrowserRouter([
   {
@@ -128,14 +129,29 @@ const router = createBrowserRouter([
         <ChatsList />
       </Layout>),
   }, {
-    path: "/chat2/:matchID",
+    path: "/cha2/:matchID",
     element: (
       <Layout>
         <ChatApp />
       </Layout>
     )
   },
-
+  {
+    path: "/chatold/",
+    element: (
+      <Layout>
+        <ChatsList />
+      </Layout>
+    )
+  },
+  {
+    path: "/chatold/:matchID",
+    element: (
+      <Layout>
+        <ChatOld />
+      </Layout>
+    )
+  },
   {
     path: "/chat/:matchID",
     element: (
