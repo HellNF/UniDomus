@@ -7,6 +7,8 @@ const tokenUtils = require('../utils/tokenUtils');
 const emailService = require('../services/emailService'); 
 const databaseQueries = require('../database/databaseQueries'); 
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
+
 
 // Mock external modules as necessary
 jest.mock('../models/userModel');
@@ -417,6 +419,94 @@ describe('UserController', () => {
                 message: 'Error updating user',
                 error: 'Database error'
             });
+        });
+    });
+
+    describe('POST /api/users/auth/google', () => {
+        let mockVerifyIdToken;
+
+        beforeEach(() => {
+            jest.clearAllMocks();
+            mockVerifyIdToken = jest.fn();
+        });
+
+        jest.mock('google-auth-library', () => {
+        return {
+            OAuth2Client: jest.fn(() => ({
+            verifyIdToken: mockVerifyIdToken,
+            })),
+        };
+        });
+        
+    
+        it('should authenticate user with valid token and return JWT', async () => {
+            const mockGoogleId = '1234567890';
+            const mockEmail = 'test@example.com';
+            const mockPicture = 'http://example.com/picture.jpg';
+            const mockName = 'Test';
+            const mockSurname = 'User';
+            const mockToken = 'mockGoogleIdToken';
+    
+            // Mock the Google token verification
+            mockVerifyIdToken.mockResolvedValue({
+                getPayload: () => ({
+                    sub: mockGoogleId,
+                    email: mockEmail,
+                    picture: mockPicture,
+                    given_name: mockName,
+                    family_name: mockSurname,
+                }),
+            });
+    
+            // Mock the User.findOne method
+            UserModel.findOne = jest.fn()
+                .mockResolvedValueOnce(null) // First call for email
+                .mockResolvedValueOnce({
+                    id: 'mockUserId',
+                    email: mockEmail,
+                    username: 'test',
+                    save: jest.fn(),
+                }); // Second call for googleId
+    
+            // Mock the User.create method
+            UserModel.create = jest.fn().mockResolvedValue({
+                id: 'mockUserId',
+                email: mockEmail,
+                username: 'test',
+                name: mockName,
+                surname: mockSurname,
+                proPic: [mockPicture],
+                active: true,
+            });
+    
+            const response = await request(app)
+                .post('/api/users/auth/google')
+                .send({ token: mockToken });
+    
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('token');
+    
+            // Verifica che il JWT sia stato generato correttamente
+            const decoded = jwt.verify(response.body.token, process.env.SUPER_SECRET);
+            expect(decoded).toMatchObject({
+                id: 'mockUserId',
+                email: mockEmail,
+                username: 'test',
+            });
+        });
+    
+        it('should return 500 if there is an internal server error', async () => {
+            const mockToken = 'mockGoogleIdToken';
+    
+            // Mock the Google token verification to throw an error
+            mockVerifyIdToken.mockRejectedValue(new Error('Internal server error'));
+    
+            const response = await request(app)
+                .post('/api/users/auth/google')
+                .send({ token: mockToken });
+    
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: 'Internal server error' });
         });
     });
 });
