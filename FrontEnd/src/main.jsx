@@ -57,16 +57,14 @@ const router = createBrowserRouter([
   },
   {
     path: "/findatenant",
-    element: <FindATenant></FindATenant>
+    element: (<Layout><FindATenant></FindATenant></Layout>
+    )
   },
   {
     path: "/findatenant/:id",
-    element: <TenantDetails></TenantDetails>
+    element: (<Layout><TenantDetails></TenantDetails></Layout>)
   },
-  {
-    path: "/",
-    element: <App></App>
-  },
+  
   {
     path: '/findaflat',
     element: (

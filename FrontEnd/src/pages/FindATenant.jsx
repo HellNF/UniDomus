@@ -4,7 +4,7 @@ function FindATenant(){
 
     return(
     <>  
-        <Navbar></Navbar>
+        
         <DisplayTenantsPage></DisplayTenantsPage>
     
     </>)
