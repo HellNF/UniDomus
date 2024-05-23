@@ -5,7 +5,6 @@ import { API_BASE_URL } from "../constant";
 import { useAuth } from "../AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
 
-
 export default function LoginForm() {
   const { login } = useAuth();
   const [formData, setFormData] = useState({
@@ -48,7 +47,6 @@ export default function LoginForm() {
         }
       })
       .then((data) => {
-        // Store JWT in local storage
         login(data.token); // Assume server sends token as { token: 'jwt_token' }
         navigate("/");
       })
@@ -57,14 +55,11 @@ export default function LoginForm() {
         alert(error.message);
       });
   }
+
   async function handleGoogleLogin(credentialResponse) {
     try {
-      console.log(credentialResponse);
-      const id_token  = credentialResponse.credential;
-      console.log(id_token);
-      const bodyForm = {
-        token: id_token,
-      };
+      const id_token = credentialResponse.credential;
+      const bodyForm = { token: id_token };
 
       const response = await fetch(`${API_BASE_URL}users/auth/google`, {
         method: "POST",
@@ -76,7 +71,6 @@ export default function LoginForm() {
 
       if (response.ok) {
         const data = await response.json();
-        // Store JWT in local storage
         login(data.token); // Assume server sends token as { token: 'jwt_token' }
         navigate("/");
       } else {
@@ -89,13 +83,9 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 pt-16"> {/* Added pt-16 */}
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <img
-          className="mx-auto h-28 w-auto"
-          src={UniDomusLogo}
-          alt="Unidomus"
-        />
+        <img className="mx-auto h-28 w-auto" src={UniDomusLogo} alt="Unidomus" />
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Log in to your account
         </h2>
@@ -104,10 +94,7 @@ export default function LoginForm() {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" onSubmit={handleSubmit} method="POST">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium leading-6 text-gray-900"
-            >
+            <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
               Email address
             </label>
             <div className="mt-2">
@@ -125,17 +112,11 @@ export default function LoginForm() {
           </div>
           <div>
             <div className="flex items-center justify-between">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
+              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
                 Password
               </label>
               <div className="text-sm">
-                <a
-                  href="/forgotpassword"
-                  className="font-semibold text-blue-950 hover:text-blue-700"
-                >
+                <a href="/forgotpassword" className="font-semibold text-blue-950 hover:text-blue-700">
                   Forgot password?
                 </a>
               </div>
@@ -149,7 +130,7 @@ export default function LoginForm() {
                 required
                 value={formData.password}
                 onChange={handleChangeInput}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-950 text-center shadow-sm ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-700 sm:text-sm sm:leading-6"
+                className="block w-full rounded-md border-0 py-1.5 text-gray-950 text-center shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-700 sm:text-sm sm:leading-6"
               />
             </div>
           </div>
@@ -162,15 +143,11 @@ export default function LoginForm() {
             </button>
           </div>
           <div className="w-full flex items-center justify-center">
-              <GoogleLogin
-                onSuccess={(credentialResponse)=>handleGoogleLogin(credentialResponse)}
-                onError={() => {
-                  console.log("Login Failed");
-                }}
-              />
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => console.log("Login Failed")}
+            />
           </div>
-          
-          
         </form>
       </div>
     </div>
