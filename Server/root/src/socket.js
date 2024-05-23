@@ -15,7 +15,12 @@ const initializeSocket = (server) => {
     console.log('a user connected');
 
     socket.on('message', (message) => {
-      io.emit('message', message);
+      // Save the message to the database
+      const { matchID, text, userID } = message;
+      const newMessage = { matchID, text, userID, date: new Date() };
+
+      // Emit the message to all clients
+      io.emit('message', newMessage);
     });
 
     socket.on('disconnect', () => {

@@ -21,6 +21,7 @@ import TenantDetails from './pages/TenantDetails.jsx'
 import Layout from './components/Layout'; // Import the Layout component
 import ChatsList from './pages/ChatsList';
 import Chat from './components/Chat';
+import ChatApp from './pages/ChatApp';
 
 const router = createBrowserRouter([
   {
@@ -120,20 +121,28 @@ const router = createBrowserRouter([
         <TestPage />
       </Layout>
     ),
-  },{
+  }, {
     path: "/chats",
     element: (
       <Layout>
         <ChatsList />
-       </Layout>),
+      </Layout>),
+  }, {
+    path: "/chat2/:matchID",
+    element: (
+      <Layout>
+        <ChatApp />
+      </Layout>
+    )
   },
+
   {
     path: "/chat/:matchID",
     element: (
-     <Layout>
+      <Layout>
         <Chat />
-     </Layout>
-      )
+      </Layout>
+    )
   }
 
 ]);
