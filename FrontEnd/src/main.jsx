@@ -119,28 +119,28 @@ const router = createBrowserRouter([
         <TestPage />
       </Layout>
     ),
-  },{
+  }, {
     path: "/chats",
     element: (
       <Layout>
         <ChatsList />
-       </Layout>),
-  },{
+      </Layout>),
+  }, {
     path: "/chat2/:matchID",
     element: (
-     <Layout>
+      <Layout>
         <ChatApp />
-     </Layout>
-      )
+      </Layout>
+    )
   },
-  
+
   {
     path: "/chat/:matchID",
     element: (
-     <Layout>
+      <Layout>
         <Chat />
-     </Layout>
-      )
+      </Layout>
+    )
   }
 
 ]);

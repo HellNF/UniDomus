@@ -156,10 +156,10 @@ const Chat = () => {
         <div className="bg-white max-w-7xl w-full p-6 rounded-lg shadow-lg">
           <div className="flex flex-col items-center justify-center bg-white py-4">
             <h1 className="text-3xl font-semibold leading-7 text-gray-900">Chat Room</h1>
-            
+
           </div>
           <div className="flex h-full">
-            <div className="bg-gray-100 pt-10 pl-2 overflow-y-auto rounded-lg shadow-md flex flex-col">
+            <div className="bg-gray-100 pt-10 pl-2 overflow-y-auto rounded-lg shadow-md flex flex-col ">
               <h2 className="text-2xl font-semibold leading-7 text-gray-900">Matches</h2>
               <div className="mt-4 pt-2 h-flex h-full">
                 {matches.length > 0 ? (
@@ -168,7 +168,7 @@ const Chat = () => {
                     const otherUser = users[otherUserId];
 
                     return (
-                      <Link to={`/chat/${match._id}`} key={match._id} className="flex items-center p-2 hover:bg-gray-200 rounded-md">
+                      <Link to={`/chat/${match._id}`} key={match._id} className="flex items-center p-2  hover:bg-gray-200 rounded-md">
                         {otherUser && (
                           <div className="flex items-center">
                             {otherUser.proPic ? (
@@ -180,7 +180,7 @@ const Chat = () => {
                             ) : (
                               <div className="h-10 w-10 rounded-full bg-gray-300"></div>
                             )}
-                            <div className="ml-3">
+                            <div className="ml-3 ">
                               <p className="font-semibold text-gray-900">{otherUser.username}</p>
                               <p className="text-sm text-gray-500">{match.matchType}</p>
                             </div>
@@ -197,36 +197,40 @@ const Chat = () => {
                 Go Back
               </button>
             </div>
-            <div className="flex flex-1 flex-col bg-white p-2 overflow-y-auto" style={{ height: 'calc(100vh - 200px)' }}>
-              <MainContainer style={{ height: '100%' }}>
-                <MessageContainer>
-                  <MessageHeader title={otherUser ? otherUser.username : "Loading..."} />
-                  <MessageList
-                    currentUserId={userId}
-                    messages={messages.map(msg => ({
-                      text: msg.text,
-                      user: { id: msg.userID },
-                      timestamp: msg.date,
-                      read: msg.read
-                    }))}
-                  />
-                  <div className="flex mt-2">
-                    <input
-                      type="text"
-                      placeholder="Type a message"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      className="flex-1 p-2 border border-gray-300 rounded"
-                    />
-                    <button onClick={handleSend} className="ml-2 p-2">
-                      <img src={sendIcon} alt="Send" className="h-12 w-12 bg-slate-300 rounded-md" />
-                    </button>
-                  </div>
-                </MessageContainer>
-              </MainContainer>
-              <div ref={messagesEndRef} />
-            </div>
+            {
+              matchID == "index" ? "" :
+
+                <div className="flex flex-1 flex-col bg-white p-2 overflow-y-auto" style={{ height: 'calc(100vh - 200px)' }}>
+                  <MainContainer style={{ height: '100%' }}>
+                    <MessageContainer>
+                      <MessageHeader title={otherUser ? otherUser.username : "Loading..."} />
+                      <MessageList
+                        currentUserId={userId}
+                        messages={messages.map(msg => ({
+                          text: msg.text,
+                          user: { id: msg.userID },
+                          timestamp: msg.date,
+                          read: msg.read
+                        }))}
+                      />
+                      <div className="flex mt-2">
+                        <input
+                          type="text"
+                          placeholder="Type a message"
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          onKeyPress={handleKeyPress}
+                          className="flex-1 p-2 border border-gray-300 rounded"
+                        />
+                        <button onClick={handleSend} className="ml-2 p-2">
+                          <img src={sendIcon} alt="Send" className="h-12 w-12 bg-slate-300 rounded-md" />
+                        </button>
+                      </div>
+                    </MessageContainer>
+                  </MainContainer>
+                  <div ref={messagesEndRef} />
+                </div>
+            }
           </div>
         </div>
       </div>
