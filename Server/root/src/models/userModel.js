@@ -33,13 +33,17 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: function() { return !this.googleId; },
         validate: {
             validator: function (v) {
                 return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@!%-_.*?&])[A-Za-z\d$@!%-_.*?&]{8,}$/.test(v);
             },
             message: props => `${props.value}: invalid password`
         }
+    },
+    googleId: {
+        type: String,
+        default: null
     },
     birthDate: {
         type: Date,
