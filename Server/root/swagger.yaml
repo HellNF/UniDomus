@@ -189,7 +189,62 @@ paths:
                     example: Error retrieving listings with filters
                   error:
                     type: string
-
+  /api/listings/coordinates/{id}:
+    get:
+      summary: Ottenere le coordinate del listing
+      description: Recupera un listing tramite ID e converte l'indirizzo in coordinate geografiche.
+      tags:
+        - Listings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: L'ID del listing da recuperare.
+      responses:
+        '200':
+          description: Coordinate ottenute con successo.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      latitude:
+                        type: number
+                        description: La latitudine del listing.
+                      longitude:
+                        type: number
+                        description: La longitudine del listing.
+                      label:
+                        type: string
+                        description: L'etichetta dell'indirizzo convertito.
+        '400':
+          description: Listing non trovato.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Listing not found
+        '500':
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error retrieving listing
+                  error:
+                    type: string
+                    example: Descrizione dell'errore
   /api/listing/add:
     post:
       summary: Add a new listing
@@ -344,6 +399,45 @@ paths:
           description: Unauthorized - Invalid credentials.
         "500":
           description: Internal server error occurred.
+  /api/users/auth/google:
+    post:
+      summary: Autenticazione con Google
+      description: Effettua il login tramite un token ID di Google e genera un JWT per l'utente.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: Il token ID di Google.
+              required:
+                - token
+      responses:
+        '200':
+          description: JWT generato con successo.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Il token JWT generato.
+        '500':
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
   /api/users/tags:
     get:
       summary: Get user tags

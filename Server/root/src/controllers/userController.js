@@ -399,50 +399,59 @@ async function updatePassword(req, res) {
     }
 }
 
+
 async function googleLogin(req, res) {
-    const { token }  = req.body;
-    
+    try {
+        const { token } = req.body;
 
-  const ticket = await client.verifyIdToken({
-    idToken: token,
-    audience: process.env.GOOGLE_CLIENT_ID,
-  });
-    // Verify if the ticket is valid
-    if (!ticket) {
-        // Ticket is not valid, handle the error
-        return res.status(401).json({ message: 'Invalid ticket' });
+        // Verifica il token ID di Google
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const { email, picture, sub: googleId, given_name: name, family_name: surname } = payload;
+
+        // Cerca l'utente per email
+        let user = await User.findOne({ email });
+
+        if (user) {
+            // Se l'utente esiste ma non ha googleId, aggiorna il googleId
+            if (!user.googleId) {
+                user.googleId = googleId;
+                await user.save();
+            }
+        } else {
+            // Se l'utente non esiste, creane uno nuovo
+            const username = email.split('@')[0];
+            user = new User({
+                googleId,
+                email,
+                username,
+                name,
+                surname,
+                proPic: [picture],
+                active: true,
+            });
+            await user.save();
+        }
+
+        // Genera un JWT per l'utente
+        const userJwt = jwt.sign({
+            id: user.id,
+            email: user.email,
+            username: user.username,
+        }, process.env.SUPER_SECRET, { expiresIn: '4h' });
+
+        // Invia il JWT all'utente
+        return res.status(200).json({ token: userJwt });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
-
-  const {email, picture, sub: googleId ,given_name: name, family_name:surname} = ticket.getPayload();
-
-    // Find the user by googleId    
-    
-
-    const alreadyRegistered = await User.findOne({email:email});
-    if(alreadyRegistered && alreadyRegistered.googleId===null){
-        alreadyRegistered.googleId=googleId;
-        await alreadyRegistered.save();
-    }
-    // If the user does not exist, create a new user without a password
-    const user = await User.findOne({ googleId });
-    if (!user) {
-        // Create a new user with the email obtained from the token
-        const username=email.split('@')[0];
-        await User.create({googleId, email, username,name,surname ,proPic: [picture], active: true});
-    }
-    
-
-  // Genera un JWT per l'utente
-  const userJwt = jwt.sign({
-    id: user.id,
-    email: user.email,
-    username: user.username
-  }, process.env.SUPER_SECRET, { expiresIn: '4h' });
-
-  // Invia il JWT all'utente
-    return  res.status(200).json({ token: userJwt });
 }
- 
   
 
 // Export controller functions
