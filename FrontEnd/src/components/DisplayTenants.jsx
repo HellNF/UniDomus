@@ -248,17 +248,15 @@ const resetFilters = () => {
 
             <Link to={`/findatenant/${user._id}`} className="relative p-4  hover:bg-gray-100 border rounded-lg shadow flex flex-col items-center">
              {user.proPic.length > 0 ? (
-              <Carousel className="w-1/2 flex items-center justify-center">
-                {user.proPic.map((element, id) => (
+              
+                
                   <img 
-                    src={element.includes("http") || element.includes("data:image/png;base64,") ? element : `data:image/png;base64,${element}`} 
+                    src={user.proPic[0].includes("http") || user.proPic[0].includes("data:image/png;base64,") ? user.proPic[0] : `data:image/png;base64,${user.proPic[0]}`} 
                     alt="ciao" 
-                    key={id} 
                     className=" rounded-full object-cover" 
                   />
-                ))}
-              </Carousel>
-            ) : (
+               )
+             : (
     
               <img 
                 src={genericUser} 
