@@ -8,9 +8,11 @@ import { useAuth } from "../AuthContext";
 import { PhotoIcon } from '@heroicons/react/24/solid'
 import heartFilled from "../assets/favorite_filled.svg";
 import reportIcon from "../assets/report.svg"; // Import the report icon
-
+import SearchBar from "../components/SearchBar";
 import ReportPopup from "../components/ReportPopup"; // Import the ReportPopup component
 import useReport from "../hooks/useReport"; // Import the useReport hook
+import {XMarkIcon,CheckIcon} from "@heroicons/react/24/solid";
+
 
 export default function ListingDetails() {
   const { id } = useParams();
@@ -137,7 +139,7 @@ export default function ListingDetails() {
       fetchUserData();
       getCordinatesFromId();
     }
-    if(listing.tenantsID && modifyMode === false){
+    if(listing.tenantsID){
       fetchTenantsInfo();
     }
   }, [listing.publisherID]);
@@ -918,8 +920,38 @@ export default function ListingDetails() {
                 <h2 className="text-2xl font-semibold leading-7 text-gray-900">
                   Inquilini
                 </h2>
-                <div >
+                <div className="flex flex-col space-y-3 bg-slate-50 rounded-md p-2">
+                  <SearchBar placeholder={"Digita l'username da cercare..."}></SearchBar>
+                  {tenantsInfo ? 
+                    
+                      tenantsInfo.map((tenant, index) => (
+                        <div className="flex flex-row space-x-4 items-center justify-between rounded-md shadow-sm w-full">
+                          <Link to={`/findatenant/${tenant.id}`} className="flex flex-row   place-items-center justify-start p-2 space-x-6">
+                            <img
+                              src={
+                                tenant.img.includes("http") ||
+                                tenant.img.includes("data:image/png;base64,")||
+                                tenant.img.includes("data:image/jpeg;base64,")
+                                ? tenant.img
+                                : `data:image/png;base64,${tenant.img}`
+                              }
+                              alt={tenant.username}
+                              key={index}
+                              className="rounded-full h-6 w-6"
+                            />
+                            <p className="text-normal font-normal">{tenant.username}</p>
+                          </Link>
+                          <div className="flex flex-row space-x-4">
+                            <button type="button" className="h-6 w-6 p-1 bg-slate-300 hover:bg-red-500 rounded-full"><XMarkIcon fill={"white"}></XMarkIcon></button>
+                            <button type="button" className="h-6 w-6 p-1 bg-slate-300 hover:bg-green-500 rounded-full"><CheckIcon fill={"white"}></CheckIcon></button>
+                          </div>
+                        </div>
+                      ))
+                    
+                    
                   
+                  : (<p>Non ci sono inquilini</p>)
+                  }
                 </div>
               </div>
               <div className="flex flex-row items-center justify-evenly">
