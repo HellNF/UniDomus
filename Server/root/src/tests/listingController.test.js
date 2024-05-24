@@ -128,6 +128,63 @@ describe('Listing Controller', () => {
         });
     });
 
+    describe('PUT /api/listings/:id', () => {
+        const listingId = 'validListingId';
+        const updateData = {
+            price: 2000,
+            typology: 'doppia',
+            address: {
+                street: 'via Milano',
+                city: 'Milano',
+                cap: '20121',
+                houseNum: '10B',
+                province: 'MI',
+                country: 'ITA'
+            },
+            description: 'appartamento ristrutturato',
+            floorArea: 120
+        };
+
+        it('should update a listing successfully', async () => {
+            const mockUpdatedListing = { _id: listingId, ...updateData };
+
+            Listing.findByIdAndUpdate.mockResolvedValue(mockUpdatedListing);
+
+            const response = await request(app)
+                .put(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`) // Set the token in the header
+                .send(updateData);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ listing: mockUpdatedListing });
+            expect(Listing.findByIdAndUpdate).toHaveBeenCalledWith(listingId, updateData, { new: true });
+        });
+
+        it('should return 404 if listing is not found', async () => {
+            Listing.findByIdAndUpdate.mockResolvedValue(null);
+
+            const response = await request(app)
+                .put(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`) // Set the token in the header
+                .send(updateData);
+
+            expect(response.status).toBe(404);
+            expect(response.body).toEqual({ message: 'Listing not found' });
+        });
+
+        it('should handle errors and return 500 status code with an error message', async () => {
+            Listing.findByIdAndUpdate.mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .put(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`) // Set the token in the header
+                .send(updateData);
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: 'Error updating listing', error: 'Database error' });
+        });
+    });
+
     describe('POST /api/listings', () => {
         const reqBody = {
             address: {
