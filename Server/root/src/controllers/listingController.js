@@ -95,7 +95,7 @@ async function addListing(req, res) {
         //floorArea check
         if (!floorArea || floorArea < 10 || floorArea > 10000) errors.push({ field: "floorArea", message: "invalid floorArea" })
         //availability check
-        if (!availability) errors.push({ field: "availability", message: "availability" })
+        if (!availability) errors.push({ field: "availability", message: " missing availability " })
         if (errors.length > 0) {
             return res.status(401).json({ message: "error", errors })
         }
@@ -254,6 +254,7 @@ const updateListingById = async (req, res) => {
         });
 
         // Save updated listing
+        console.log(currentListing);
         const listing = await currentListing.save();
 
         console.log("Listing updated successfully.");

@@ -65,7 +65,7 @@ function Card({ listing }) {
             <div className="h-full w-2/4 items-center max-w-lg object-cover">
                 <Carousel className="object-contain">
                     {listing.photos.map((element, id) => (
-                        <img src={element.includes("http") || element.includes("data:image/png;base64,") ? element : `data:image/png;base64,${element}`} alt="Listing" key={id} className="h-2/4 min-w-full" />
+                        <img src={element.includes("http") || element.includes("data:image/png;base64,") || element.includes("data:image/jpeg;base64,")? element : `data:image/png;base64,${element}`} alt="Listing" key={id} className="h-2/4 min-w-full" />
                     ))}
                 </Carousel>
             </div>

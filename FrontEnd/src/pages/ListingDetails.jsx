@@ -40,14 +40,12 @@ export default function ListingDetails() {
     publisherID: "",
   });
   const [formDataErr, setFormDataErr] = useState({
-    addressErr: {
-      streetErr: "",
-      cityErr: "",
-      capErr: "",
-      houseNumErr: "",
-      provinceErr: "",
-      countryErr: "",
-    },
+    streetErr: "",
+    cityErr: "",
+    capErr: "",
+    houseNumErr: "",
+    provinceErr: "",
+    countryErr: "",
     typologyErr: "",
     descriptionErr: "",
     priceErr: "",
@@ -103,7 +101,12 @@ export default function ListingDetails() {
   useEffect(() => {
     fetchListingData();
   }, []);
-
+  useEffect(() => {
+    setFormData({
+      ...formData,
+      photos: photoPreviews,
+    })
+  }, [photoPreviews]);
   useEffect(() => {
     setFormData({
       ...listing.address,
@@ -167,7 +170,67 @@ export default function ListingDetails() {
         console.error("Error fetching coordinates data:", error);
       });
   }
+  async function handleSubmitChanges(e) {
+    e.preventDefault();
+    setFormData({...formData, photos: photoPreviews});
+    console.log(formData);
+    fetch(`${API_BASE_URL}listings/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": sessionToken,
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) =>{
+        if(!response.ok){
+          if(response.status === 404){
+            throw new Error("Listing not found");
+          }
+          else if(response.status === 400){
+            return response.json();
+          }
+          else{
+            throw new Error("Error updating listing");
+          }
 
+        }
+        else{
+          return response.json();
+        }
+      })
+      .then((data) => {
+        if(data.message==="Validation errors" && data.errors){
+          data.errors.map((error) => {
+            setFormDataErr({...formDataErr, [`${error.field}Err`] : error.message});
+          });
+          showPopupDiv("Errore: dati invalidi!","red");
+        }
+        else{
+          console.log("Listing updated successfully:", data);
+          setFormDataErr({
+            streetErr: "",
+            cityErr: "",
+            capErr: "",
+            houseNumErr: "",
+            provinceErr: "",
+            countryErr: "",
+            typologyErr: "",
+            descriptionErr: "",
+            priceErr: "",
+            floorAreaErr: "",
+            availabilityErr: "",
+            photosErr: [],
+            publisherIDErr: "",
+          })
+          setModifyMode(false);
+          showPopupDiv("Modifica effettuata","green");
+        }
+      })
+      .catch((error) => {
+        console.error("Error sending data:", error);
+      });
+  }
   const handlePhotoChange = (e) => {
     const files = e.target.files;
     const newPhotoPreviews = [...photoPreviews];
@@ -196,11 +259,36 @@ export default function ListingDetails() {
     newPhotoPreviews.splice(index, 1);
     setPhotoPreviews(newPhotoPreviews);
   };
-
+  function showPopupDiv(message,color){
+    // Visualizza il popup di successo
+    const successPopup = document.createElement('div');
+    successPopup.textContent = message;
+    successPopup.style.cssText = `
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 1rem;
+    background-color: ${color};
+    color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    `;
+  
+    document.body.appendChild(successPopup);
+  
+    setTimeout(() => {
+      successPopup.remove();
+      navigate('/'); 
+    }, 2000); 
+  }
   const handleCancelModify = (e) => {
     e.preventDefault();
+    showPopupDiv("Modifica annullata","orange");
     setModifyMode(false);
   };
+  
 
   return (
     <>
@@ -215,7 +303,8 @@ export default function ListingDetails() {
                       <img
                         src={
                           element.includes("http") ||
-                            element.includes("data:image/png;base64,")
+                            element.includes("data:image/png;base64,")||
+                            element.includes("data:image/jpeg;base64,")
                             ? element
                             : `data:image/png;base64,${element}`
                         }
@@ -268,11 +357,7 @@ export default function ListingDetails() {
                       <label className="font-semibold">Descrizione</label>
                       <p>
                         {listing.description}
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Illum earum nobis aliquid officiis blanditiis error
-                        accusantium rerum quo velit quibusdam? Iusto esse
-                        voluptate, sapiente rem porro officia aliquid nam
-                        blanditiis?
+                        
                       </p>
                       <label className="font-semibold">Metratura</label>
                       <h2>{listing.floorArea} m²</h2>
@@ -354,7 +439,7 @@ export default function ListingDetails() {
               </div>
             </>
           ) : (
-            <form className="w-4/6">
+            <form className="w-4/6" onSubmit={handleSubmitChanges}>
               <div className="col-span-full">
                 <h2 className="text-2xl font-semibold leading-7 text-gray-900">
                   Inserisci foto
@@ -425,7 +510,8 @@ export default function ListingDetails() {
                               <img
                                 src={
                                   imgSrc.includes("http") ||
-                                    imgSrc.includes("data:image/png;base64,")
+                                    imgSrc.includes("data:image/png;base64,")|| 
+                                    imgSrc.includes("data:image/jpeg;base64,")
                                     ? imgSrc
                                     : `data:image/png;base64,${imgSrc}`
                                 }
@@ -593,9 +679,9 @@ export default function ListingDetails() {
                           onChange={handleChangeInput}
                           className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
-                        {formDataErr.streetErr && (
+                        {formDataErr.capErr && (
                           <p className="text-red-600 text-xs mt-1">
-                            {formDataErr.streetErr}
+                            {formDataErr.capErr}
                           </p>
                         )}
                       </div>
@@ -619,6 +705,11 @@ export default function ListingDetails() {
                         >
                           <option>Italia</option>
                         </select>
+                        {formDataErr.countryErr && (
+                          <p className="text-red-600 text-xs mt-1">
+                            {formDataErr.countryErr}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -654,6 +745,11 @@ export default function ListingDetails() {
                           <option>Camera tripla</option>
                           <option>Altro...</option>
                         </select>
+                        {formDataErr.typologyErr && (
+                          <p className="text-red-600 text-xs mt-1">
+                            {formDataErr.typologyErr}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-col w-1/3">
