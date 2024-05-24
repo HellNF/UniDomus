@@ -160,22 +160,117 @@ const updateListingById = async (req, res) => {
     try {
         const { id } = req.params;
         const updates = req.body;
+        const errors = [];
 
-        // Update the user document with all fields provided in the request body
-        const listing = await Listing.findByIdAndUpdate(id, updates, { new: true });
-
-        if (!listing) {
-            console.log("Listing not found.");
+        // Retrieve current listing
+        const currentListing = await Listing.findById(id);
+        if (!currentListing) {
             return res.status(404).json({ message: "Listing not found" });
         }
 
-        console.log("Lisiting updated successfully.");
+        // Address validation
+        if (updates.address) {
+            const address = updates.address;
+            const currentAddress = currentListing.address || {};
+
+            if (address.street !== undefined && !address.street) errors.push({ field: "street", message: "missing street" });
+            if (address.street !== undefined && (address.street.length < 3 || address.street.length > 50)) errors.push({ field: "street", message: "street length must be between 3 and 50 characters" });
+
+            if (address.city !== undefined && !address.city) errors.push({ field: "city", message: "missing city" });
+            if (address.city !== undefined && (address.city.length < 3 || address.city.length > 50)) errors.push({ field: "city", message: "city length must be between 3 and 50 characters" });
+
+            if (address.cap !== undefined && !address.cap) errors.push({ field: "cap", message: "invalid cap" });
+            if (address.cap !== undefined && !(/^\d{5}$/.test(address.cap))) errors.push({ field: "cap", message: "CAP must contain exactly 5 digits" });
+
+            if (address.houseNum !== undefined && !address.houseNum) errors.push({ field: "houseNum", message: "missing houseNum" });
+            if (address.houseNum !== undefined && (address.houseNum.length < 1 || address.houseNum.length > 5)) errors.push({ field: "houseNum", message: "houseNum length must be between 1 and 5 characters" });
+
+            if (address.province !== undefined && !address.province) errors.push({ field: "province", message: "missing province" });
+            if (address.province !== undefined && (address.province.length !== 2)) errors.push({ field: "province", message: "province must be exactly 2 characters" });
+
+            if (address.country !== undefined && !address.country) errors.push({ field: "country", message: "missing country" });
+            if (address.country !== undefined && (address.country.length < 3 || address.country.length > 50)) errors.push({ field: "country", message: "country length must be between 3 and 50 characters" });
+
+            // Merge address updates
+            currentListing.address = { ...currentAddress, ...address };
+        }
+
+        // Photos validation
+        if (updates.photos !== undefined) {
+            if (updates.photos.length < 1 || updates.photos.length > 10) errors.push({ field: "photos", message: "photos must contain between 1 and 10 items" });
+        }
+
+        // Publisher ID validation
+        if (updates.publisherID !== undefined) {
+            if (updates.publisherID) {
+                const pubId = await User.findById(updates.publisherID);
+                if (!pubId) {
+                    errors.push({ field: "publisherID", message: "publisher id doesn't exist" });
+                }
+            } else {
+                errors.push({ field: "publisherID", message: "missing publisher id" });
+            }
+        }
+
+        // Tenants ID validation
+        if (updates.tenantsID !== undefined) {
+            if (updates.tenantsID.length > 12) errors.push({ field: "tenantsID", message: "tenantsID must contain up to 12 items" });
+            for (const id of updates.tenantsID) {
+                const checkId = await User.findById(id);
+                if (!checkId) errors.push({ field: `tenantsID`, message: `invalid id: ${id}` });
+            }
+        }
+
+        // Typology validation
+        if (updates.typology !== undefined && !updates.typology) {
+            errors.push({ field: "typology", message: "missing typology" });
+        }
+        if (updates.typology !== undefined && updates.typology.length > 30) {
+            errors.push({ field: "typology", message: "typology length must be up to 30 characters" });
+        }
+
+        // Description validation
+        if (updates.description !== undefined && updates.description.length > 1000) {
+            errors.push({ field: "description", message: "description length must be up to 1000 characters" });
+        }
+
+        // Price validation
+        if (updates.price !== undefined && (updates.price < 10 || updates.price > 10000)) {
+            errors.push({ field: "price", message: "price must be between 10 and 10000" });
+        }
+
+        // Floor area validation
+        if (updates.floorArea !== undefined && (updates.floorArea < 1 || updates.floorArea > 10000)) {
+            errors.push({ field: "floorArea", message: "floorArea must be between 1 and 10000" });
+        }
+
+        // Availability validation
+        if (updates.availability !== undefined && updates.availability.length > 250) {
+            errors.push({ field: "availability", message: "availability length must be up to 250 characters" });
+        }
+
+        if (errors.length > 0) {
+            return res.status(400).json({ message: "Validation errors", errors });
+        }
+
+        // Apply the updates to the current listing
+        Object.keys(updates).forEach(key => {
+            if (key !== 'address') {
+                currentListing[key] = updates[key];
+            }
+        });
+
+        // Save updated listing
+        const listing = await currentListing.save();
+
+        console.log("Listing updated successfully.");
         return res.status(200).json({ listing });
     } catch (error) {
         console.error("Error updating listing:", error);
         return res.status(500).json({ message: "Error updating listing", error: error.message });
     }
 };
+
 
 async function addressToCoordinates(req, res) {
     try {
