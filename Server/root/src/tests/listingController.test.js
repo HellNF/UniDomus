@@ -128,7 +128,7 @@ describe('Listing Controller', () => {
         });
     });
 
-    describe('PUT /api/listings/:id', () => {
+     describe('PUT /api/listings/:id', () => {
         const listingId = 'validListingId';
         const updateData = {
             price: 2000,
@@ -144,11 +144,10 @@ describe('Listing Controller', () => {
             description: 'appartamento ristrutturato',
             floorArea: 120
         };
-
         it('should update a listing successfully', async () => {
             const mockUpdatedListing = { _id: listingId, ...updateData };
 
-            Listing.findByIdAndUpdate.mockResolvedValue(mockUpdatedListing);
+            Listing.findById.mockResolvedValue({ _id: listingId, save: jest.fn().mockResolvedValue(mockUpdatedListing) });
 
             const response = await request(app)
                 .put(`/api/listings/${listingId}`)
@@ -157,11 +156,10 @@ describe('Listing Controller', () => {
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ listing: mockUpdatedListing });
-            expect(Listing.findByIdAndUpdate).toHaveBeenCalledWith(listingId, updateData, { new: true });
+            expect(Listing.findById).toHaveBeenCalledWith(listingId);
         });
-
         it('should return 404 if listing is not found', async () => {
-            Listing.findByIdAndUpdate.mockResolvedValue(null);
+            Listing.findById.mockResolvedValue(null);
 
             const response = await request(app)
                 .put(`/api/listings/${listingId}`)
@@ -172,8 +170,96 @@ describe('Listing Controller', () => {
             expect(response.body).toEqual({ message: 'Listing not found' });
         });
 
+        it('should return validation errors for invalid data', async () => {
+            const invalidUpdateData = {
+                price: -100, // Invalid price
+                typology: 'doppia',
+                address: {
+                    street: 'via', // Too short
+                    city: 'Mi', // Too short
+                    cap: '21', // Invalid cap
+                    houseNum: '10B',
+                    province: 'MI',
+                    country: 'IT' // Too short
+                },
+                description: 'appartamento ristrutturato',
+                floorArea: 120
+            };
+
+            Listing.findById.mockResolvedValue({ _id: listingId, ...updateData });
+
+            const response = await request(app)
+                .put(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`) // Set the token in the header
+                .send(invalidUpdateData);
+
+            expect(response.status).toBe(400);
+            expect(response.body.errors).toEqual(expect.arrayContaining([{"field": "city", "message": "city length must be between 3 and 50 characters"}, 
+            {"field": "cap", "message": "CAP must contain exactly 5 digits"}, 
+            {"field": "country", "message": "country length must be between 3 and 50 characters"}, 
+            {"field": "price", "message": "price must be between 10 and 10000"}]));
+        });
+
+        it('should return validation errors for too many photos', async () => {
+            const invalidUpdateData = {
+                ...updateData,
+                photos: new Array(11).fill('pic') // Invalid photos array with 11 items
+            };
+
+            Listing.findById.mockResolvedValue({ _id: listingId, ...updateData });
+
+            const response = await request(app)
+                .put(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`) // Set the token in the header
+                .send(invalidUpdateData);
+
+            expect(response.status).toBe(400);
+            expect(response.body.errors).toEqual(expect.arrayContaining([
+                { field: 'photos', message: 'photos must contain between 1 and 10 items' }
+            ]));
+        });
+
+        it('should return validation errors if publisherID is changed', async () => {
+            const invalidUpdateData = {
+                ...updateData,
+                publisherID: 'newPublisherId' // Trying to change the publisher ID
+            };
+
+            Listing.findById.mockResolvedValue({ _id: listingId, publisherID: 'originalPublisherId', save: jest.fn().mockResolvedValue({ _id: listingId, ...updateData }) });
+
+            const response = await request(app)
+                .put(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`) // Set the token in the header
+                .send(invalidUpdateData);
+
+            expect(response.status).toBe(400);
+            expect(response.body.errors).toEqual(expect.arrayContaining([
+                { field: 'publisherID', message: "publisher can't be changed" }
+            ]));
+        });
+
+        it('should return validation errors for invalid tenantsID', async () => {
+            const invalidUpdateData = {
+                ...updateData,
+                tenantsID: ['invalidUserId'] // Invalid tenant ID
+            };
+
+            User.findById.mockResolvedValue(null);
+            Listing.findById.mockResolvedValue({ _id: listingId, ...updateData });
+
+            const response = await request(app)
+                .put(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`) // Set the token in the header
+                .send(invalidUpdateData);
+
+            expect(response.status).toBe(400);
+            expect(response.body.errors).toEqual(expect.arrayContaining([
+                { field: 'tenantsID', message: 'invalid id: invalidUserId' }
+            ]));
+        });
+
         it('should handle errors and return 500 status code with an error message', async () => {
-            Listing.findByIdAndUpdate.mockRejectedValue(new Error('Database error'));
+            Listing.findById.mockRejectedValue(new Error('Database error'));
 
             const response = await request(app)
                 .put(`/api/listings/${listingId}`)

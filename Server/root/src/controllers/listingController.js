@@ -201,15 +201,8 @@ const updateListingById = async (req, res) => {
         }
 
         // Publisher ID validation
-        if (updates.publisherID !== undefined) {
-            if (updates.publisherID) {
-                const pubId = await User.findById(updates.publisherID);
-                if (!pubId) {
-                    errors.push({ field: "publisherID", message: "publisher id doesn't exist" });
-                }
-            } else {
-                errors.push({ field: "publisherID", message: "missing publisher id" });
-            }
+        if (updates.publisherID !== undefined && updates.publisherID != currentListing.publisherID) {
+                    errors.push({ field: "publisherID", message: "publisher can't be changed" }); 
         }
 
         // Tenants ID validation

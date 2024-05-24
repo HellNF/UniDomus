@@ -6,7 +6,7 @@ const { listings, addListing, getListingById, addressToCoordinates,getCoordinate
 // Apply tokenChecker middleware to routes that require authentication
 router.post('/', tokenChecker, addListing);
 
-router.put('/:id',tokenChecker,updateListingById);
+router.put('/:id',updateListingById);
 
 router.get('/', listings);
 router.get('/coordinates', addressToCoordinates);
