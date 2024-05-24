@@ -85,8 +85,9 @@ import { API_BASE_URL } from "../constant";
     
 
  return(
-        <>
-            <div className="h-14 w-full bg-gray-300   flex flex-row items-center  justify-center">
+        <>  
+        <div className="w-full absolute top-navbar">
+            <div className="h-filter w-full bg-gray-300   flex flex-row items-center  justify-center">
                 
                 <form  onSubmit={handleSubmit} className="flex items-center space-x-12 text-sm justify-between">
                     <h1 className="text-xl font-bold">Filters:</h1>
@@ -128,6 +129,8 @@ import { API_BASE_URL } from "../constant";
                
                 </div>
             </div>
+        </div>
+            
             
         </>
     )

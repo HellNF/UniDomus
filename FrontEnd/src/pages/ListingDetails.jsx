@@ -17,6 +17,7 @@ export default function ListingDetails() {
   const [modifyMode, setModifyMode] = useState(false);
   const { isLoggedIn, logout } = useAuth();
   const { userId, sessionToken } = useAuth();
+  const [tenantsInfo, setTenantsInfo] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [addressCordinates, setAddressCordinates] = useState({});
@@ -92,14 +93,27 @@ export default function ListingDetails() {
 
   function handleChangeInput(e) {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    const [field, subfield] = name.split('.');
+  
+    if (subfield) {
+      setFormData(prevState => ({
+        ...prevState,
+        [field]: {
+          ...prevState[field],
+          [subfield]: value,
+        },
+      }));
+    } else {
+      setFormData(prevState => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
   }
 
   useEffect(() => {
     fetchListingData();
+    
   }, []);
   useEffect(() => {
     setFormData({
@@ -109,7 +123,7 @@ export default function ListingDetails() {
   }, [photoPreviews]);
   useEffect(() => {
     setFormData({
-      ...listing.address,
+      address: listing.address,
       typology: listing.typology,
       description: listing.description,
       price: listing.price,
@@ -123,8 +137,32 @@ export default function ListingDetails() {
       fetchUserData();
       getCordinatesFromId();
     }
+    if(listing.tenantsID && modifyMode === false){
+      fetchTenantsInfo();
+    }
   }, [listing.publisherID]);
+  
+  async function fetchTenantsInfo(){
+      setTenantsInfo([]);
+      try {
+        const tenantPromises = listing.tenantsID.map(async (tenantID) => {
+          const response = await fetch(`${API_BASE_URL}users/${tenantID}?proPic=1`);
+          const data = await response.json();
+          return {
+            img: data.user.proPic[0]
+              ? data.user.proPic[0]
+              : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+            username: data.user.username,
+            id: tenantID,
+          };
+        });
 
+        const tenantsData = await Promise.all(tenantPromises);
+        setTenantsInfo(tenantsData);
+      } catch (error) {
+        console.error("Error fetching tenant data:", error);
+      }
+}
   async function fetchListingData() {
     await fetch(`${API_BASE_URL}listings/${id}`)
       .then((response) => response.json())
@@ -289,11 +327,10 @@ export default function ListingDetails() {
     setModifyMode(false);
   };
   
-
   return (
     <>
-      <div className="flex flex-col bg-blue-950 items-center h-full">
-        <div className="flex flex-col items-center bg-white w-5/6 h-fit p-4 rounded-md border-2 shadow overflow-x-hidden overflow-hidden ">
+      <div className="flex flex-col  bg-blue-950 to-75% items-center h-full">
+        <div className="flex flex-col my-16 items-center bg-white w-5/6 h-fit p-4 rounded-md border-2 shadow overflow-x-hidden overflow-hidden ">
           {!modifyMode ? (
             <>
               <div className="max-w-3xl h-96 object-cover p-4 ">
@@ -362,7 +399,28 @@ export default function ListingDetails() {
                       <label className="font-semibold">Metratura</label>
                       <h2>{listing.floorArea} m²</h2>
                       <label className="font-semibold">Inquilini</label>
-                      <p>{listing.tenantsID || "non ci sono inquilini"}</p>
+                      <div className="flex flex-row space-x-4">
+                        {
+                          tenantsInfo ? 
+                            tenantsInfo.map((tenant, index) => (
+                              <Link to={`/findatenant/${tenant.id}`}>
+                                <img 
+                                  src={
+                                    tenant.img.includes("http") ||
+                                    tenant.img.includes("data:image/png;base64,")||
+                                    tenant.img.includes("data:image/jpeg;base64,")
+                                    ? tenant.img
+                                    : `data:image/png;base64,${tenant.img}`
+                                  } 
+                                  alt={tenant.username} 
+                                  key={index} 
+                                  className="rounded-full h-7 w-7" 
+                                />
+                              </Link>
+                            ))
+                          : (<p>{listing.tenantsID || "non ci sono inquilini"}</p>)
+                        }
+                      </div>
                       <label className="font-semibold">
                         Data di pubblicazione dell'annuncio:
                       </label>
@@ -431,7 +489,7 @@ export default function ListingDetails() {
                     </div>
                   </div>
                 </div>
-                <div className="h-40vh w-full bg-slate-500 my-3">
+                <div className="h-40vh w-full bg-slate-500 my-3 ">
                   {addressCordinates.latitude && addressCordinates.longitude && (
                     <MapComponent tags={addressCordinates}></MapComponent>
                   )}
@@ -560,19 +618,19 @@ export default function ListingDetails() {
                   <div className="flex flex-row space-x-6 justify-around p-2">
                     <div className="flex flex-col w-1/3">
                       <label
-                        htmlFor="street"
+                        htmlFor="address.street"
                         className="block text-sm font-medium leading-6 text-gray-900"
                       >
                         Via
                       </label>
                       <div className="street">
                         <input
-                          id="street"
-                          name="street"
+                          id="address.street"
+                          name="address.street"
                           type="text"
                           autoComplete="street"
                           required
-                          value={formData.street}
+                          value={formData.address.street}
                           onChange={handleChangeInput}
                           className="block max-w-xs w-full  rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
@@ -585,19 +643,19 @@ export default function ListingDetails() {
                     </div>
                     <div className="flex flex-col w-1/3">
                       <label
-                        htmlFor="houseNum"
+                        htmlFor="address.houseNum"
                         className="block text-sm font-medium leading-6 text-gray-900"
                       >
                         Civico
                       </label>
                       <div className="houseNum">
                         <input
-                          id="houseNum"
-                          name="houseNum"
+                          id="address.houseNum"
+                          name="address.houseNum"
                           type="text"
                           autoComplete="houseNum"
                           required
-                          value={formData.houseNum}
+                          value={formData.address.houseNum}
                           onChange={handleChangeInput}
                           className="block  rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
@@ -610,19 +668,19 @@ export default function ListingDetails() {
                     </div>
                     <div className="flex flex-col w-1/3">
                       <label
-                        htmlFor="city"
+                        htmlFor="address.city"
                         className="block text-sm font-medium leading-6 text-gray-900"
                       >
                         Città
                       </label>
                       <div className="city">
                         <input
-                          id="city"
-                          name="city"
-                          type="text"
+                          id="address.city"
+                          name="address.city"
+                          type="address.text"
                           autoComplete="=city"
                           required
-                          value={formData.city}
+                          value={formData.address.city}
                           onChange={handleChangeInput}
                           className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
@@ -638,19 +696,19 @@ export default function ListingDetails() {
                   <div className="flex flex-row space-x-6 justify-evenly p-2">
                     <div className="flex flex-col w-1/3">
                       <label
-                        htmlFor="province"
+                        htmlFor="address.province"
                         className="block text-sm font-medium leading-6 text-gray-900"
                       >
                         Provincia
                       </label>
                       <div className="province">
                         <input
-                          id="province"
-                          name="province"
+                          id="address.province"
+                          name="address.province"
                           type="text"
                           autoComplete="province"
                           required
-                          value={formData.province}
+                          value={formData.address.province}
                           onChange={handleChangeInput}
                           className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
@@ -663,19 +721,19 @@ export default function ListingDetails() {
                     </div>
                     <div className="flex flex-col w-1/3">
                       <label
-                        htmlFor="cap"
+                        htmlFor="address.cap"
                         className="block text-sm font-medium leading-6 text-gray-900"
                       >
                         CAP
                       </label>
                       <div className="cap">
                         <input
-                          id="cap"
-                          name="cap"
+                          id="address.cap"
+                          name="address.cap"
                           type="text"
                           autoComplete="cap"
                           required
-                          value={formData.cap}
+                          value={formData.address.cap}
                           onChange={handleChangeInput}
                           className="block max-w-xs w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
@@ -688,18 +746,18 @@ export default function ListingDetails() {
                     </div>
                     <div className="felx flex-col w-1/3">
                       <label
-                        htmlFor="country"
+                        htmlFor="address.country"
                         className="block text-sm font-medium leading-6 text-gray-900"
                       >
                         Stato
                       </label>
                       <div className="coutny">
                         <select
-                          id="country"
-                          name="country"
+                          id="address.country"
+                          name="address.country"
                           autoComplete="country"
                           required
-                          value={formData.country}
+                          value={formData.address.country}
                           onChange={handleChangeInput}
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                         >
@@ -854,6 +912,14 @@ export default function ListingDetails() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div className="flex flex-col space-y-4 p-6">
+                <h2 className="text-2xl font-semibold leading-7 text-gray-900">
+                  Inquilini
+                </h2>
+                <div >
+                  
                 </div>
               </div>
               <div className="flex flex-row items-center justify-evenly">

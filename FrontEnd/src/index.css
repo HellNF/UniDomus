@@ -13,12 +13,22 @@
 .no-scrollbar::-webkit-scrollbar {
    display: none;
 }
-
+.top-navbar{
+   top: 9vh
+}
+.h-filter{
+   min-height: 56px;
+   height: 8vh;
+}
+.h-navbar{
+   min-height: 64px;
+   height: 9vh;
+}
 .h-40vh{
    height: 40vh;
 }
 .h-83vh{
-  height: 82vh;
+  height: 83vh;
 }
 .leaflet-container{
   height: 100%;
