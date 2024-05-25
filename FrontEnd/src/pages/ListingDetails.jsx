@@ -345,6 +345,16 @@ export default function ListingDetails() {
       }
     }
   }
+  function removeTenant(tenantId) {
+    const updatedTenantsInfo = tenantsInfo.filter((tenant) => tenant.id !== tenantId);
+    setTenantsInfo(updatedTenantsInfo);
+
+    // const updatedTenantsID = updatedTenantsInfo.map((tenant) => tenant.id);
+    // setFormData((prevFormData) => ({
+    //   ...prevFormData,
+    //   tenantsID: updatedTenantsID
+    // }));
+  }
   return (
     <>
       <div className="flex flex-col  bg-blue-950 to-75% items-center h-full">
@@ -960,7 +970,7 @@ export default function ListingDetails() {
                             <p className="text-sm italic text-gray-400">Current tenant</p>
                           </Link>
                           <div className="flex flex-row space-x-4">
-                            <button type="button" className="h-6 w-6 p-1 bg-slate-300 hover:bg-red-500 rounded-full"><XMarkIcon fill={"white"}></XMarkIcon></button>
+                            <button type="button" onClick={()=>removeTenant(tenant.id)} className="h-6 w-6 p-1 bg-slate-300 hover:bg-red-500 rounded-full"><XMarkIcon fill={"white"}></XMarkIcon></button>
 
                           </div>
                         </div>
