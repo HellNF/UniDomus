@@ -23,6 +23,7 @@ const SearchBar = ({ placeholder, onSearch }) => {
   return (
     <div className="flex items-center justify-center p-2 bg-gray-100 rounded-md shadow-md">
       <input
+      id='searchBar'
         type="text"
         value={query}
         onChange={handleInputChange}
@@ -31,6 +32,7 @@ const SearchBar = ({ placeholder, onSearch }) => {
         className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       <button
+        type='button'
         onClick={handleSearch}
         className="p-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >

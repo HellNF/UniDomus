@@ -25,6 +25,7 @@ export default function ListingDetails() {
   const [addressCordinates, setAddressCordinates] = useState({});
   const [listing, setListing] = useState({});
   const [publisher, setPublisher] = useState({ img: "", username: "" });
+  const [searchResult, setSearchResult] = useState([]);
   const [formData, setFormData] = useState({
     address: {
       street: "",
@@ -41,6 +42,7 @@ export default function ListingDetails() {
     availability: "",
     photos: [],
     publisherID: "",
+    tenantsID: [],
   });
   const [formDataErr, setFormDataErr] = useState({
     streetErr: "",
@@ -133,6 +135,7 @@ export default function ListingDetails() {
       availability: listing.availability,
       photos: listing.photos,
       publisherID: listing.publisherID,
+      tenantsID: listing.tenantsID,
     });
     setPhotoPreviews(listing.photos);
     if (listing.publisherID && modifyMode === false) {
@@ -212,15 +215,18 @@ export default function ListingDetails() {
   }
   async function handleSubmitChanges(e) {
     e.preventDefault();
-    setFormData({...formData, photos: photoPreviews});
-    console.log(formData);
+    const tenantsID=tenantsInfo.map((tenant)=>tenant.id);
+    
+    
+    //setFormData({...formData, photos: photoPreviews, tenantsID: tenantsID});
+    const formDataCopy = { ...formData ,photos: photoPreviews, tenantsID: tenantsID};
     fetch(`${API_BASE_URL}listings/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         "x-access-token": sessionToken,
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(formDataCopy),
     })
       .then((response) =>{
         if(!response.ok){
@@ -320,7 +326,7 @@ export default function ListingDetails() {
   
     setTimeout(() => {
       successPopup.remove();
-      navigate('/'); 
+       
     }, 2000); 
   }
   const handleCancelModify = (e) => {
@@ -328,7 +334,17 @@ export default function ListingDetails() {
     showPopupDiv("Modifica annullata","orange");
     setModifyMode(false);
   };
-  
+  async function handleSearch(e){
+    
+    const searchValue = document.getElementById("searchBar").value;
+    if(searchValue){
+      const response = await fetch(`${API_BASE_URL}users/search?username=${searchValue}`);
+      const data = await response.json();
+      if(data.users){
+        setSearchResult(data.users);
+      }
+    }
+  }
   return (
     <>
       <div className="flex flex-col  bg-blue-950 to-75% items-center h-full">
@@ -921,29 +937,31 @@ export default function ListingDetails() {
                   Inquilini
                 </h2>
                 <div className="flex flex-col space-y-3 bg-slate-50 rounded-md p-2">
-                  <SearchBar placeholder={"Digita l'username da cercare..."}></SearchBar>
+                  <SearchBar placeholder={"Digita l'username da cercare..."} onSearch={handleSearch}></SearchBar>
                   {tenantsInfo ? 
                     
                       tenantsInfo.map((tenant, index) => (
                         <div className="flex flex-row space-x-4 items-center justify-between rounded-md shadow-sm w-full">
                           <Link to={`/findatenant/${tenant.id}`} className="flex flex-row   place-items-center justify-start p-2 space-x-6">
                             <img
-                              src={
+                              src={tenant.img?
                                 tenant.img.includes("http") ||
                                 tenant.img.includes("data:image/png;base64,")||
                                 tenant.img.includes("data:image/jpeg;base64,")
                                 ? tenant.img
                                 : `data:image/png;base64,${tenant.img}`
+                                : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                               }
                               alt={tenant.username}
                               key={index}
                               className="rounded-full h-6 w-6"
                             />
                             <p className="text-normal font-normal">{tenant.username}</p>
+                            <p className="text-sm italic text-gray-400">Current tenant</p>
                           </Link>
                           <div className="flex flex-row space-x-4">
                             <button type="button" className="h-6 w-6 p-1 bg-slate-300 hover:bg-red-500 rounded-full"><XMarkIcon fill={"white"}></XMarkIcon></button>
-                            <button type="button" className="h-6 w-6 p-1 bg-slate-300 hover:bg-green-500 rounded-full"><CheckIcon fill={"white"}></CheckIcon></button>
+
                           </div>
                         </div>
                       ))
@@ -951,6 +969,41 @@ export default function ListingDetails() {
                     
                   
                   : (<p>Non ci sono inquilini</p>)
+                  }
+                  { searchResult.length > 0 ?
+                    searchResult.map((user, index) => (
+                      <div className="flex flex-row space-x-4 items-center justify-between rounded-md shadow-sm w-full">
+                          <Link to={`/findatenant/${user._id}`} className="flex flex-row   place-items-center justify-start p-2 space-x-6">
+                            <img
+                              src={
+                               user.proPic?
+                                  user.proPic.includes("http") ||
+                                  user.proPic.includes("data:image/png;base64,")||
+                                  user.proPic.includes("data:image/jpeg;base64,")
+                                  ? user.proPic
+                                  : `data:image/png;base64,${user.proPic}`
+                                : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                              }
+                              alt={user.username}
+                              key={index}
+                              className="rounded-full h-6 w-6"
+                            />
+                            <p className="text-normal font-normal">{user.username}</p>
+                          </Link>
+                          <div className="flex flex-row space-x-4">
+                          
+                            <button type="button" className="h-6 w-6 p-1 bg-slate-300 hover:bg-green-500 rounded-full" onClick={
+                              () => {
+                                setTenantsInfo([...tenantsInfo,{img: user.proPic, username: user.username, id: user._id}]);
+                              }
+                            }><CheckIcon fill={"white"}></CheckIcon></button>
+                          </div>
+                        </div>
+                    ))
+                    : (<p>Nessun risultato</p>)
+
+                  
+
                   }
                 </div>
               </div>

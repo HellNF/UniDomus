@@ -452,6 +452,33 @@ async function googleLogin(req, res) {
         return res.status(500).json({ message: 'Internal server error' });
     }
 }
+
+async function getUsersByUsername(req, res) {
+    try {
+        const { username } = req.query;
+
+        if (!username) {
+            return res.status(400).json({ message: "Il parametro di query 'username' è obbligatorio" });
+        }
+
+        // Utilizza la proiezione per includere solo i campi specifici e il primo elemento di proPic
+        const users = await User.find({ username: { $regex: username, $options: 'i' } })
+                                .select('username proPic')
+                                .lean();
+
+        // Modifica ogni utente per includere solo il primo elemento di proPic
+        const modifiedUsers = users.map(user => ({
+            ...user,
+            proPic: user.proPic && user.proPic.length > 0 ? user.proPic[0] : null
+        }));
+
+        console.log("Utenti recuperati con successo.");
+        return res.status(200).json({ users: modifiedUsers });
+    } catch (error) {
+        console.error("Errore nel recupero degli utenti:", error);
+        return res.status(500).json({ message: "Errore nel recupero degli utenti", error: error.message });
+    }
+}
   
 
 // Export controller functions
@@ -465,6 +492,7 @@ module.exports = {
     updatePassword,
     requestPasswordChange,
     getAllUsers,
-    googleLogin
+    googleLogin,
+    getUsersByUsername
 };
 
