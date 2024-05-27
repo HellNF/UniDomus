@@ -24,6 +24,10 @@ const reportSchema = new mongoose.Schema({
         immutable: true
     },
     reviewedDate: Date,
+    reviewerID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     resolvedDate: Date,
     targetID: {
         type: mongoose.Schema.Types.ObjectId,
