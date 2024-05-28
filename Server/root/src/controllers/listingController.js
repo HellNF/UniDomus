@@ -52,24 +52,35 @@ async function addListing(req, res) {
 
     try {
         //address check
-        if (!address) errors.push({ field: "address", message: "missing address" }) //empty address
+        if (!address) 
+            errors.push({ field: "address", message: "missing address" }) //empty address
 
-        if (!address.street) errors.push({ field: "street", message: "missing street" });
+        if (!address.street) 
+            errors.push({ field: "street", message: "missing street" });
 
-        if (!address.city) errors.push({ field: "city", message: "missing city" })
+        if (!address.city) 
+            errors.push({ field: "city", message: "missing city" })
 
-        if (!address.cap) errors.push({ field: "cap", message: "invalid cap" })
+        if (!address.cap) 
+            errors.push({ field: "cap", message: "invalid cap" })
 
-        if (!address.houseNum) errors.push({ field: "houseNum", message: "missing houseNum" })
-        else if (!(/\d/.test(address.houseNum))) errors.push({ field: "houseNum", message: "does not contain a number" })
+        if (!address.houseNum) 
+            errors.push({ field: "houseNum", message: "missing houseNum" })
+        else if (!(/\d/.test(address.houseNum))) 
+            errors.push({ field: "houseNum", message: "does not contain a number" })
 
-        if (!address.province) errors.push({ field: "province", message: "missing province" })
-        else if (address.province.length != 2) errors.push({ field: "province", message: "province needs to be only two character" })
+        if (!address.province) 
+            errors.push({ field: "province", message: "missing province" })
+        else if (address.province.length != 2) 
+            errors.push({ field: "province", message: "province needs to be only two character" })
 
-        if (!address.country) errors.push({ field: "country", message: "missing country" })
+        if (!address.country) 
+            errors.push({ field: "country", message: "missing country" })
 
         //photos check
-        if (photos.length < 1 || photos.length > 10) errors.push({ field: "photos", message: "not enough photos" });
+        if (photos.length < 1 || photos.length > 10) 
+            errors.push({ field: "photos", message: "not enough photos" });
+
         //publisheerId check    
         if (publisherID) {
             const pubId = await User.findById(publisherID)
@@ -87,15 +98,25 @@ async function addListing(req, res) {
             })
         }
         //description check
-        if (!description) errors.push({ field: "description", message: "missing descriprion" })
+        if (!description) 
+            errors.push({ field: "description", message: "missing descriprion" })
+
         //typology check
-        if (!typology) errors.push({ field: "typology", message: "missing typology" })
+        if (!typology) 
+            errors.push({ field: "typology", message: "missing typology" })
+
         //price check
-        if (!price || price < 10 || price > 10000) errors.push({ field: "price", message: "invalid price" })
+        if (!price || price < 10 || price > 10000) 
+            errors.push({ field: "price", message: "invalid price" })
+
         //floorArea check
-        if (!floorArea || floorArea < 10 || floorArea > 10000) errors.push({ field: "floorArea", message: "invalid floorArea" })
+        if (!floorArea || floorArea < 10 || floorArea > 10000) 
+            errors.push({ field: "floorArea", message: "invalid floorArea" })
+
         //availability check
-        if (!availability) errors.push({ field: "availability", message: " missing availability " })
+        if (!availability) 
+            errors.push({ field: "availability", message: " missing availability " })
+        
         if (errors.length > 0) {
             return res.status(401).json({ message: "error", errors })
         }
@@ -173,23 +194,40 @@ const updateListingById = async (req, res) => {
             const address = updates.address;
             const currentAddress = currentListing.address || {};
 
-            if (address.street !== undefined && !address.street) errors.push({ field: "street", message: "missing street" });
-            if (address.street !== undefined && (address.street.length < 3 || address.street.length > 50)) errors.push({ field: "street", message: "street length must be between 3 and 50 characters" });
+            if (address.street !== undefined && !address.street) 
+                errors.push({ field: "street", message: "missing street" });
 
-            if (address.city !== undefined && !address.city) errors.push({ field: "city", message: "missing city" });
-            if (address.city !== undefined && (address.city.length < 3 || address.city.length > 50)) errors.push({ field: "city", message: "city length must be between 3 and 50 characters" });
+            if (address.street !== undefined && (address.street.length < 3 || address.street.length > 50)) 
+                errors.push({ field: "street", message: "street length must be between 3 and 50 characters" });
 
-            if (address.cap !== undefined && !address.cap) errors.push({ field: "cap", message: "invalid cap" });
-            if (address.cap !== undefined && !(/^\d{5}$/.test(address.cap))) errors.push({ field: "cap", message: "CAP must contain exactly 5 digits" });
+            if (address.city !== undefined && !address.city) 
+                errors.push({ field: "city", message: "missing city" });
 
-            if (address.houseNum !== undefined && !address.houseNum) errors.push({ field: "houseNum", message: "missing houseNum" });
-            if (address.houseNum !== undefined && (address.houseNum.length < 1 || address.houseNum.length > 5)) errors.push({ field: "houseNum", message: "houseNum length must be between 1 and 5 characters" });
+            if (address.city !== undefined && (address.city.length < 3 || address.city.length > 50)) 
+                errors.push({ field: "city", message: "city length must be between 3 and 50 characters" });
 
-            if (address.province !== undefined && !address.province) errors.push({ field: "province", message: "missing province" });
-            if (address.province !== undefined && (address.province.length !== 2)) errors.push({ field: "province", message: "province must be exactly 2 characters" });
+            if (address.cap !== undefined && !address.cap) 
+                errors.push({ field: "cap", message: "invalid cap" });
 
-            if (address.country !== undefined && !address.country) errors.push({ field: "country", message: "missing country" });
-            if (address.country !== undefined && (address.country.length < 3 || address.country.length > 50)) errors.push({ field: "country", message: "country length must be between 3 and 50 characters" });
+            if (address.cap !== undefined && !(/^\d{5}$/.test(address.cap))) 
+                errors.push({ field: "cap", message: "CAP must contain exactly 5 digits" });
+
+            if (address.houseNum !== undefined && !address.houseNum) 
+                errors.push({ field: "houseNum", message: "missing houseNum" });
+
+            if (address.houseNum !== undefined && (address.houseNum.length < 1 || address.houseNum.length > 5)) 
+                errors.push({ field: "houseNum", message: "houseNum length must be between 1 and 5 characters" });
+
+            if (address.province !== undefined && !address.province)
+                errors.push({ field: "province", message: "missing province" });
+
+            if (address.province !== undefined && (address.province.length !== 2)) 
+                errors.push({ field: "province", message: "province must be exactly 2 characters" });
+
+            if (address.country !== undefined && !address.country) 
+                errors.push({ field: "country", message: "missing country" });
+            if (address.country !== undefined && (address.country.length < 3 || address.country.length > 50)) 
+                errors.push({ field: "country", message: "country length must be between 3 and 50 characters" });
 
             // Merge address updates
             currentListing.address = { ...currentAddress, ...address };
@@ -197,7 +235,8 @@ const updateListingById = async (req, res) => {
 
         // Photos validation
         if (updates.photos !== undefined) {
-            if (updates.photos.length < 1 || updates.photos.length > 10) errors.push({ field: "photos", message: "photos must contain between 1 and 10 items" });
+            if (updates.photos.length < 1 || updates.photos.length > 10) 
+                errors.push({ field: "photos", message: "photos must contain between 1 and 10 items" });
         }
 
         // Publisher ID validation
@@ -259,11 +298,32 @@ const updateListingById = async (req, res) => {
 
         console.log("Listing updated successfully.");
         return res.status(200).json({ listing });
+
     } catch (error) {
         console.error("Error updating listing:", error);
         return res.status(500).json({ message: "Error updating listing", error: error.message });
+
     }
+
 };
+
+async function deleteListingById(req, res) {
+    try {
+        const { id } = req.params;
+        const listing = await Listing.findByIdAndDelete(id);
+
+        if (!listing) {
+            console.log("Listing not found.");
+            return res.status(400).json({ message: "Listing not found" });
+        }
+
+        console.log("Listing deleted successfully.");
+        return res.status(200).json({ message: "Listing deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting listing:", error);
+        return res.status(500).json({ message: "Error deleting listing", error: error.message });
+    }
+}
 
 
 async function addressToCoordinates(req, res) {
@@ -275,13 +335,17 @@ async function addressToCoordinates(req, res) {
         // Construct the query object
         if (priceMin || priceMax) {
             query.price = {};
-            if (priceMin) query.price.$gte = Number(priceMin);
-            if (priceMax) query.price.$lte = Number(priceMax);
+            if (priceMin) 
+                query.price.$gte = Number(priceMin);
+            if (priceMax) 
+                query.price.$lte = Number(priceMax);
         }
         if (floorAreaMin || floorAreaMax) {
             query.floorArea = {};
-            if (floorAreaMin) query.floorArea.$gte = Number(floorAreaMin);
-            if (floorAreaMax) query.floorArea.$lte = Number(floorAreaMax);
+            if (floorAreaMin) 
+                query.floorArea.$gte = Number(floorAreaMin);
+            if (floorAreaMax) 
+                query.floorArea.$lte = Number(floorAreaMax);
         }
         if (typology) {
             query.typology = typology;
@@ -393,6 +457,7 @@ module.exports = {
     addListing,
     getListingById,
     updateListingById,
+    deleteListingById,
     addressToCoordinates,
     getCoordinatesById
 };
