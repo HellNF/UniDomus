@@ -3,6 +3,9 @@ const Listing = require('../models/listingModel');
 require('dotenv').config({ path: '../../.env' });
 const User = require('../models/userModel');
 const { query } = require('express');
+const NotificationModel = require('../models/notificationModel'); 
+const { notificationPriorityEnum} = require('../models/enums');
+
 
 async function listings(req, res) {
     try {
@@ -13,13 +16,17 @@ async function listings(req, res) {
         // Step 2: Construct the query object
         if (priceMin || priceMax) {
             query.price = {};
-            if (priceMin) query.price.$gte = Number(priceMin);
-            if (priceMax) query.price.$lte = Number(priceMax);
+            if (priceMin) 
+                query.price.$gte = Number(priceMin);
+            if (priceMax) 
+                query.price.$lte = Number(priceMax);
         }
         if (floorAreaMin || floorAreaMax) {
             query.floorArea = {};
-            if (floorAreaMin) query.floorArea.$gte = Number(floorAreaMin);
-            if (floorAreaMax) query.floorArea.$lte = Number(floorAreaMax);
+            if (floorAreaMin) 
+                query.floorArea.$gte = Number(floorAreaMin);
+            if (floorAreaMax) 
+                query.floorArea.$lte = Number(floorAreaMax);
         }
         if (typology) {
             query.typology = typology;
@@ -38,6 +45,7 @@ async function listings(req, res) {
 
         console.log("Filtered listings retrieved successfully.");
         return res.status(200).json({ listings: listings });
+
     } catch (error) {
         console.error("Error retrieving listings with filters:", error);
         return res.status(500).json({ message: "Error retrieving listings", error: error.message });
@@ -170,6 +178,7 @@ async function getListingById(req, res) {
 
         console.log("Listing retrieved successfully.");
         return res.status(200).json({ listing: listing });
+
     } catch (error) {
         console.error("Error retrieving listing:", error);
         return res.status(500).json({ message: "Error retrieving listing", error: error.message });
@@ -317,6 +326,22 @@ async function deleteListingById(req, res) {
             return res.status(400).json({ message: "Listing not found" });
         }
 
+        const userId = listing.publisherID;
+        const user = await User.findById(userId);
+        if (!user) {
+            console.log("Publisher not found.");
+            return res.status(400).json({ message: "Publisher not found" });
+        }
+
+         // Create a notification for the receiver
+         await NotificationModel.create({
+            userID: user._id,
+            type: "alert",
+            message: `Your listing has been deleted because it did not comply with Unidomus policies`,
+            link: `/addListing`,
+            priority: notificationPriorityEnum.HIGH
+        });
+
         console.log("Listing deleted successfully.");
         return res.status(200).json({ message: "Listing deleted successfully" });
     } catch (error) {
@@ -334,6 +359,7 @@ async function addressToCoordinates(req, res) {
 
         // Construct the query object
         if (priceMin || priceMax) {
+            
             query.price = {};
             if (priceMin) 
                 query.price.$gte = Number(priceMin);
@@ -341,6 +367,7 @@ async function addressToCoordinates(req, res) {
                 query.price.$lte = Number(priceMax);
         }
         if (floorAreaMin || floorAreaMax) {
+
             query.floorArea = {};
             if (floorAreaMin) 
                 query.floorArea.$gte = Number(floorAreaMin);
