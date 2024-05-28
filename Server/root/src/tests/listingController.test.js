@@ -2,13 +2,14 @@ const request = require('supertest');
 const app = require('../../app.js'); 
 const Listing = require('../models/listingModel.js');
 const User = require('../models/userModel.js');
+const Notification = require('../models/notificationModel.js')
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 require('dotenv').config({ path: '../../.env' });
 
 jest.mock('../models/userModel'); // Mock the User model for testing
 jest.mock('../models/listingModel'); // Mock the Listing model for testing
-
+jest.mock('../models/notificationModel'); // Mock the Notification model for testing
 jest.spyOn(mongoose, 'connect').mockImplementation(() => Promise.resolve());
 
 describe('Listing Controller', () => {
@@ -268,6 +269,72 @@ describe('Listing Controller', () => {
 
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: 'Error updating listing', error: 'Database error' });
+        });
+    });
+
+    describe('DELETE /api/listings/:id', () => {
+        const listingId = 'validListingId';
+        const userId = 'validUserId';
+
+        it('should delete a listing successfully and return the publisher', async () => {
+            const mockListing = { _id: listingId, publisherID: userId };
+            const mockUser = { _id: userId, name: 'John Doe' };
+
+            Listing.findById.mockResolvedValue(mockListing);
+            Listing.findByIdAndDelete.mockResolvedValue(mockListing);
+
+            User.findById.mockResolvedValue(mockUser);
+            Notification.create.mockResolvedValue({});
+
+            const response = await request(app)
+                .delete(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ message: 'Listing deleted successfully' });
+
+            expect(Listing.findById).toHaveBeenCalledWith(listingId);
+            expect(User.findById).toHaveBeenCalledWith(userId);
+
+        });
+
+        it('should return 400 if listing is not found', async () => {
+            Listing.findById.mockResolvedValue(null);
+
+            const response = await request(app)
+                .delete(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`);
+
+
+            expect(response.status).toBe(400);
+            expect(response.body).toEqual({ message: 'Listing not found' });
+        });
+
+        it('should return 400 if publisher is not found', async () => {
+            const mockListing = { _id: listingId, publisherID: userId };
+
+            Listing.findById.mockResolvedValue(mockListing);
+            User.findById.mockResolvedValue(null);
+
+            const response = await request(app)
+                .delete(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`);
+
+
+            expect(response.status).toBe(400);
+            expect(response.body).toEqual({ message: 'Publisher not found' });
+        });
+
+        it('should handle errors and return 500 status code with an error message', async () => {
+            Listing.findById.mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .delete(`/api/listings/${listingId}`)
+                .set('x-access-token', `${token}`);
+
+                
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: 'Error deleting listing', error: 'Database error' });
         });
     });
 

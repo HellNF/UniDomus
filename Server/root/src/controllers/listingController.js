@@ -319,7 +319,7 @@ const updateListingById = async (req, res) => {
 async function deleteListingById(req, res) {
     try {
         const { id } = req.params;
-        const listing = await Listing.findByIdAndDelete(id);
+        const listing = await Listing.findById(id);
 
         if (!listing) {
             console.log("Listing not found.");
@@ -333,8 +333,9 @@ async function deleteListingById(req, res) {
             return res.status(400).json({ message: "Publisher not found" });
         }
 
-         // Create a notification for the receiver
-         await NotificationModel.create({
+        await Listing.findByIdAndDelete(id);
+
+        await NotificationModel.create({
             userID: user._id,
             type: "alert",
             message: `Your listing has been deleted because it did not comply with Unidomus policies`,
@@ -343,7 +344,7 @@ async function deleteListingById(req, res) {
         });
 
         console.log("Listing deleted successfully.");
-        return res.status(200).json({ message: "Listing deleted successfully" });
+        return res.status(200).json({ message: "Listing deleted successfully"});
     } catch (error) {
         console.error("Error deleting listing:", error);
         return res.status(500).json({ message: "Error deleting listing", error: error.message });
@@ -359,7 +360,7 @@ async function addressToCoordinates(req, res) {
 
         // Construct the query object
         if (priceMin || priceMax) {
-            
+
             query.price = {};
             if (priceMin) 
                 query.price.$gte = Number(priceMin);
