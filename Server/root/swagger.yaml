@@ -26,7 +26,7 @@ paths:
           description: Invalid or expired token.
         "500":
           description: Internal server error occurred.
-  /api/listing:
+  /api/listings:
     get:
       summary: Retrieve listings based on query parameters
       description: Retrieve listings based on price range, typology, city, and floor area range.
@@ -75,7 +75,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Listing"
-  /api/listing/{id}:
+  /api/listings/{id}:
     get:
       summary: Retrieve a listing by ID
       description: Retrieve a listing by its unique identifier.
@@ -118,7 +118,155 @@ paths:
                     example: Error retrieving listing
                   error:
                     type: string
-  /api/listing/coordinates:
+    delete:
+      description: Deletes a listing by its ID. The publisher of the listing is notified
+        upon deletion.
+      parameters:
+      - description: The ID of the listing to delete
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                type: object
+          description: Listing deleted successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                type: object
+          description: Listing not found or Publisher not found
+        '500':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+                type: object
+          description: Internal server error
+      summary: Delete listing by ID
+      tags:
+      - Listings
+    put:
+      description: Updates the details of a listing by its ID. This includes updating
+        fields such as price, typology, address, description, and more.
+      parameters:
+      - description: The ID of the listing to update
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                address:
+                  properties:
+                    cap:
+                      type: string
+                    city:
+                      type: string
+                    country:
+                      type: string
+                    houseNum:
+                      type: string
+                    province:
+                      type: string
+                    street:
+                      type: string
+                  type: object
+                availability:
+                  type: string
+                description:
+                  type: string
+                floorArea:
+                  type: number
+                photos:
+                  items:
+                    type: string
+                  type: array
+                price:
+                  type: number
+                publisherID:
+                  type: string
+                tenantsID:
+                  items:
+                    type: string
+                  type: array
+                typology:
+                  type: string
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  listing:
+                    $ref: '#/components/schemas/Listing'
+                type: object
+          description: Listing updated successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    items:
+                      properties:
+                        field:
+                          type: string
+                        message:
+                          type: string
+                      type: object
+                    type: array
+                  message:
+                    type: string
+                type: object
+          description: Validation errors
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                type: object
+          description: Listing not found
+        '500':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+                type: object
+          description: Internal server error
+      summary: Update listing by ID
+      tags:
+      - Listings
+  /api/listings/coordinates:
     get:
       summary: Convert addresses to coordinates
       description: Converts addresses retrieved from the database into coordinates using a Geocoding API, to plot them on a map.
@@ -245,7 +393,7 @@ paths:
                   error:
                     type: string
                     example: Descrizione dell'errore
-  /api/listing/add:
+  /api/listings/add:
     post:
       summary: Add a new listing
       description: Adds a new real estate listing to the database with validation on input data.
