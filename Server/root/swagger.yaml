@@ -664,6 +664,53 @@ paths:
           description: User not found.
         '500':
           description: Internal server error occurred.
+    delete:
+      tags:
+        - Users
+      summary: Delete a user by ID and their associated listing
+      description: Deletes a user by their ID and also deletes their associated listing if it exists.
+      operationId: deleteUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the user to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User and associated listing (if any) deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User and associated listing (if any) deleted successfully
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+                  error:
+                    type: string
+                    example: Error details      
   /api/users/forgotpassword:
    post:
     summary: Forgot password
