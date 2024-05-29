@@ -3,6 +3,10 @@ const bcrypt = require('bcrypt');
 const { hobbiesEnum, habitsEnum, sexEnum, activeEnum } = require('./enums'); // Adjust the import according to your project structure
 
 const userSchema = new mongoose.Schema({
+    isAdmin: {
+        type: Boolean,
+        default: false    
+    },
     username: {
         type: String,
         required: true,

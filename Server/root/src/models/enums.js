@@ -55,7 +55,7 @@ const reportTypeEnum = {
 
 const reportStatusEnum = {
     PENDING: 'in attesa',
-    REVIEWED: 'revisionato',
+    REVIEWING: 'in revisione',
     RESOLVED: 'risolto'
 };
 

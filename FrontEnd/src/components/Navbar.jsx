@@ -12,7 +12,7 @@ function classNames(...classes) {
 }
 
 function Navbar({ current }) {
-  const { isLoggedIn, logout, userId } = useAuth();
+  const { isLoggedIn, logout, userId ,isAdmin} = useAuth();
   const [profilePic, setProfilePic] = useState(null);
   const [publisherIDAvailable, setPublisherIDAvailable] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -45,6 +45,7 @@ function Navbar({ current }) {
         setProfilePic(`data:image/png;base64,${userData.proPic[0]}`);
       }
     } catch (error) {
+      logout();
       console.error('Error fetching user data:', error);
     }
   };
@@ -210,6 +211,20 @@ function Navbar({ current }) {
                               )}
                             </Menu.Item>
                           )}
+                          {
+                            isAdmin && (
+                              <Menu.Item>
+                                {({ active }) => (
+                                  <Link
+                                  to="/reports/"
+                                  className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                                >
+                                  Visualizza segnalazioni
+                                </Link>
+                                )}
+                              </Menu.Item>
+                            )
+                          }
                           <Menu.Item>
                             {({ active }) => (
                               <a

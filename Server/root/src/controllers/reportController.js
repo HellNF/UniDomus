@@ -3,14 +3,8 @@ const ReportModel = require('../models/reportModel');
 const UserModel = require('../models/userModel');
 const MatchModel = require('../models/matchModel');
 const ListingModel = require('../models/listingModel');
+//const { report } = require('../routes/reportRoutes');
 
-/**
- * Validate the existence of the target entity based on the report type.
- * @param {string} reportType - The type of the report.
- * @param {string} targetID - The ID of the target.
- * @param {string} [messageID] - The ID of the message (optional, required if reportType is MESSAGE).
- * @returns {boolean} True if the target exists, otherwise false.
- */
 async function validateTarget(reportType, targetID, messageID) {
     switch (reportType) {
         case reportTypeEnum.USER:
@@ -36,16 +30,14 @@ async function validateTarget(reportType, targetID, messageID) {
  * @param {string} req.body.reportType - The type of the report.
  * @param {string} req.body.targetID - The ID of the target.
  * @param {string} req.body.description - The description of the report.
- * @param {string} req.body.messageID - The ID of the message (optional, required if reportType is MESSAGE).
+ * @param {string} req.body.messageID - The ID of the message (optional, only for reportType = 'MESSAGE').
  * @param {Object} res - The response object.
- * @returns {Object} The response object with the created report or an error message.
+ * @returns {Object} The response object with the status and the created report.
  */
 async function createReport(req, res) {
     const { reporterID, reportType, targetID, description, messageID } = req.body;
 
-    
     try {
-        // Validate reporter
         const reporter = await UserModel.findById(reporterID);
         if (!reporter) {
             return res.status(404).json({ message: "Reporter not found" });
@@ -63,13 +55,11 @@ async function createReport(req, res) {
             return res.status(400).json({ message: "Invalid report type" });
         }
 
-        // Validate target
         const targetExists = await validateTarget(reportType, targetID, messageID);
         if (!targetExists) {
             return res.status(404).json({ message: "Target not found" });
         }
 
-        // Create report
         const newReport = await ReportModel.create({
             reporterID,
             reportType,
@@ -86,7 +76,227 @@ async function createReport(req, res) {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+/**
+ * Updates a report by removing the reviewer and review date, and setting the report status to pending.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves with the updated report or an error response.
+ */
+async function updateReportRemove(req, res) {
+
+    const  _id  = req.body.reportID;
+    console.log(_id);
+    try {
+        
+        const updatedReport = await ReportModel.findByIdAndUpdate(_id,{
+            reviewerID:null,
+            reviewDate: null,
+            reportStatus: reportStatusEnum.PENDING
+        }, { new: true });
+        console.log(updatedReport)
+        if (!updatedReport) {
+            return res.status(404).json({ message: "Report not found" });
+        }
+
+        return res.status(200).json({ message: "Report updated successfully", report: updatedReport });
+    } catch (error) {
+        console.error("Error updating report:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+    
+}
+/**
+ * Updates the review of a report.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object.
+ */
+async function updateReportReview(req, res) {
+    // const { reportID, reviewerID, reportStatus=reportStatusEnum.REVIEWING } = req.body;
+    const reportID= req.body.reportID;
+    const reviewerID= req.body.reviewerID;
+    const reportStatus= req.body.reportStatus || reportStatusEnum.REVIEWING;
+    console.log(reportID, reviewerID, reportStatus);
+
+    
+    try {
+        const updatedReport = await ReportModel.findByIdAndUpdate(reportID, {
+            reviewerID,
+            reviewDate: new Date(),
+            reportStatus
+        }, { new: true });
+
+        if (!updatedReport) {
+            return res.status(404).json({ message: "Report not found" });
+        }
+
+        return res.status(200).json({ message: "Report updated successfully", report: updatedReport });
+    } catch (error) {
+        console.error("Error updating report:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+/**
+ * Updates the resolution of a report.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object.
+ */
+async function updateReportResolution(req, res) {
+    const { reportID, reportStatus } = req.body;
+
+    try {
+        const updatedReport = await ReportModel.findByIdAndUpdate(reportID, {
+            resolvedDate: new Date(),
+            reportStatus
+        }, { new: true });
+
+        if (!updatedReport) {
+            return res.status(404).json({ message: "Report not found" });
+        }
+        console.log("Report updated successfully");
+        return res.status(200).json({ message: "Report updated successfully", report: updatedReport });
+    } catch (error) {
+        console.error("Error updating report:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+/**
+ * Retrieves pending reports from the database.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object with the pending reports.
+ */
+async function getPendingReports(req, res) {
+    try {
+        const pendingReports = await ReportModel.find({ reportStatus: reportStatusEnum.PENDING });
+        return res.status(200).json({ reports: pendingReports });
+    } catch (error) {
+        console.error("Error retrieving pending reports:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+/**
+ * Retrieves all resolved reports from the database.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object with the resolved reports.
+ */
+async function getResolvedReports(req, res) {
+    try {
+        const resolvedReports = await ReportModel.find({ reportStatus: reportStatusEnum.RESOLVED });
+        return res.status(200).json({ reports: resolvedReports });
+    } catch (error) {
+        console.error("Error retrieving resolved reports:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+/**
+ * Retrieves the reports that are currently being reviewed by an admin.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object containing the reviewing reports.
+ */
+async function getReviewingReports(req, res) {
+    const { adminID } = req.params;
+    console.log(`Admin ID: ${adminID}`);
+    console.log(`Expected report status: ${reportStatusEnum.REVIEWING}`);
+
+    try {
+        const query = {
+            reportStatus: reportStatusEnum.REVIEWING, // Usa il valore enum corretto
+            reviewerID: adminID
+            
+        };
+        
+
+        const reviewingReports = await ReportModel.find(query);
+        //console.log(`Reviewing Reports: ${reviewingReports}`);
+        
+        return res.status(200).json({ reports: reviewingReports });
+    } catch (error) {
+        console.error("Error retrieving reviewing reports:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+/**
+ * Retrieves reports by reporter ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object with the reports.
+ */
+async function getReportsByReporter(req, res) {
+    const { reporterID } = req.params;
+
+    try {
+        const reporterReports = await ReportModel.find({ reporterID });
+        return res.status(200).json({ reports: reporterReports });
+    } catch (error) {
+        console.error("Error retrieving reporter's reports:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+/**
+ * Retrieves reports by target ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object with reports or an error message.
+ */
+async function getReportsByTarget(req, res) {
+    const { targetID } = req.params;
+
+    try {
+        const targetReports = await ReportModel.find({ targetID });
+        return res.status(200).json({ reports: targetReports });
+    } catch (error) {
+        console.error("Error retrieving target's reports:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+/**
+ * Retrieves a single report by its ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the report is retrieved.
+ */
+async function getSingleReportById(req, res) {
+    const { id } = req.params;
+
+    try {
+        const report = await ReportModel.findById(id);
+        if (!report) {
+            return res.status(404).json({ message: "Report not found" });
+        }
+
+        return res.status(200).json({ report });
+    } catch (error) {
+        console.error("Error retrieving the report:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
 
 module.exports = {
-    createReport
+    createReport,
+    updateReportReview,
+    updateReportResolution,
+    getPendingReports,
+    getResolvedReports,
+    getReviewingReports,
+    getReportsByReporter,
+    getReportsByTarget,
+    getSingleReportById,
+    updateReportRemove,
+    validateTarget
 };

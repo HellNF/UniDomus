@@ -114,7 +114,7 @@ async function authenticateUser(req, res) {
         }
 
         // user authenticated -> create a token
-        var payload = { email: user.email, id: user._id }
+        var payload = { email: user.email, id: user._id ,username: user.username, isAdmin: user.isAdmin}
         var options = { expiresIn: 86400 } // expires in 24 hours
         var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
         return res.status(200).json({ success: true, message: 'Token returned', token: token, email: user.email, id: user._id, self: "api/users/authentication/" + user._id });
@@ -442,6 +442,7 @@ async function googleLogin(req, res) {
             id: user.id,
             email: user.email,
             username: user.username,
+            isAdmin: user.isAdmin,
         }, process.env.SUPER_SECRET, { expiresIn: '4h' });
 
         // Invia il JWT all'utente

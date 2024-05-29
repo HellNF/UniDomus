@@ -22,6 +22,7 @@ const parseJwt = (token) => {
 export const AuthProvider = ({ children }) => {
     const [sessionToken, setSessionToken] = useState(null);
     const [userId, setUserId] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(null); 
 
     // Check if session token exists in local storage on component mount
     useEffect(() => {
@@ -31,6 +32,7 @@ export const AuthProvider = ({ children }) => {
             if (decoded && decoded.id) { // Check for 'id' instead of 'userId'
                 setSessionToken(storedToken);
                 setUserId(decoded.id); // Use 'id' as the userId
+                setIsAdmin(decoded.isAdmin);
             } else {
                 console.error('Token is invalid or does not contain id.');
             }
@@ -60,7 +62,7 @@ export const AuthProvider = ({ children }) => {
     const isLoggedIn = !!sessionToken;
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, userId, sessionToken, login, logout }}>
+        <AuthContext.Provider value={{ isLoggedIn, userId, sessionToken,isAdmin, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
