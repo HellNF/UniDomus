@@ -6,7 +6,11 @@ const { query } = require('express');
 const NotificationModel = require('../models/notificationModel'); 
 const { notificationPriorityEnum} = require('../models/enums');
 
-
+/**
+ * Controller function for retrieving listings with filters.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
 async function listings(req, res) {
     try {
         // Step 1: Parse query parameters
@@ -52,6 +56,11 @@ async function listings(req, res) {
     }
 }
 
+/**
+ * Controller function for adding a new listing.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
 async function addListing(req, res) {
     const errors = [];
 
@@ -165,7 +174,11 @@ async function addListing(req, res) {
 }
 
 
-
+/**
+ * Controller function for retrieving a listing by ID.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
 async function getListingById(req, res) {
     try {
         const { id } = req.params;
@@ -185,7 +198,11 @@ async function getListingById(req, res) {
     }
 }
 
-
+/**
+ * Controller function for updating a listing by ID.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
 const updateListingById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -316,6 +333,13 @@ const updateListingById = async (req, res) => {
 
 };
 
+
+
+/**
+ * Controller function for deleting a listing by ID.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
 async function deleteListingById(req, res) {
     try {
         const { id } = req.params;
@@ -352,6 +376,11 @@ async function deleteListingById(req, res) {
 }
 
 
+/**
+ * Controller function for converting listing addresses to coordinates.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
 async function addressToCoordinates(req, res) {
     try {
         // Parse query parameters
@@ -435,6 +464,14 @@ async function addressToCoordinates(req, res) {
         return res.status(500).json({ message: "Error retrieving listings", error: error.message  });
     }
 }
+
+
+
+/**
+ * Controller function for getting coordinates of a listing by ID.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
 async function getCoordinatesById(req, res) {
     try {
         const { id } = req.params;

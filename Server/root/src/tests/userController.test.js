@@ -3,6 +3,7 @@ const request = require('supertest');
 const app = require('../../app.js'); 
 const UserModel = require('../models/userModel');
 const TokenModel = require('../models/tokenModel');
+const ListingModel = require('../models/listingModel');
 const tokenUtils = require('../utils/tokenUtils'); 
 const emailService = require('../services/emailService'); 
 const databaseQueries = require('../database/databaseQueries'); 
@@ -419,6 +420,88 @@ describe('UserController', () => {
                 message: 'Error updating user',
                 error: 'Database error'
             });
+        });
+    });
+
+    describe('DELETE /api/users/:id', () => {
+        it('should delete the user and associated listing successfully', async () => {
+            const mockUser = {
+                _id: '1',
+                email: 'test@example.com',
+                listingID: 'listing1'
+            };
+
+            jest.spyOn(UserModel, 'findById').mockResolvedValue(mockUser);
+            jest.spyOn(ListingModel, 'findByIdAndDelete').mockResolvedValue({});
+            jest.spyOn(UserModel, 'findByIdAndDelete').mockResolvedValue(mockUser);
+            jest.spyOn(emailService, 'sendUserDeletedEmail').mockResolvedValue({});
+
+            const response = await request(app)
+                .delete('/api/users/1')
+                .set('x-access-token', 'valid_token'); // Mock token
+
+            expect(UserModel.findById).toHaveBeenCalledWith('1');
+            expect(ListingModel.findByIdAndDelete).toHaveBeenCalledWith('listing1');
+            expect(UserModel.findByIdAndDelete).toHaveBeenCalledWith('1');
+            expect(emailService.sendUserDeletedEmail).toHaveBeenCalledWith('test@example.com');
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ message: "User and associated listing (if any) deleted successfully" });
+        });
+
+        it('should handle case where user is not found', async () => {
+            jest.spyOn(UserModel, 'findById').mockResolvedValue(null);
+
+            const response = await request(app)
+                .delete('/api/users/1')
+                .set('x-access-token', 'valid_token'); // Mock token
+
+            expect(UserModel.findById).toHaveBeenCalledWith('1');
+            expect(response.status).toBe(404);
+            expect(response.body).toEqual({ message: 'User not found' });
+        });
+
+        it('should handle database errors during user deletion', async () => {
+            const mockUser = {
+                _id: '1',
+                email: 'test@example.com',
+                listingID: 'listing1'
+            };
+
+            jest.spyOn(UserModel, 'findById').mockResolvedValue(mockUser);
+            jest.spyOn(ListingModel, 'findByIdAndDelete').mockResolvedValue({});
+            jest.spyOn(UserModel, 'findByIdAndDelete').mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .delete('/api/users/1')
+                .set('x-access-token', 'valid_token'); // Mock token
+
+            expect(UserModel.findByIdAndDelete).toHaveBeenCalledWith('1');
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: 'Internal server error', error: 'Database error' });
+        });
+
+        it('should handle errors during listing deletion but still delete the user', async () => {
+            const mockUser = {
+                _id: '1',
+                email: 'test@example.com',
+                listingID: 'listing1'
+            };
+
+            jest.spyOn(UserModel, 'findById').mockResolvedValue(mockUser);
+            jest.spyOn(ListingModel, 'findByIdAndDelete').mockRejectedValue(new Error('Listing deletion error'));
+            jest.spyOn(UserModel, 'findByIdAndDelete').mockResolvedValue(mockUser);
+            jest.spyOn(emailService, 'sendUserDeletedEmail').mockResolvedValue({});
+
+            const response = await request(app)
+                .delete('/api/users/1')
+                .set('x-access-token', 'valid_token'); // Mock token
+
+            expect(UserModel.findById).toHaveBeenCalledWith('1');
+            expect(ListingModel.findByIdAndDelete).toHaveBeenCalledWith('listing1');
+            expect(UserModel.findByIdAndDelete).toHaveBeenCalledWith('1');
+            expect(emailService.sendUserDeletedEmail).toHaveBeenCalledWith('test@example.com');
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ message: "User and associated listing (if any) deleted successfully" });
         });
     });
 

@@ -13,7 +13,7 @@ router.post('/authentication', authenticateUser);
 // Use query parameters for filtering users
 router.get('/housingseekers', getHousingSeekers);
 
-router.delete('/:id',deleteUserById);
+router.delete('/:id',tokenChecker,deleteUserById);
 
 router.get('/tags', getTags);
 router.get('/', getAllUsers);
