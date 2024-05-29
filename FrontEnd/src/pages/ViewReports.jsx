@@ -215,11 +215,11 @@ const ViewReports = () => {
                                 <h2 className={report.reportStatus=="in revisione"? `text-yellow-500 text-normal font-bold` : report.reportStatus=="risolto"? `text-green-500 text-normal font-bold` : `text-red-500 text-normal font-bold`
                                 }>{report.reportStatus}</h2>
                             </div>
-                            <div className='flex flex-col space-y-1 '>
+                            <div className='flex flex-col space-y-1 w-56'>
                                 <label htmlFor="">
                                     Descrizione:   
                                 </label>
-                                <p className='overflow-hidden w-11 h-5 '>{report.description}</p>
+                                <p className='overflow-hidden truncate h-5 text-sm '>{report.description}</p>
                             </div>
                             
                             </div>
@@ -289,11 +289,11 @@ const ViewReports = () => {
                                 <h2 className={report.reportStatus=="in revisione"? `text-yellow-500 text-normal font-bold` : report.reportStatus=="risolto"? `text-green-500 text-normal font-bold` : `text-red-500 text-normal font-bold`
                                 }>{report.reportStatus}</h2>
                             </div>
-                            <div className='flex flex-col space-y-1 '>
+                            <div className='flex flex-col space-y-1 w-56'>
                                 <label htmlFor="">
                                     Descrizione:   
                                 </label>
-                                <p className='overflow-hidden '>{report.description}</p>
+                                <p className='truncate  h-5 text-sm'>{report.description}</p>
                             </div>
                             </div>
                             <ReportDetails report={report}></ReportDetails>
@@ -362,11 +362,11 @@ const ViewReports = () => {
                                 <h2 className={report.reportStatus=="in revisione"? `text-yellow-500 text-normal font-bold` : report.reportStatus=="risolto"? `text-green-500 text-normal font-bold` : `text-red-500 text-normal font-bold`
                                 }>{report.reportStatus}</h2>
                             </div>
-                            <div className='flex flex-col space-y-1 '>
+                            <div className='flex flex-col space-y-1 w-56'>
                                 <label htmlFor="">
                                     Descrizione:   
                                 </label>
-                                <p className='overflow-hidden '>{report.description}</p>
+                                <p className='overflow-hidden truncate text-sm '>{report.description}</p>
                             </div>
                             </div>
                             <ReportDetails report={report}></ReportDetails>    

@@ -117,9 +117,7 @@ export default function ReportDetails({report}) {
                 <Button className="bg-blue-50 text-blue-950 font-bold rounded-md px-2 hover:bg-blue-800 hover:text-white hover:scale-105" onPress={onClose}>
                   Close
                 </Button>
-                <Button className="bg-blue-50 text-blue-950 font-bold rounded-md px-2 hover:bg-blue-800 hover:text-white hover:scale-105" onPress={onClose}>
-                  Action
-                </Button>
+                
               </ModalFooter>
             </>
           )}
