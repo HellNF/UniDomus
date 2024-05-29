@@ -9,7 +9,8 @@ const {
     getReviewingReports,
     getReportsByReporter,
     getReportsByTarget,
-    getSingleReportById
+    getSingleReportById,
+    updateReportRemove
 } = require('../controllers/reportController');
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.use(tokenChecker);
 
 // Definisci le route con i rispettivi controller
 router.post('/', createReport);
+
 router.get('/', getPendingReports); // Ottieni tutti i report in sospeso
 router.get('/resolved', getResolvedReports); // Ottieni tutti i report risolti
 router.get('/reviewing', getReviewingReports); // Ottieni tutti i report in revisione
@@ -30,5 +32,6 @@ router.get('/:id', getSingleReportById); // Ottieni un singolo report per ID
 // Route per aggiornare i report
 router.put('/review', updateReportReview); // Aggiorna il reviewerID, reviewDate e reportStatus
 router.put('/resolve', updateReportResolution); // Aggiorna resolvedDate e reportStatus
+router.put('/remove', updateReportRemove); // Aggiorna resolvedDate e reportStatus e reviwerID per rimuvovere l'admin della revisione del report
 
 module.exports = router;

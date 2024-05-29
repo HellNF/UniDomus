@@ -3,6 +3,7 @@ const ReportModel = require('../models/reportModel');
 const UserModel = require('../models/userModel');
 const MatchModel = require('../models/matchModel');
 const ListingModel = require('../models/listingModel');
+//const { report } = require('../routes/reportRoutes');
 
 async function validateTarget(reportType, targetID, messageID) {
     switch (reportType) {
@@ -75,10 +76,37 @@ async function createReport(req, res) {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+async function updateReportRemove(req, res) {
 
+    const  _id  = req.body.reportID;
+    console.log(_id);
+    try {
+        
+        const updatedReport = await ReportModel.findByIdAndUpdate(_id,{
+            reviewerID:null,
+            reviewDate: null,
+            reportStatus: reportStatusEnum.PENDING
+        }, { new: true });
+        console.log(updatedReport)
+        if (!updatedReport) {
+            return res.status(404).json({ message: "Report not found" });
+        }
+
+        return res.status(200).json({ message: "Report updated successfully", report: updatedReport });
+    } catch (error) {
+        console.error("Error updating report:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+    
+}
 async function updateReportReview(req, res) {
-    const { reportID, reviewerID, reportStatus } = req.body;
+    // const { reportID, reviewerID, reportStatus=reportStatusEnum.REVIEWING } = req.body;
+    const reportID= req.body.reportID;
+    const reviewerID= req.body.reviewerID;
+    const reportStatus= req.body.reportStatus || reportStatusEnum.REVIEWING;
+    console.log(reportID, reviewerID, reportStatus);
 
+    
     try {
         const updatedReport = await ReportModel.findByIdAndUpdate(reportID, {
             reviewerID,
@@ -109,7 +137,7 @@ async function updateReportResolution(req, res) {
         if (!updatedReport) {
             return res.status(404).json({ message: "Report not found" });
         }
-
+        console.log("Report updated successfully");
         return res.status(200).json({ message: "Report updated successfully", report: updatedReport });
     } catch (error) {
         console.error("Error updating report:", error);
@@ -139,9 +167,20 @@ async function getResolvedReports(req, res) {
 
 async function getReviewingReports(req, res) {
     const { adminID } = req.params;
+    console.log(`Admin ID: ${adminID}`);
+    console.log(`Expected report status: ${reportStatusEnum.REVIEWING}`);
 
     try {
-        const reviewingReports = await ReportModel.find({ reviewerID: adminID, reportStatus: reportStatusEnum.REVIEWING });
+        const query = {
+            reportStatus: reportStatusEnum.REVIEWING, // Usa il valore enum corretto
+            reviewerID: adminID
+            
+        };
+        
+
+        const reviewingReports = await ReportModel.find(query);
+        //console.log(`Reviewing Reports: ${reviewingReports}`);
+        
         return res.status(200).json({ reports: reviewingReports });
     } catch (error) {
         console.error("Error retrieving reviewing reports:", error);
@@ -198,5 +237,6 @@ module.exports = {
     getReviewingReports,
     getReportsByReporter,
     getReportsByTarget,
-    getSingleReportById
+    getSingleReportById,
+    updateReportRemove
 };

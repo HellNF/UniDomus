@@ -23,6 +23,7 @@ import ChatsList from './pages/ChatsList';
 import Chat from './components/Chat';
 import ChatApp from './pages/ChatApp';
 import ChatOld from './components/ChatOld';
+import ViewReports from './pages/ViewReports.jsx';
 
 const router = createBrowserRouter([
   {
@@ -112,6 +113,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <MatchDisplayer />
+      </Layout>
+    ),
+  },
+  {
+    path: '/reports',
+    element: (
+      <Layout>
+        <ViewReports></ViewReports>
       </Layout>
     ),
   },
