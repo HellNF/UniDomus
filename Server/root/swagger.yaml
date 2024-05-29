@@ -956,35 +956,215 @@ paths:
           description: Internal server error.
   /api/reports:
     post:
-      summary: Create a new report
-      description: Creates a new report for a user, listing, match, or message.
       tags:
-        - Reports
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Report'
+        - "Reports"
+      summary: "Create a new report"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Report object to be created"
+          required: true
+          schema:
+            $ref: "#/definitions/ReportInput"
       responses:
-        '201':
-          description: Report created successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Report created successfully
-                  report:
-                    $ref: '#/components/schemas/Report'
-        '400':
-          description: Invalid report type.
-        '404':
-          description: Reporter or target not found.
-        '500':
-          description: Internal server error.
+        201:
+          description: "Report created successfully"
+          schema:
+            $ref: "#/definitions/Report"
+        400:
+          description: "Invalid request"
+        404:
+          description: "Reporter or target not found"
+        500:
+          description: "Internal server error"
+    get:
+      tags:
+        - "Reports"
+      summary: "Get all pending reports"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ReportList"
+        500:
+          description: "Internal server error"
+  /api/reports/resolved:
+    get:
+      tags:
+        - "Reports"
+      summary: "Get all resolved reports"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ReportList"
+        500:
+          description: "Internal server error"
+  /api/reports/reviewing:
+    get:
+      tags:
+        - "Reports"
+      summary: "Get all reports currently under review"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ReportList"
+        500:
+          description: "Internal server error"
+  /api/reports/review:
+    put:
+      tags:
+        - "Reports"
+      summary: "Update a report by reviewing it"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Report object to be reviewed"
+          required: true
+          schema:
+            $ref: "#/definitions/ReviewInput"
+      responses:
+        200:
+          description: "Report reviewed successfully"
+          schema:
+            $ref: "#/definitions/Report"
+        400:
+          description: "Invalid request"
+        404:
+          description: "Report not found"
+        500:
+          description: "Internal server error"
+  /api/reports/resolve:
+    put:
+      tags:
+        - "Reports"
+      summary: "Update a report by resolving it"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Report object to be resolved"
+          required: true
+          schema:
+            $ref: "#/definitions/ResolveInput"
+      responses:
+        200:
+          description: "Report resolved successfully"
+          schema:
+            $ref: "#/definitions/Report"
+        400:
+          description: "Invalid request"
+        404:
+          description: "Report not found"
+        500:
+          description: "Internal server error"
+  /api/reports/remove:
+    put:
+      tags:
+        - "Reports"
+      summary: "Update a report by removing the reviewer and setting the status to pending"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Report object to be updated"
+          required: true
+          schema:
+            $ref: "#/definitions/RemoveInput"
+      responses:
+        200:
+          description: "Report updated successfully"
+          schema:
+            $ref: "#/definitions/Report"
+        400:
+          description: "Invalid request"
+        404:
+          description: "Report not found"
+        500:
+          description: "Internal server error"
+  /api/reports/reporter/{reporterID}:
+    get:
+      tags:
+        - "Reports"
+      summary: "Get reports by reporter ID"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "reporterID"
+          in: "path"
+          description: "ID of the reporter"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ReportList"
+        500:
+          description: "Internal server error"
+  /api/reports/target/{targetID}:
+    get:
+      tags:
+        - "Reports"
+      summary: "Get reports by target ID"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "targetID"
+          in: "path"
+          description: "ID of the target"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ReportList"
+        500:
+          description: "Internal server error"
+  /api/reports/{id}:
+    get:
+      tags:
+        - "Reports"
+      summary: "Get a single report by ID"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "ID of the report to retrieve"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Report"
+        404:
+          description: "Report not found"
+        500:
+          description: "Internal server error"
 
     
 

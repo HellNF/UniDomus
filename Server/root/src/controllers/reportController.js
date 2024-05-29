@@ -76,6 +76,12 @@ async function createReport(req, res) {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+/**
+ * Updates a report by removing the reviewer and review date, and setting the report status to pending.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves with the updated report or an error response.
+ */
 async function updateReportRemove(req, res) {
 
     const  _id  = req.body.reportID;
@@ -99,6 +105,13 @@ async function updateReportRemove(req, res) {
     }
     
 }
+/**
+ * Updates the review of a report.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object.
+ */
 async function updateReportReview(req, res) {
     // const { reportID, reviewerID, reportStatus=reportStatusEnum.REVIEWING } = req.body;
     const reportID= req.body.reportID;
@@ -125,6 +138,13 @@ async function updateReportReview(req, res) {
     }
 }
 
+/**
+ * Updates the resolution of a report.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object.
+ */
 async function updateReportResolution(req, res) {
     const { reportID, reportStatus } = req.body;
 
@@ -145,6 +165,12 @@ async function updateReportResolution(req, res) {
     }
 }
 
+/**
+ * Retrieves pending reports from the database.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object with the pending reports.
+ */
 async function getPendingReports(req, res) {
     try {
         const pendingReports = await ReportModel.find({ reportStatus: reportStatusEnum.PENDING });
@@ -155,6 +181,12 @@ async function getPendingReports(req, res) {
     }
 }
 
+/**
+ * Retrieves all resolved reports from the database.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object with the resolved reports.
+ */
 async function getResolvedReports(req, res) {
     try {
         const resolvedReports = await ReportModel.find({ reportStatus: reportStatusEnum.RESOLVED });
@@ -165,6 +197,12 @@ async function getResolvedReports(req, res) {
     }
 }
 
+/**
+ * Retrieves the reports that are currently being reviewed by an admin.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object containing the reviewing reports.
+ */
 async function getReviewingReports(req, res) {
     const { adminID } = req.params;
     console.log(`Admin ID: ${adminID}`);
@@ -188,6 +226,13 @@ async function getReviewingReports(req, res) {
     }
 }
 
+/**
+ * Retrieves reports by reporter ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object with the reports.
+ */
 async function getReportsByReporter(req, res) {
     const { reporterID } = req.params;
 
@@ -200,6 +245,13 @@ async function getReportsByReporter(req, res) {
     }
 }
 
+/**
+ * Retrieves reports by target ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The response object with reports or an error message.
+ */
 async function getReportsByTarget(req, res) {
     const { targetID } = req.params;
 
@@ -212,6 +264,13 @@ async function getReportsByTarget(req, res) {
     }
 }
 
+/**
+ * Retrieves a single report by its ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the report is retrieved.
+ */
 async function getSingleReportById(req, res) {
     const { id } = req.params;
 
@@ -238,5 +297,6 @@ module.exports = {
     getReportsByReporter,
     getReportsByTarget,
     getSingleReportById,
-    updateReportRemove
+    updateReportRemove,
+    validateTarget
 };
