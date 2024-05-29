@@ -132,6 +132,52 @@ async function sendPasswordResetEmail(recipientEmail, resetLink) {
 }
 
 /**
+ * Sends an email confirming user deletion.
+ * @param {string} recipientEmail - The recipient's email address.
+ */
+async function sendUserDeletedEmail(recipientEmail) {
+  const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+  const FRONTEND_BASE = process.env.FRONTEND_BASE;
+
+  sgMail.setApiKey(SENDGRID_API_KEY);
+
+  const msg = {
+      to: recipientEmail,
+      from: 'freezer.spa@gmail.com', // Change to your verified sender
+      subject: 'UniDomus Account Deletion Notification',
+      text: `Dear User,
+
+      We regret to inform you that your UniDomus account has been deleted due to non-compliance with our website's guidelines.
+
+      If you believe this was a mistake or have any questions, please contact our support team.
+
+      You can visit our website here: ${FRONTEND_BASE}
+
+      Sincerely,
+      The UniDomus Team`,
+      html: `
+      <p>Dear User,</p>
+      
+      <p>We regret to inform you that your UniDomus account has been deleted due to non-compliance with our website's guidelines.</p>
+      
+      <p>If you believe this was a mistake or have any questions, please contact our support team.</p>
+      
+      <p>You can visit our website here: <a href="${FRONTEND_BASE}">UniDomus</a></p>
+      
+      <p>Sincerely,</p>
+      <p>The UniDomus Team</p>
+      `,
+  };
+
+  try {
+      await sgMail.send(msg);
+      console.log('User deleted email sent successfully!');
+  } catch (error) {
+      console.error('Error sending user deleted email:', error);
+  }
+}
+
+/**
  * Sends an email with the notification details.
  * @param {string} recipientEmail - The recipient's email address.
  * @param {string} notificationType - The type of notification.
@@ -175,6 +221,7 @@ module.exports={
   sendEmail,
   sendConfirmationEmail,
   sendPasswordResetEmail,
-  sendNotificationEmail
+  sendNotificationEmail,
+  sendUserDeletedEmail
 };
 

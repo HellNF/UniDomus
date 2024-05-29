@@ -2,13 +2,14 @@
 
 const UserModel = require('../models/userModel');
 const TokenModel = require('../models/tokenModel'); // Import the Token model
+const ListingModel = require('../models/listingModel'); // Import the Listing model
 const { isEmailValid, isUsernameValid, isPasswordValid } = require('../validators/validationFunctions');
 const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistration, isPasswordCorrect, getUserByEmail } = require('../database/databaseQueries');
 const { generateRandomToken } = require('../utils/tokenUtils'); // Import the function to generate random token
 const { calculateDOBFromAge } = require('../utils/dateUtils');
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 require('dotenv').config() //to use environment variables
-const { sendConfirmationEmail,sendPasswordResetEmail } = require('../services/emailService'); // Import the function to send confirmation email
+const { sendConfirmationEmail,sendPasswordResetEmail,sendUserDeletedEmail } = require('../services/emailService'); // Import the function to send confirmation email
 const { hobbiesEnum, habitsEnum } = require('./../models/enums');
 const { OAuth2Client } = require('google-auth-library');
 
@@ -115,8 +116,11 @@ async function authenticateUser(req, res) {
 
         // user authenticated -> create a token
         var payload = { email: user.email, id: user._id ,username: user.username, isAdmin: user.isAdmin}
+
         var options = { expiresIn: 86400 } // expires in 24 hours
+
         var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
+
         return res.status(200).json({ success: true, message: 'Token returned', token: token, email: user.email, id: user._id, self: "api/users/authentication/" + user._id });
     } catch (error) {
         console.error("Error authenticating user:", error);
@@ -288,6 +292,48 @@ const updateUserById = async (req, res) => {
     }
 };
 
+
+/**
+ * Controller function to delete a user by ID and their associated listing.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function deleteUserById(req, res) {
+    try {
+        const { id } = req.params;
+
+        // Find the user by ID
+        const user = await UserModel.findById(id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Attempt to delete the associated listing if listingID exists
+        if (user.listingID) {
+            try {
+                await ListingModel.findByIdAndDelete(user.listingID);
+            } catch (listingError) {
+                console.error("Error deleting listing:", listingError);
+            }
+        }
+
+        // Delete the user
+        const deletedUser = await UserModel.findByIdAndDelete(id);
+        if (!deletedUser) {
+            return res.status(500).json({ message: "Error deleting user" });
+        }
+
+        await sendUserDeletedEmail(user.email);
+
+        return res.status(200).json({ message: "User and associated listing (if any) deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting user and listing:", error);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+}
+
+
 async function requestPasswordChange(req, res) {
     console.log(req.body)
     const { email } = req.body;
@@ -309,6 +355,7 @@ async function requestPasswordChange(req, res) {
 
         // Construct password reset link
         const base_url = process.env.FRONTEND_BASE;
+
         const resetLink = `${base_url}/resetpassword/${token}`;
 
         // Send password reset email to the usesr
@@ -336,6 +383,7 @@ async function updatePassword(req, res) {
   
       // Verify the token's expiration
       const tokenExpiration = new Date(tokenRecord.expiresAt);
+
       if (tokenExpiration < Date.now()) {
         // If token is expired, delete it from the database and return error
         await TokenModel.deleteOne({ token });
@@ -463,7 +511,8 @@ async function getUsersByUsername(req, res) {
         }
 
         // Utilizza la proiezione per includere solo i campi specifici e il primo elemento di proPic
-        const users = await User.find({ username: { $regex: username, $options: 'i' } })
+        const users = await User.find(
+            { username: { $regex: username, $options: 'i' } })
                                 .select('username proPic')
                                 .lean();
 
@@ -494,6 +543,7 @@ module.exports = {
     requestPasswordChange,
     getAllUsers,
     googleLogin,
-    getUsersByUsername
+    getUsersByUsername,
+    deleteUserById
 };
 

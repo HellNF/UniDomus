@@ -8,7 +8,7 @@ router.post('/', tokenChecker, addListing);
 
 router.put('/:id',updateListingById);
 
-router.delete('/:id',deleteListingById);
+router.delete('/:id',tokenChecker,deleteListingById);
 
 router.get('/', listings);
 router.get('/coordinates', addressToCoordinates);
