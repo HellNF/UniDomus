@@ -716,8 +716,7 @@ paths:
       tags:
         - Users
       summary: Ban a user by ID
-      description: Ban a user by their ID for a specified duration or permanently. Also bans the associated listing.
-      operationId: banUserById
+      description: Ban a user for a specified duration or permanently. This also bans the associated listing.
       parameters:
         - name: id
           in: path
@@ -726,6 +725,7 @@ paths:
           schema:
             type: string
       requestBody:
+        description: Details for banning the user
         required: true
         content:
           application/json:
@@ -734,14 +734,14 @@ paths:
               properties:
                 banTimeInSeconds:
                   type: integer
-                  description: The duration of the ban in seconds
+                  description: Duration of the ban in seconds
                   example: 3600
                 banPermanently:
                   type: boolean
-                  description: If true, bans the user permanently
-                  example: true
+                  description: Whether the ban is permanent
+                  example: false
       responses:
-        '200':
+        200:
           description: User and associated listing banned successfully
           content:
             application/json:
@@ -757,22 +757,25 @@ paths:
                       banTime:
                         type: string
                         format: date-time
-                        example: 2024-05-30T15:57:32.546Z
+                        example: 2024-05-30T22:57:52.722Z
                       banPermanently:
                         type: boolean
-                        example: true
+                        example: false
+                      prevBanNum:
+                        type: integer
+                        example: 3
                   listingBan:
                     type: object
                     properties:
                       banTime:
                         type: string
                         format: date-time
-                        example: 2024-05-30T15:57:32.546Z
+                        example: 2024-05-30T22:57:52.722Z
                       banPermanently:
                         type: boolean
-                        example: true
-        '400':
-          description: Invalid ban time provided
+                        example: false
+        400:
+          description: Invalid request
           content:
             application/json:
               schema:
@@ -781,8 +784,8 @@ paths:
                   message:
                     type: string
                     example: Invalid ban time provided
-        '404':
-          description: User or Listing not found
+        404:
+          description: User or listing not found
           content:
             application/json:
               schema:
@@ -790,8 +793,8 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: User or Listing not found
-        '500':
+                    example: User not found
+        500:
           description: Internal server error
           content:
             application/json:

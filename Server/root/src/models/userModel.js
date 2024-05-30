@@ -120,6 +120,10 @@ const userSchema = new mongoose.Schema({
         banPermanently:{
             type: Boolean,
             default: false
+        },
+        prevBanNum:{
+            type: Number,
+            default: 0
         }
     }
     

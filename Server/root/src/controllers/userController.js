@@ -358,10 +358,20 @@ async function banUserById(req, res) {
         let listingUpdateData = {};
         let updatedListing = null;
 
+        // Retrieve the user to check current ban details
+        const user = await UserModel.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Increment prevBanNum
+        const prevBanNum = user.ban.prevBanNum ? user.ban.prevBanNum + 1 : 1;
+
         if (banPermanently) {
             userUpdateData = {
                 'ban.banPermanently': true,
-                'ban.banTime': null
+                'ban.banTime': null,
+                'ban.prevBanNum': prevBanNum
             };
             listingUpdateData = {
                 'ban.banPermanently': true,
@@ -382,7 +392,8 @@ async function banUserById(req, res) {
 
             userUpdateData = {
                 'ban.banTime': banExpirationDate,
-                'ban.banPermanently': false
+                'ban.banPermanently': false,
+                'ban.prevBanNum': prevBanNum
             };
             listingUpdateData = {
                 'ban.banTime': banExpirationDate,
@@ -393,7 +404,7 @@ async function banUserById(req, res) {
         // Update the user's ban details using findByIdAndUpdate
         const updatedUser = await UserModel.findByIdAndUpdate(
             id,
-            userUpdateData,
+            { $set: userUpdateData },
             { new: true, runValidators: true } // Ensure validators run
         );
 
@@ -402,13 +413,13 @@ async function banUserById(req, res) {
         }
 
         // Send ban email to the user
-        await sendUserBannedEmail(updatedUser.email, banTimeInSeconds, banPermanently);
+        await sendUserBannedEmail(updatedUser.email, banTimeInSeconds, banPermanently,prevBanNum);
 
         // Update the associated listing's ban details if listingID exists
         if (updatedUser.listingID) {
             updatedListing = await ListingModel.findByIdAndUpdate(
                 updatedUser.listingID,
-                listingUpdateData,
+                { $set: listingUpdateData },
                 { new: true, runValidators: true } // Ensure validators run
             );
 
@@ -429,6 +440,9 @@ async function banUserById(req, res) {
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 }
+
+
+
 
 async function requestPasswordChange(req, res) {
     console.log(req.body)

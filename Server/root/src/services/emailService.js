@@ -179,14 +179,14 @@ async function sendUserDeletedEmail(recipientEmail) {
 }
 
 
-
 /**
 * Sends an email to a banned user informing them of the ban duration or if it is permanent.
 * @param {string} recipientEmail - The recipient's email address.
 * @param {number} banTimeInSeconds - The duration of the ban in seconds.
 * @param {boolean} banPermanently - Whether the ban is permanent.
+* @param {number} prevBanNum - The number of times the user has been banned previously.
 */
-async function sendUserBannedEmail(recipientEmail, banTimeInSeconds, banPermanently) {
+async function sendUserBannedEmail(recipientEmail, banTimeInSeconds, banPermanently, prevBanNum) {
   const FRONTEND_BASE = process.env.FRONTEND_BASE;
   const banDuration = banPermanently ? 'permanently' : convertSecondsToDHMS(banTimeInSeconds);
   const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
@@ -201,6 +201,8 @@ async function sendUserBannedEmail(recipientEmail, banTimeInSeconds, banPermanen
 
       We regret to inform you that your UniDomus account has been banned ${banPermanently ? 'permanently' : `for the following duration: ${banDuration}`}.
 
+      This is the ${prevBanNum}° time you have been banned.
+
       If you believe this was a mistake or have any questions, please contact our support team.
 
       You can visit our homepage here: ${FRONTEND_BASE}
@@ -211,6 +213,8 @@ async function sendUserBannedEmail(recipientEmail, banTimeInSeconds, banPermanen
       <p>Dear User,</p>
       
       <p>We regret to inform you that your UniDomus account has been banned ${banPermanently ? 'permanently' : `for the following duration: <strong>${banDuration}</strong>`}.</p>
+      
+      <p>This is the <strong>${prevBanNum}</strong>° time you have been banned.</p>
       
       <p>If you believe this was a mistake or have any questions, please contact our support team.</p>
       
@@ -228,7 +232,6 @@ async function sendUserBannedEmail(recipientEmail, banTimeInSeconds, banPermanen
       console.error('Error sending user banned email:', error);
   }
 }
-
 
 /**
  * Sends an email with the notification details.
