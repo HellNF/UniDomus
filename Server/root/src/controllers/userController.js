@@ -537,6 +537,57 @@ async function getBannedUsers(req, res) {
     }
 }
 
+/**
+ * Controller function to unban a user by ID.
+ * Also unbans the associated listing if any.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function unbanUserById(req, res) {
+    try {
+        const { id } = req.params;
+        const currentTime = new Date();
+        const twoHoursLater = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000);
+
+        // Find the user by ID
+        const user = await UserModel.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Check if the user is banned (permanently or temporarily)
+        const isBanned = user.ban.banPermanently || (user.ban.banTime && user.ban.banTime > twoHoursLater);
+        if (!isBanned) {
+            return res.status(400).json({ message: "User is not banned" });
+        }
+
+        // Unban the user
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            id,
+            { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
+            { new: true }
+        );
+
+        // If the user has an associated listing, unban the listing
+        let updatedListing = null;
+        if (user.listingID) {
+            updatedListing = await ListingModel.findByIdAndUpdate(
+                user.listingID,
+                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
+                { new: true }
+            );
+        }
+
+        console.log(`User and associated listing unbanned successfully`);
+        return res.status(200).json({
+            message: "User and associated listing unbanned successfully"
+        });
+    } catch (error) {
+        console.error("Error unbanning user and listing:", error);
+        return res.status(500).json({ message: "Error unbanning user and listing", error: error.message });
+    }
+}
+
 
 
  /**
@@ -700,6 +751,7 @@ module.exports = {
     getUsersByUsername,
     deleteUserById,
     banUserById,
-    getBannedUsers
+    getBannedUsers,
+    unbanUserById
 };
 
