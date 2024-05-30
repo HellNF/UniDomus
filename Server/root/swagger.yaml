@@ -803,7 +803,41 @@ paths:
                     example: Internal server error
                   error:
                     type: string
-                    example: Error details    
+                    example: Error details
+  /api/users/ban:
+    get:
+      tags:
+        - Users
+      summary: Get all banned users
+      description: Retrieve all users who are either permanently or temporarily banned.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+                    example: Banned users retrieved successfully
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error retrieving banned users
+                  error:
+                    type: string
+                    example: Internal server error details   
   /api/users/forgotpassword:
    post:
     summary: Forgot password

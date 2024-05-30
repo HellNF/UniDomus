@@ -593,6 +593,57 @@ describe('UserController', () => {
         });
     });
 
+    describe('GET /api/users/banned', () => {
+        it('should return a list of banned users', async () => {
+            const banTime = new Date(Date.now() + 3600 * 1000) 
+            const mockUsers = [
+                { _id: '1', email: 'user1@example.com', ban: { banPermanently: true } },
+                { _id: '2', email: 'user2@example.com', ban: { banTime: banTime.toString()} }
+            ];
+    
+            jest.spyOn(UserModel, 'find').mockResolvedValue(mockUsers);
+    
+            const response = await request(app).get('/api/users/ban');
+    
+            console.log('Response status:', response.status);
+            console.log('Response body:', response.body);
+    
+            expect(response.status).toBe(200);
+            expect(response.body.users).toEqual([{"_id": "1",
+             "ban": {"banPermanently": true},
+             "email": "user1@example.com"},
+             {"_id": "2",
+             "ban": {"banTime": banTime.toString()},
+             "email": "user2@example.com"
+            }]);
+        });
+    
+        it('should return an empty list if no banned users are found', async () => {
+            jest.spyOn(UserModel, 'find').mockResolvedValue([]);
+    
+            const response = await request(app).get('/api/users/ban');
+    
+            console.log('Response status:', response.status);
+            console.log('Response body:', response.body);
+    
+            expect(response.status).toBe(200);
+            expect(response.body.users).toEqual([]);
+            expect(response.body.message).toBe("No banned users found");
+        });
+    
+        it('should return 500 if there is an internal server error', async () => {
+            jest.spyOn(UserModel, 'find').mockRejectedValue(new Error('Database error'));
+    
+            const response = await request(app).get('/api/users/ban');
+    
+            console.log('Response status:', response.status);
+            console.log('Response body:', response.body);
+    
+            expect(response.status).toBe(500);
+            expect(response.body.message).toBe('Error retrieving banned users');
+            expect(response.body.error).toBe('Database error');
+        });
+    });
     describe('PUT /api/users/:id/ban', () => {
         it('should ban a user and their listing for a specified duration', async () => {
             const mockUser = {
