@@ -101,6 +101,15 @@ const listingSchema = new mongoose.Schema({
     type: Date,
     default: () => Date.now()  + (2 * 60 * 60 * 1000),
     immutable: true
+  },
+  ban: {
+      banTime: { 
+          type: Date 
+      },
+      banPermanently:{
+          type: Boolean,
+          default: false
+      }
   }
 });
 

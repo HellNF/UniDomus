@@ -112,7 +112,17 @@ const userSchema = new mongoose.Schema({
             ref: 'Match'
         }],
         default: []
+    },
+    ban: {
+        banTime: { 
+            type: Date 
+        },
+        banPermanently:{
+            type: Boolean,
+            default: false
+        }
     }
+    
 });
 
 // Pre-save hook to hash the password before saving

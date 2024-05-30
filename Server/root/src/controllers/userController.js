@@ -4,12 +4,19 @@ const UserModel = require('../models/userModel');
 const TokenModel = require('../models/tokenModel'); // Import the Token model
 const ListingModel = require('../models/listingModel'); // Import the Listing model
 const { isEmailValid, isUsernameValid, isPasswordValid } = require('../validators/validationFunctions');
-const { isEmailAlreadyRegistered, isUsernameAlreadyTaken, isEmailPendingRegistration, isPasswordCorrect, getUserByEmail } = require('../database/databaseQueries');
+const { isEmailAlreadyRegistered, 
+    isUsernameAlreadyTaken, 
+    isEmailPendingRegistration, 
+    isPasswordCorrect, 
+    getUserByEmail } = require('../database/databaseQueries');
 const { generateRandomToken } = require('../utils/tokenUtils'); // Import the function to generate random token
 const { calculateDOBFromAge } = require('../utils/dateUtils');
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 require('dotenv').config() //to use environment variables
-const { sendConfirmationEmail,sendPasswordResetEmail,sendUserDeletedEmail } = require('../services/emailService'); // Import the function to send confirmation email
+const { sendConfirmationEmail,
+    sendPasswordResetEmail,
+    sendUserDeletedEmail,
+    sendUserBannedEmail } = require('../services/emailService'); // Import the function to send confirmation email
 const { hobbiesEnum, habitsEnum } = require('./../models/enums');
 const { OAuth2Client } = require('google-auth-library');
 
@@ -334,6 +341,95 @@ async function deleteUserById(req, res) {
 }
 
 
+
+
+/**
+ * Controller function to ban a user by ID for a specified duration or permanently.
+ * Also bans the associated listing.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function banUserById(req, res) {
+    try {
+        const { id } = req.params;
+        const { banTimeInSeconds, banPermanently } = req.body;
+
+        let userUpdateData = {};
+        let listingUpdateData = {};
+        let updatedListing = null;
+
+        if (banPermanently) {
+            userUpdateData = {
+                'ban.banPermanently': true,
+                'ban.banTime': null
+            };
+            listingUpdateData = {
+                'ban.banPermanently': true,
+                'ban.banTime': null
+            };
+        } else {
+            if (!banTimeInSeconds || isNaN(banTimeInSeconds) || banTimeInSeconds <= 0) {
+                return res.status(400).json({ message: "Invalid ban time provided" });
+            }
+
+            console.log(`Banning user with ID: ${id} for ${banTimeInSeconds} seconds plus 2 hours`);
+
+            // Calculate the ban expiration date by adding banTimeInSeconds and additional 2 hours (7200 seconds)
+            const totalBanTimeInSeconds = banTimeInSeconds + 7200;
+            const banExpirationDate = new Date(Date.now() + totalBanTimeInSeconds * 1000);
+
+            console.log(`Calculated ban expiration date: ${banExpirationDate}`);
+
+            userUpdateData = {
+                'ban.banTime': banExpirationDate,
+                'ban.banPermanently': false
+            };
+            listingUpdateData = {
+                'ban.banTime': banExpirationDate,
+                'ban.banPermanently': false
+            };
+        }
+
+        // Update the user's ban details using findByIdAndUpdate
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            id,
+            userUpdateData,
+            { new: true, runValidators: true } // Ensure validators run
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Send ban email to the user
+        await sendUserBannedEmail(updatedUser.email, banTimeInSeconds, banPermanently);
+
+        // Update the associated listing's ban details if listingID exists
+        if (updatedUser.listingID) {
+            updatedListing = await ListingModel.findByIdAndUpdate(
+                updatedUser.listingID,
+                listingUpdateData,
+                { new: true, runValidators: true } // Ensure validators run
+            );
+
+            if (!updatedListing) {
+                return res.status(404).json({ message: "Listing not found" });
+            }
+        }
+
+        console.log(`User and associated listing updated successfully`);
+
+        return res.status(200).json({ 
+            message: "User and associated listing banned successfully", 
+            userBan: updatedUser.ban, 
+            listingBan: updatedListing ? updatedListing.ban : null 
+        });
+    } catch (error) {
+        console.error("Error banning user and listing:", error);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+}
+
 async function requestPasswordChange(req, res) {
     console.log(req.body)
     const { email } = req.body;
@@ -544,6 +640,7 @@ module.exports = {
     getAllUsers,
     googleLogin,
     getUsersByUsername,
-    deleteUserById
+    deleteUserById,
+    banUserById
 };
 

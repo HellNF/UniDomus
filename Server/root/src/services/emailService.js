@@ -1,6 +1,7 @@
 //services/emailService.js
 require('dotenv').config({ path: '../../.env' });
 const sgMail = require('@sendgrid/mail');
+const { convertSecondsToDHMS } = require('../utils/dateUtils');
 
 /**
  * Sends an email.
@@ -177,6 +178,58 @@ async function sendUserDeletedEmail(recipientEmail) {
   }
 }
 
+
+
+/**
+* Sends an email to a banned user informing them of the ban duration or if it is permanent.
+* @param {string} recipientEmail - The recipient's email address.
+* @param {number} banTimeInSeconds - The duration of the ban in seconds.
+* @param {boolean} banPermanently - Whether the ban is permanent.
+*/
+async function sendUserBannedEmail(recipientEmail, banTimeInSeconds, banPermanently) {
+  const FRONTEND_BASE = process.env.FRONTEND_BASE;
+  const banDuration = banPermanently ? 'permanently' : convertSecondsToDHMS(banTimeInSeconds);
+  const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+
+  sgMail.setApiKey(SENDGRID_API_KEY);
+
+  const msg = {
+      to: recipientEmail,
+      from: 'freezer.spa@gmail.com', // Change to your verified sender
+      subject: 'UniDomus Account Ban Notification',
+      text: `Dear User,
+
+      We regret to inform you that your UniDomus account has been banned ${banPermanently ? 'permanently' : `for the following duration: ${banDuration}`}.
+
+      If you believe this was a mistake or have any questions, please contact our support team.
+
+      You can visit our homepage here: ${FRONTEND_BASE}
+
+      Sincerely,
+      The UniDomus Team`,
+      html: `
+      <p>Dear User,</p>
+      
+      <p>We regret to inform you that your UniDomus account has been banned ${banPermanently ? 'permanently' : `for the following duration: <strong>${banDuration}</strong>`}.</p>
+      
+      <p>If you believe this was a mistake or have any questions, please contact our support team.</p>
+      
+      <p>You can visit our homepage here: <a href="${FRONTEND_BASE}">UniDomus</a></p>
+      
+      <p>Sincerely,</p>
+      <p>The UniDomus Team</p>
+      `,
+  };
+
+  try {
+      await sgMail.send(msg);
+      console.log('User banned email sent successfully!');
+  } catch (error) {
+      console.error('Error sending user banned email:', error);
+  }
+}
+
+
 /**
  * Sends an email with the notification details.
  * @param {string} recipientEmail - The recipient's email address.
@@ -222,6 +275,7 @@ module.exports={
   sendConfirmationEmail,
   sendPasswordResetEmail,
   sendNotificationEmail,
-  sendUserDeletedEmail
+  sendUserDeletedEmail,
+  sendUserBannedEmail
 };
 
