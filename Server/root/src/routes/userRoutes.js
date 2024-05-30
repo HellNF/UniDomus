@@ -14,7 +14,8 @@ const {
     googleLogin,
     getUsersByUsername,
     deleteUserById,
-    banUserById 
+    banUserById,
+    getBannedUsers 
 } = require('../controllers/userController');
 
 const tokenChecker = require('../middleware/tokenChecker');
@@ -30,7 +31,9 @@ router.get('/housingseekers', getHousingSeekers);
 
 router.delete('/:id',tokenChecker,deleteUserById);
 
-router.put('/:id/ban',tokenChecker,banUserById);
+router.put('/:id/ban',banUserById);
+
+router.get('/ban',getBannedUsers);
 
 
 router.get('/tags', getTags);

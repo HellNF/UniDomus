@@ -464,6 +464,8 @@ async function requestPasswordChange(req, res) {
     }
 }
 
+
+
 async function updatePassword(req, res) {
     const { token } = req.params;
     const { password } = req.body;
@@ -502,6 +504,40 @@ async function updatePassword(req, res) {
       return res.status(500).json({ message: 'Internal server error' });
     }
   }
+
+
+
+  /**
+ * Controller function to get all banned users, both permanently and temporarily.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function getBannedUsers(req, res) {
+    try {
+    
+        const currentTime = new Date();
+        const twoHoursLater = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000); 
+        const bannedUsers = await UserModel.find({
+            $or: [
+                { 'ban.banPermanently': true },
+                { 'ban.banTime': { $gt: twoHoursLater } }
+            ]
+        });
+
+        if (!bannedUsers || bannedUsers.length === 0) {
+            console.log("No banned users found.");
+            return res.status(200).json({ message: "No banned users found", users: [] });
+        }
+
+        console.log("Banned users retrieved successfully.");
+        return res.status(200).json({ users: bannedUsers });
+    } catch (error) {
+        console.error("Error retrieving banned users:", error);
+        return res.status(500).json({ message: "Error retrieving banned users", error: error.message });
+    }
+}
+
+
 
  /**
  * Controller function for retrieving housing seekers with filters, excluding banned users.
@@ -663,6 +699,7 @@ module.exports = {
     googleLogin,
     getUsersByUsername,
     deleteUserById,
-    banUserById
+    banUserById,
+    getBannedUsers
 };
 
