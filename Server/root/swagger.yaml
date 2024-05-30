@@ -710,7 +710,100 @@ paths:
                     example: Internal server error
                   error:
                     type: string
-                    example: Error details      
+                    example: Error details  
+  /api/users/{id}/ban:
+    put:
+      tags:
+        - Users
+      summary: Ban a user by ID
+      description: Ban a user by their ID for a specified duration or permanently. Also bans the associated listing.
+      operationId: banUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the user to ban
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                banTimeInSeconds:
+                  type: integer
+                  description: The duration of the ban in seconds
+                  example: 3600
+                banPermanently:
+                  type: boolean
+                  description: If true, bans the user permanently
+                  example: true
+      responses:
+        '200':
+          description: User and associated listing banned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User and associated listing banned successfully
+                  userBan:
+                    type: object
+                    properties:
+                      banTime:
+                        type: string
+                        format: date-time
+                        example: 2024-05-30T15:57:32.546Z
+                      banPermanently:
+                        type: boolean
+                        example: true
+                  listingBan:
+                    type: object
+                    properties:
+                      banTime:
+                        type: string
+                        format: date-time
+                        example: 2024-05-30T15:57:32.546Z
+                      banPermanently:
+                        type: boolean
+                        example: true
+        '400':
+          description: Invalid ban time provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid ban time provided
+        '404':
+          description: User or Listing not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User or Listing not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+                  error:
+                    type: string
+                    example: Error details    
   /api/users/forgotpassword:
    post:
     summary: Forgot password
