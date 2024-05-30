@@ -592,4 +592,185 @@ describe('UserController', () => {
             expect(response.body).toEqual({ message: 'Internal server error' });
         });
     });
+
+    describe('PUT /api/users/:id/ban', () => {
+        it('should ban a user and their listing for a specified duration', async () => {
+            const mockUser = {
+                _id: '1',
+                email: 'test@example.com',
+                listingID: 'listing1',
+                ban: {}
+            };
+
+            const mockListing = {
+                _id: 'listing1',
+                ban: {}
+            };
+
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue({
+                ...mockUser,
+                ban: {
+                    banTime: new Date(Date.now() + (3600 + 7200) * 1000),
+                    banPermanently: false
+                }
+            });
+
+            jest.spyOn(UserModel, 'findById').mockResolvedValue(mockUser);
+            jest.spyOn(ListingModel, 'findByIdAndUpdate').mockResolvedValue({
+                ...mockListing,
+                ban: {
+                    banTime: new Date(Date.now() + (3600 + 7200) * 1000),
+                    banPermanently: false
+                }
+            });
+
+            jest.spyOn(emailService, 'sendUserBannedEmail').mockResolvedValue({});
+
+            const response = await request(app)
+                .put('/api/users/1/ban')
+                .send({ banTimeInSeconds: 3600, banPermanently: false });
+
+            expect(UserModel.findByIdAndUpdate).toHaveBeenCalledWith(
+                '1',
+                {
+                    'ban.banTime': expect.any(Date),
+                    'ban.banPermanently': false
+                },
+                { new: true, runValidators: true }
+            );
+
+            expect(ListingModel.findByIdAndUpdate).toHaveBeenCalledWith(
+                'listing1',
+                {
+                    'ban.banTime': expect.any(Date),
+                    'ban.banPermanently': false
+                },
+                { new: true, runValidators: true }
+            );
+
+            expect(emailService.sendUserBannedEmail).toHaveBeenCalledWith(
+                'test@example.com',
+                3600,
+                false
+            );
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                message: "User and associated listing banned successfully",
+                userBan: {
+                    banTime: expect.any(String),
+                    banPermanently: false
+                },
+                listingBan: {
+                    banTime: expect.any(String),
+                    banPermanently: false
+                }
+            });
+        });
+
+        it('should ban a user and their listing permanently', async () => {
+            const mockUser = {
+                _id: '1',
+                email: 'test@example.com',
+                listingID: 'listing1',
+                ban: {}
+            };
+
+            const mockListing = {
+                _id: 'listing1',
+                ban: {}
+            };
+
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue({
+                ...mockUser,
+                ban: {
+                    banTime: null,
+                    banPermanently: true
+                }
+            });
+
+            jest.spyOn(UserModel, 'findById').mockResolvedValue(mockUser);
+            jest.spyOn(ListingModel, 'findByIdAndUpdate').mockResolvedValue({
+                ...mockListing,
+                ban: {
+                    banTime: null,
+                    banPermanently: true
+                }
+            });
+
+            jest.spyOn(emailService, 'sendUserBannedEmail').mockResolvedValue({});
+
+            const response = await request(app)
+                .put('/api/users/1/ban')
+                .send({ banPermanently: true });
+
+            expect(UserModel.findByIdAndUpdate).toHaveBeenCalledWith(
+                '1',
+                {
+                    'ban.banPermanently': true,
+                    'ban.banTime': null
+                },
+                { new: true, runValidators: true }
+            );
+
+            expect(ListingModel.findByIdAndUpdate).toHaveBeenCalledWith(
+                'listing1',
+                {
+                    'ban.banPermanently': true,
+                    'ban.banTime': null
+                },
+                { new: true, runValidators: true }
+            );
+
+            expect(emailService.sendUserBannedEmail).toHaveBeenCalledWith(
+                'test@example.com',
+                undefined,
+                true
+            );
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                message: "User and associated listing banned successfully",
+                userBan: {
+                    banTime: null,
+                    banPermanently: true
+                },
+                listingBan: {
+                    banTime: null,
+                    banPermanently: true
+                }
+            });
+        });
+
+        it('should return 404 if user is not found', async () => {
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue(null);
+
+            const response = await request(app)
+                .put('/api/users/1/ban')
+                .send({ banTimeInSeconds: 3600, banPermanently: false });
+
+            expect(response.status).toBe(404);
+            expect(response.body).toEqual({ message: "User not found" });
+        });
+
+        it('should return 500 on internal server error', async () => {
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .put('/api/users/1/ban')
+                .send({ banTimeInSeconds: 3600, banPermanently: false });
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: "Internal server error", error: 'Database error' });
+        });
+
+        it('should return 400 for invalid ban time', async () => {
+            const response = await request(app)
+                .put('/api/users/1/ban')
+                .send({ banTimeInSeconds: -1, banPermanently: false });
+
+            expect(response.status).toBe(400);
+            expect(response.body).toEqual({ message: "Invalid ban time provided" });
+        });
+    });
 });

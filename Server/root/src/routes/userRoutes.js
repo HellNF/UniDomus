@@ -30,7 +30,7 @@ router.get('/housingseekers', getHousingSeekers);
 
 router.delete('/:id',tokenChecker,deleteUserById);
 
-router.put('/ban/:id',banUserById);
+router.put('/:id/ban',tokenChecker,banUserById);
 
 
 router.get('/tags', getTags);
