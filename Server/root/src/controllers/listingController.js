@@ -15,7 +15,7 @@ async function listings(req, res) {
     try {
         // Step 1: Parse query parameters
         let query = {};
-        const { priceMin, priceMax, typology, city, floorAreaMin, floorAreaMax } = req.query;
+        const { priceMin, priceMax, typology, city, floorAreaMin, floorAreaMax, banned } = req.query;
 
         // Step 2: Construct the query object
         if (priceMin || priceMax) {
@@ -39,8 +39,25 @@ async function listings(req, res) {
             query['address.city'] = city;
         }
 
-        // Step 3: Execute the query with filters
-        const listings = await Listing.find(query);
+        // Step 3: Add the ban filter to the query based on the banned parameter
+        const currentTime = new Date();
+        const twoHoursLater = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000); 
+
+        if (banned === 'true') {
+            query.$or = [
+                { 'ban.banPermanently': true },
+                { 'ban.banTime': { $gt: twoHoursLater } }
+            ];
+        } else if (banned === 'false') {
+            query.$or = [
+                { 'ban.banPermanently': { $ne: true } },
+                { 'ban.banTime': { $lte: twoHoursLater } },
+                { 'ban': { $exists: false } }
+            ];
+        }
+
+        // Step 4: Execute the query with filters
+        let listings = await Listing.find(query);
 
         if (!listings.length) {
             console.log("Filtered query returned no listings.");
@@ -55,6 +72,8 @@ async function listings(req, res) {
         return res.status(500).json({ message: "Error retrieving listings", error: error.message });
     }
 }
+
+
 
 /**
  * Controller function for adding a new listing.

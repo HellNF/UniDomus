@@ -32,9 +32,11 @@ import { API_BASE_URL } from "../constant";
             priceMax: prices[1],
             floorAreaMin: floorArea[0],
             floorAreaMax: floorArea[1],
+            banned: false
         }))
         .then((res)=>{
             if(res.ok){
+            
                 res.json().then((json)=>{
                     setAddressCordinates([
                         ...json.data
@@ -49,8 +51,6 @@ import { API_BASE_URL } from "../constant";
         .catch(error => {
             console.error('Error fetching coordinates data:', error);
         });
-        
-        
     }
     function fetchListings(){
         fetch(`${API_BASE_URL}listings?`+ new URLSearchParams({
@@ -59,10 +59,10 @@ import { API_BASE_URL } from "../constant";
             priceMax: prices[1],
             floorAreaMin: floorArea[0],
             floorAreaMax: floorArea[1],
+            banned: false
         }))
         .then(response => response.json())
         .then(data => {
-            
             setListings(data.listings)
             
         })

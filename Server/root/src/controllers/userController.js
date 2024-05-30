@@ -503,7 +503,12 @@ async function updatePassword(req, res) {
     }
   }
 
-  async function getHousingSeekers(req, res) {
+ /**
+ * Controller function for retrieving housing seekers with filters, excluding banned users.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function getHousingSeekers(req, res) {
     try {
         const { etaMin, etaMax, gender, hobbies, habits } = req.query;
 
@@ -533,16 +538,33 @@ async function updatePassword(req, res) {
             query.habits = { $all: habits };
         }
 
+        // Exclude banned users
+        const currentTime = new Date();
+        const twoHoursLater = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000); 
+        query.$and = [
+            {
+                $or: [
+                    { 'ban.banPermanently': { $ne: true } },
+                    { 'ban.banPermanently': { $exists: false } }
+                ]
+            },
+            {
+                $or: [
+                    { 'ban.banTime': { $lte: twoHoursLater } },
+                    { 'ban.banTime': { $exists: false } }
+                ]
+            }
+        ];
+
         const users = await User.find(query);
 
-        console.log("Users retrieved successfully.");
+        console.log("Housing seekers retrieved successfully.");
         return res.status(200).json({ users });
     } catch (error) {
-        console.error("Error retrieving users:", error);
-        return res.status(500).json({ message: "Error retrieving users", error: error.message });
+        console.error("Error retrieving housing seekers:", error);
+        return res.status(500).json({ message: "Error retrieving housing seekers", error: error.message });
     }
 }
-
 
 async function googleLogin(req, res) {
     try {
