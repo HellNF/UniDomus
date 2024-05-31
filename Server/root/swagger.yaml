@@ -266,6 +266,151 @@ paths:
       summary: Update listing by ID
       tags:
       - Listings
+  /api/listings/{id}/ban:
+    put:
+      summary: Ban a listing by ID for a specified duration or permanently
+      description: Ban a listing by ID for a specified duration or permanently.
+      tags:
+        - Listings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the listing to ban
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                banTimeInSeconds:
+                  type: integer
+                  description: The duration of the ban in seconds
+                  example: 3600
+                banPermanently:
+                  type: boolean
+                  description: Whether the ban is permanent
+                  example: false
+                banMsg:
+                  type: string
+                  description: The message explaining the reason for the ban
+                  example: "Violation of terms"
+      responses:
+        '200':
+          description: Listing banned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Listing banned successfully"
+                  listingBan:
+                    type: object
+                    properties:
+                      banTime:
+                        type: string
+                        format: date-time
+                      banPermanently:
+                        type: boolean
+                      prevBanNum:
+                        type: integer
+                      banMsg:
+                        type: string
+        '400':
+          description: Invalid ban time provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid ban time provided"
+        '404':
+          description: Listing not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Listing not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+                  error:
+                    type: string
+                    example: "Database error"
+  /api/listings/{id}/unban:
+    put:
+      summary: Unban a listing by ID
+      description: Unban a listing by ID.
+      tags:
+        - Listings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the listing to unban
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Listing unbanned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Listing unbanned successfully"
+        '400':
+          description: Listing is not banned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Listing is not banned"
+        '404':
+          description: Listing not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Listing not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error unbanning listing"
+                  error:
+                    type: string
+                    example: "Database error"
   /api/listings/coordinates:
     get:
       summary: Convert addresses to coordinates
@@ -797,22 +942,41 @@ paths:
           description: Invalid or expired token.
         '500':
           description: Internal server error occurred.
-  /api/users/{id}/unban:
+  /api/users/{id}/ban:
     put:
+      summary: Ban a user and their associated listing
+      description: Ban a user by ID for a specified duration or permanently. Also bans the associated listing.
       tags:
         - Users
-      summary: Unban a user by ID
-      description: Unban a user and their associated listing if any.
       parameters:
         - name: id
           in: path
           required: true
-          description: ID of the user to unban
+          description: The ID of the user to ban
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                banTimeInSeconds:
+                  type: integer
+                  description: The duration of the ban in seconds
+                  example: 3600
+                banPermanently:
+                  type: boolean
+                  description: Whether the ban is permanent
+                  example: false
+                banMsg:
+                  type: string
+                  description: The message explaining the reason for the ban
+                  example: "Violation of terms"
       responses:
-        200:
-          description: User and associated listing unbanned successfully
+        '200':
+          description: User and associated listing banned successfully
           content:
             application/json:
               schema:
@@ -820,9 +984,29 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: User and associated listing unbanned successfully
-        400:
-          description: Invalid request
+                    example: "User and associated listing banned successfully"
+                  userBan:
+                    type: object
+                    properties:
+                      banTime:
+                        type: string
+                        format: date-time
+                      banPermanently:
+                        type: boolean
+                      prevBanNum:
+                        type: integer
+                      banMsg:
+                        type: string
+                  listingBan:
+                    type: object
+                    properties:
+                      banTime:
+                        type: string
+                        format: date-time
+                      banPermanently:
+                        type: boolean
+        '400':
+          description: Invalid ban time provided
           content:
             application/json:
               schema:
@@ -830,9 +1014,9 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: User is not banned
-        404:
-          description: User or listing not found
+                    example: "Invalid ban time provided"
+        '404':
+          description: User not found
           content:
             application/json:
               schema:
@@ -840,8 +1024,8 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: User not found
-        500:
+                    example: "User not found"
+        '500':
           description: Internal server error
           content:
             application/json:
@@ -850,10 +1034,68 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Internal server error
+                    example: "Internal server error"
                   error:
                     type: string
-                    example: Error details
+                    example: "Database error"
+
+  /api/users/{id}/unban:
+    put:
+      summary: Unban a user and their associated listing
+      description: Unban a user by ID. Also unbans the associated listing if any.
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to unban
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User and associated listing unbanned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User and associated listing unbanned successfully"
+        '400':
+          description: User is not banned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User is not banned"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error unbanning user and listing"
+                  error:
+                    type: string
+                    example: "Database error"
   /api/matches:
     post:
       summary: Create a new match
@@ -1538,6 +1780,25 @@ components:
         publicationDate:
           type: string
           format: date-time
+        ban:
+          type: object
+          properties:
+            banTime:
+              type: string
+              format: date-time
+              description: The time until the ban lasts.
+            banPermanently:
+              type: boolean
+              default: false
+              description: Indicates if the listing is banned permanently.
+            prevBanNum:
+              type: integer
+              default: 0
+              description: The number of previous bans.
+            banMsg:
+              type: string
+              maxLength: 500
+              description: The message explaining the reason for the ban.
 
     User:
       type: object
@@ -1613,6 +1874,25 @@ components:
             type: string
             format: uuid
           description: The IDs of the matches associated with the user.
+        ban:
+          type: object
+          properties:
+            banTime:
+              type: string
+              format: date-time
+              description: The time until the ban lasts.
+            banPermanently:
+              type: boolean
+              default: false
+              description: Indicates if the user is banned permanently.
+            prevBanNum:
+              type: integer
+              default: 0
+              description: The number of previous bans.
+            banMsg:
+              type: string
+              maxLength: 500
+              description: The message explaining the reason for the ban.
 
     Match:
       type: object

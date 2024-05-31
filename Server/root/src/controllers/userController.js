@@ -345,103 +345,6 @@ async function deleteUserById(req, res) {
 
 
 
-/**
- * Controller function to ban a user by ID for a specified duration or permanently.
- * Also bans the associated listing.
- * @param {Request} req - The Express request object.
- * @param {Response} res - The Express response object.
- */
-async function banUserById(req, res) {
-    try {
-        const { id } = req.params;
-        const { banTimeInSeconds, banPermanently } = req.body;
-
-        let userUpdateData = {};
-        let listingUpdateData = {};
-        let updatedListing = null;
-
-        // Retrieve the user to check current ban details
-        const user = await UserModel.findById(id);
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        // Increment prevBanNum
-        const prevBanNum = user.ban.prevBanNum ? user.ban.prevBanNum + 1 : 1;
-
-        if (banPermanently) {
-            userUpdateData = {
-                'ban.banPermanently': true,
-                'ban.banTime': null,
-                'ban.prevBanNum': prevBanNum
-            };
-            listingUpdateData = {
-                'ban.banPermanently': true,
-                'ban.banTime': null
-            };
-        } else {
-            if (!banTimeInSeconds || isNaN(banTimeInSeconds) || banTimeInSeconds <= 0) {
-                return res.status(400).json({ message: "Invalid ban time provided" });
-            }
-
-            console.log(`Banning user with ID: ${id} for ${banTimeInSeconds} seconds plus 2 hours`);
-
-            // Calculate the ban expiration date by adding banTimeInSeconds and additional 2 hours (7200 seconds)
-            const totalBanTimeInSeconds = banTimeInSeconds + 7200;
-            const banExpirationDate = new Date(Date.now() + totalBanTimeInSeconds * 1000);
-
-            console.log(`Calculated ban expiration date: ${banExpirationDate}`);
-
-            userUpdateData = {
-                'ban.banTime': banExpirationDate,
-                'ban.banPermanently': false,
-                'ban.prevBanNum': prevBanNum
-            };
-            listingUpdateData = {
-                'ban.banTime': banExpirationDate,
-                'ban.banPermanently': false
-            };
-        }
-
-        // Update the user's ban details using findByIdAndUpdate
-        const updatedUser = await UserModel.findByIdAndUpdate(
-            id,
-            { $set: userUpdateData },
-            { new: true, runValidators: true } // Ensure validators run
-        );
-
-        if (!updatedUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        // Send ban email to the user
-        await sendUserBannedEmail(updatedUser.email, banTimeInSeconds, banPermanently,prevBanNum);
-
-        // Update the associated listing's ban details if listingID exists
-        if (updatedUser.listingID) {
-            updatedListing = await ListingModel.findByIdAndUpdate(
-                updatedUser.listingID,
-                { $set: listingUpdateData },
-                { new: true, runValidators: true } // Ensure validators run
-            );
-
-            if (!updatedListing) {
-                return res.status(404).json({ message: "Listing not found" });
-            }
-        }
-
-        console.log(`User and associated listing updated successfully`);
-
-        return res.status(200).json({ 
-            message: "User and associated listing banned successfully", 
-            userBan: updatedUser.ban, 
-            listingBan: updatedListing ? updatedListing.ban : null 
-        });
-    } catch (error) {
-        console.error("Error banning user and listing:", error);
-        return res.status(500).json({ message: "Internal server error", error: error.message });
-    }
-}
 
 
 
@@ -522,6 +425,109 @@ async function updatePassword(req, res) {
   }
 
 
+  /**
+ * Controller function to ban a user by ID for a specified duration or permanently.
+ * Also bans the associated listing.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function banUserById(req, res) {
+    try {
+        const { id } = req.params;
+        const { banTimeInSeconds, 
+            banPermanently, 
+            banMsg } = req.body;
+
+        let userUpdateData = {};
+        let listingUpdateData = {};
+        let updatedListing = null;
+
+        // Retrieve the user to check current ban details
+        const user = await UserModel.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Increment prevBanNum
+        const prevBanNum = user.ban.prevBanNum ? user.ban.prevBanNum + 1 : 1;
+
+        if (banPermanently) {
+            userUpdateData = {
+                'ban.banPermanently': true,
+                'ban.banTime': null,
+                'ban.prevBanNum': prevBanNum,
+                'ban.banMsg': banMsg // Add ban message for user
+            };
+            listingUpdateData = {
+                'ban.banPermanently': true,
+                'ban.banTime': null
+            };
+        } else {
+            if (!banTimeInSeconds || isNaN(banTimeInSeconds) || banTimeInSeconds <= 0) {
+                return res.status(400).json({ message: "Invalid ban time provided" });
+            }
+
+            console.log(`Banning user with ID: ${id} for ${banTimeInSeconds} seconds plus 2 hours`);
+
+            // Calculate the ban expiration date by adding banTimeInSeconds and additional 2 hours (7200 seconds)
+            const totalBanTimeInSeconds = banTimeInSeconds + 7200;
+            const banExpirationDate = new Date(Date.now() + totalBanTimeInSeconds * 1000);
+
+            console.log(`Calculated ban expiration date: ${banExpirationDate}`);
+
+            userUpdateData = {
+                'ban.banTime': banExpirationDate,
+                'ban.banPermanently': false,
+                'ban.prevBanNum': prevBanNum,
+                'ban.banMsg': banMsg // Add ban message for user
+            };
+            listingUpdateData = {
+                'ban.banTime': banExpirationDate,
+                'ban.banPermanently': false
+            };
+        }
+
+        // Update the user's ban details using findByIdAndUpdate
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            id,
+            { $set: userUpdateData },
+            { new: true, runValidators: true } // Ensure validators run
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Send ban email to the user
+        await sendUserBannedEmail(updatedUser.email, banTimeInSeconds, banPermanently, prevBanNum, banMsg);
+
+        // Update the associated listing's ban details if listingID exists
+        if (updatedUser.listingID) {
+            updatedListing = await ListingModel.findByIdAndUpdate(
+                updatedUser.listingID,
+                { $set: listingUpdateData },
+                { new: true, runValidators: true } // Ensure validators run
+            );
+
+            if (!updatedListing) {
+                return res.status(404).json({ message: "Listing not found" });
+            }
+        }
+
+        console.log(`User and associated listing updated successfully`);
+
+        return res.status(200).json({ 
+            message: "User and associated listing banned successfully", 
+            userBan: updatedUser.ban, 
+            listingBan: updatedListing ? updatedListing.ban : null 
+        });
+    } catch (error) {
+        console.error("Error banning user and listing:", error);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+}
+
+
 
   /**
  * Controller function to get all banned users, both permanently and temporarily.
@@ -553,6 +559,8 @@ async function getBannedUsers(req, res) {
     }
 }
 
+
+
 /**
  * Controller function to unban a user by ID.
  * Also unbans the associated listing if any.
@@ -580,7 +588,7 @@ async function unbanUserById(req, res) {
         // Unban the user
         const updatedUser = await UserModel.findByIdAndUpdate(
             id,
-            { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
+            { $unset: { 'ban.banTime': '', 'ban.banPermanently': '', 'ban.banMsg': '' } },
             { new: true }
         );
 
@@ -589,7 +597,7 @@ async function unbanUserById(req, res) {
         if (user.listingID) {
             updatedListing = await ListingModel.findByIdAndUpdate(
                 user.listingID,
-                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
+                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '', 'ban.banMsg': '' } },
                 { new: true }
             );
         }

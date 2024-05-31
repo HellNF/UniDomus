@@ -9,6 +9,8 @@ const emailService = require('../services/emailService');
 const databaseQueries = require('../database/databaseQueries'); 
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
+const NotificationModel = require('../models/notificationModel'); 
+const { notificationPriorityEnum} = require('../models/enums');
 
 
 // Mock external modules as necessary
@@ -644,6 +646,8 @@ describe('UserController', () => {
             expect(response.body.error).toBe('Database error');
         });
     });
+    
+
     describe('PUT /api/users/:id/ban', () => {
         beforeEach(() => {
             jest.clearAllMocks();
@@ -668,7 +672,8 @@ describe('UserController', () => {
                 ban: {
                     banTime: new Date(Date.now() + (3600 + 7200) * 1000),
                     banPermanently: false,
-                    prevBanNum: 3
+                    prevBanNum: 3,
+                    banMsg: 'Violation of terms'
                 }
             });
     
@@ -684,14 +689,15 @@ describe('UserController', () => {
     
             const response = await request(app)
                 .put('/api/users/1/ban')
-                .send({ banTimeInSeconds: 3600, banPermanently: false });
+                .send({ banTimeInSeconds: 3600, banPermanently: false, banMsg: 'Violation of terms' });
     
             expect(UserModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 '1',
                 { $set: { 
                     'ban.banTime': expect.any(Date), 
                     'ban.banPermanently': false,
-                    'ban.prevBanNum': 3 
+                    'ban.prevBanNum': 3,
+                    'ban.banMsg': 'Violation of terms'
                 }},
                 { new: true, runValidators: true }
             );
@@ -709,7 +715,8 @@ describe('UserController', () => {
                 'test@example.com',
                 3600,
                 false,
-                3
+                3,
+                'Violation of terms'
             );
     
             expect(response.status).toBe(200);
@@ -718,7 +725,8 @@ describe('UserController', () => {
                 userBan: {
                     banTime: expect.any(String),
                     banPermanently: false,
-                    prevBanNum: 3
+                    prevBanNum: 3,
+                    banMsg: 'Violation of terms'
                 },
                 listingBan: {
                     banTime: expect.any(String),
@@ -746,7 +754,8 @@ describe('UserController', () => {
                 ban: {
                     banTime: null,
                     banPermanently: true,
-                    prevBanNum: 3
+                    prevBanNum: 3,
+                    banMsg: 'Violation of terms'
                 }
             });
     
@@ -762,14 +771,15 @@ describe('UserController', () => {
     
             const response = await request(app)
                 .put('/api/users/1/ban')
-                .send({ banPermanently: true });
+                .send({ banPermanently: true, banMsg: 'Violation of terms' });
     
             expect(UserModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 '1',
                 { $set: { 
                     'ban.banPermanently': true,
                     'ban.banTime': null,
-                    'ban.prevBanNum': 3 
+                    'ban.prevBanNum': 3,
+                    'ban.banMsg': 'Violation of terms'
                 }},
                 { new: true, runValidators: true }
             );
@@ -787,7 +797,8 @@ describe('UserController', () => {
                 'test@example.com',
                 undefined,
                 true,
-                3
+                3,
+                'Violation of terms'
             );
     
             expect(response.status).toBe(200);
@@ -796,7 +807,8 @@ describe('UserController', () => {
                 userBan: {
                     banTime: null,
                     banPermanently: true,
-                    prevBanNum: 3
+                    prevBanNum: 3,
+                    banMsg: 'Violation of terms'
                 },
                 listingBan: {
                     banTime: null,
@@ -810,7 +822,7 @@ describe('UserController', () => {
     
             const response = await request(app)
                 .put('/api/users/1/ban')
-                .send({ banTimeInSeconds: 3600, banPermanently: false });
+                .send({ banTimeInSeconds: 3600, banPermanently: false, banMsg: 'Violation of terms' });
     
             expect(response.status).toBe(404);
             expect(response.body).toEqual({ message: "User not found" });
@@ -821,7 +833,7 @@ describe('UserController', () => {
     
             const response = await request(app)
                 .put('/api/users/1/ban')
-                .send({ banTimeInSeconds: 3600, banPermanently: false });
+                .send({ banTimeInSeconds: 3600, banPermanently: false, banMsg: 'Violation of terms' });
     
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: "Internal server error", error: 'Database error' });
@@ -830,24 +842,26 @@ describe('UserController', () => {
         it('should return 400 for invalid ban time', async () => {
             const response = await request(app)
                 .put('/api/users/1/ban')
-                .send({ banTimeInSeconds: -1, banPermanently: false });
+                .send({ banTimeInSeconds: -1, banPermanently: false, banMsg: 'Violation of terms' });
     
             expect(response.status).toBe(400);
             expect(response.body).toEqual({ message: "Invalid ban time provided" });
         });
     });
 
+    
+
     describe('PUT /api/users/:id/unban', () => {
         beforeEach(() => {
             jest.clearAllMocks();
         });
     
-        it('should unban a user and their listing', async () => {
+        it('should unban a user and their listing, and create a notification', async () => {
             const mockUser = {
                 _id: '1',
                 email: 'test@example.com',
                 listingID: 'listing1',
-                ban: { banPermanently: true, prevBanNum: 3 }
+                ban: { banPermanently: true, prevBanNum: 3, banMsg: 'Violation of terms' }
             };
     
             const mockListing = {
@@ -864,6 +878,7 @@ describe('UserController', () => {
                 ...mockListing,
                 ban: {}
             });
+            jest.spyOn(NotificationModel, 'create').mockResolvedValue({});
     
             const response = await request(app)
                 .put('/api/users/1/unban')
@@ -872,14 +887,21 @@ describe('UserController', () => {
             expect(UserModel.findById).toHaveBeenCalledWith('1');
             expect(UserModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 '1',
-                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
+                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '', 'ban.banMsg': '' } },
                 { new: true }
             );
             expect(ListingModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 'listing1',
-                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
+                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '', 'ban.banMsg': '' } },
                 { new: true }
             );
+            expect(NotificationModel.create).toHaveBeenCalledWith({
+                userID: mockUser._id,
+                type: "alert",
+                message: `You have been recently unbanned`,
+                link: `/`,
+                priority: notificationPriorityEnum.MEDIUM
+            });
     
             expect(response.status).toBe(200);
             expect(response.body).toEqual({

@@ -32,11 +32,11 @@ router.get('/housingseekers', getHousingSeekers);
 
 router.delete('/:id',tokenChecker,deleteUserById);
 
-router.put('/:id/ban',banUserById);
+router.put('/:id/ban',tokenChecker,banUserById);
 
-router.get('/ban',getBannedUsers);
+router.get('/ban',tokenChecker,getBannedUsers);
 
-router.put('/:id/unban',unbanUserById)
+router.put('/:id/unban',tokenChecker,unbanUserById)
 
 
 router.get('/tags', getTags);
