@@ -30,6 +30,9 @@
 .h-83vh{
   height: 83vh;
 }
+.h-full-navbar{
+   height: 91vh;
+}
 .leaflet-container{
   height: 100%;
 }

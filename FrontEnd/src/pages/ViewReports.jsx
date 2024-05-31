@@ -160,7 +160,7 @@ const ViewReports = () => {
     }
 
     return (
-        <div className='relative h-full w-full flex flex-col space-y-4 items-center bg-white px-8 overflow-scroll no-scrollbar'>
+        <div className='relative h-screen w-full flex flex-col space-y-4 items-center top-navbar mb-10 bg-white px-8 overflow-scroll no-scrollbar'>
             <h1 className='text-3xl font-bold text-black p-2'>Visualizza Segnalazioni</h1>
             <div className='w-full flex flex-col space-y-4 items-center  px-8'>
                 <div className='w-full'>
