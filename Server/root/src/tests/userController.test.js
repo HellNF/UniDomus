@@ -836,5 +836,99 @@ describe('UserController', () => {
             expect(response.body).toEqual({ message: "Invalid ban time provided" });
         });
     });
+
+    describe('PUT /api/users/:id/unban', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+    
+        it('should unban a user and their listing', async () => {
+            const mockUser = {
+                _id: '1',
+                email: 'test@example.com',
+                listingID: 'listing1',
+                ban: { banPermanently: true, prevBanNum: 3 }
+            };
+    
+            const mockListing = {
+                _id: 'listing1',
+                ban: { banPermanently: true }
+            };
+    
+            jest.spyOn(UserModel, 'findById').mockResolvedValue(mockUser);
+            jest.spyOn(UserModel, 'findByIdAndUpdate').mockResolvedValue({
+                ...mockUser,
+                ban: {}
+            });
+            jest.spyOn(ListingModel, 'findByIdAndUpdate').mockResolvedValue({
+                ...mockListing,
+                ban: {}
+            });
+    
+            const response = await request(app)
+                .put('/api/users/1/unban')
+                .send();
+    
+            expect(UserModel.findById).toHaveBeenCalledWith('1');
+            expect(UserModel.findByIdAndUpdate).toHaveBeenCalledWith(
+                '1',
+                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
+                { new: true }
+            );
+            expect(ListingModel.findByIdAndUpdate).toHaveBeenCalledWith(
+                'listing1',
+                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
+                { new: true }
+            );
+    
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                message: "User and associated listing unbanned successfully"
+            });
+        });
+    
+        it('should return 404 if user is not found', async () => {
+            jest.spyOn(UserModel, 'findById').mockResolvedValue(null);
+    
+            const response = await request(app)
+                .put('/api/users/1/unban')
+                .send();
+    
+            expect(UserModel.findById).toHaveBeenCalledWith('1');
+            expect(response.status).toBe(404);
+            expect(response.body).toEqual({ message: "User not found" });
+        });
+    
+        it('should return 400 if user is not banned', async () => {
+            const mockUser = {
+                _id: '1',
+                email: 'test@example.com',
+                listingID: 'listing1',
+                ban: { banPermanently: false, banTime: new Date(Date.now() - 3600 * 1000) }
+            };
+    
+            jest.spyOn(UserModel, 'findById').mockResolvedValue(mockUser);
+    
+            const response = await request(app)
+                .put('/api/users/1/unban')
+                .send();
+    
+            expect(UserModel.findById).toHaveBeenCalledWith('1');
+            expect(response.status).toBe(400);
+            expect(response.body).toEqual({ message: "User is not banned" });
+        });
+    
+        it('should return 500 if there is an internal server error', async () => {
+            jest.spyOn(UserModel, 'findById').mockRejectedValue(new Error('Database error'));
+    
+            const response = await request(app)
+                .put('/api/users/1/unban')
+                .send();
+    
+            expect(UserModel.findById).toHaveBeenCalledWith('1');
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: "Error unbanning user and listing", error: 'Database error' });
+        });
+    });
     
 });

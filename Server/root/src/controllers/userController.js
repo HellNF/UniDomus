@@ -19,6 +19,8 @@ const { sendConfirmationEmail,
     sendUserBannedEmail } = require('../services/emailService'); // Import the function to send confirmation email
 const { hobbiesEnum, habitsEnum } = require('./../models/enums');
 const { OAuth2Client } = require('google-auth-library');
+const NotificationModel = require('../models/notificationModel');
+const { notificationPriorityEnum} = require('../models/enums');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -591,6 +593,14 @@ async function unbanUserById(req, res) {
                 { new: true }
             );
         }
+
+        await NotificationModel.create({
+            userID: user._id,
+            type: "alert",
+            message: `You have been recently unbanned`,
+            link: `/`,
+            priority: notificationPriorityEnum.MEDIUM
+        });
 
         console.log(`User and associated listing unbanned successfully`);
         return res.status(200).json({
