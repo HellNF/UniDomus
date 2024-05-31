@@ -354,6 +354,63 @@ paths:
                   error:
                     type: string
                     example: "Database error"
+  /api/listings/{id}/unban:
+    put:
+      summary: Unban a listing by ID
+      description: Unban a listing by ID.
+      tags:
+        - Listings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the listing to unban
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Listing unbanned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Listing unbanned successfully"
+        '400':
+          description: Listing is not banned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Listing is not banned"
+        '404':
+          description: Listing not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Listing not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error unbanning listing"
+                  error:
+                    type: string
+                    example: "Database error"
   /api/listings/coordinates:
     get:
       summary: Convert addresses to coordinates
@@ -1723,6 +1780,25 @@ components:
         publicationDate:
           type: string
           format: date-time
+        ban:
+          type: object
+          properties:
+            banTime:
+              type: string
+              format: date-time
+              description: The time until the ban lasts.
+            banPermanently:
+              type: boolean
+              default: false
+              description: Indicates if the listing is banned permanently.
+            prevBanNum:
+              type: integer
+              default: 0
+              description: The number of previous bans.
+            banMsg:
+              type: string
+              maxLength: 500
+              description: The message explaining the reason for the ban.
 
     User:
       type: object
@@ -1798,6 +1874,25 @@ components:
             type: string
             format: uuid
           description: The IDs of the matches associated with the user.
+        ban:
+          type: object
+          properties:
+            banTime:
+              type: string
+              format: date-time
+              description: The time until the ban lasts.
+            banPermanently:
+              type: boolean
+              default: false
+              description: Indicates if the user is banned permanently.
+            prevBanNum:
+              type: integer
+              default: 0
+              description: The number of previous bans.
+            banMsg:
+              type: string
+              maxLength: 500
+              description: The message explaining the reason for the ban.
 
     Match:
       type: object

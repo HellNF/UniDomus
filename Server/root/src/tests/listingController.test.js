@@ -848,6 +848,88 @@ describe('Listing Controller', () => {
         });
     });
 
+    describe('PUT /api/listings/:id/unban', () => {
+        it('should unban a listing and create a notification', async () => {
+            const mockListing = {
+                _id: '1',
+                publisherID: 'user1',
+                ban: { banPermanently: true, banMsg: 'Violation of terms' }
+            };
+
+            jest.spyOn(Listing, 'findById').mockResolvedValue(mockListing);
+            jest.spyOn(Listing, 'findByIdAndUpdate').mockResolvedValue({
+                ...mockListing,
+                ban: {}
+            });
+            jest.spyOn(NotificationModel, 'create').mockResolvedValue({});
+
+            const response = await request(app)
+                .put('/api/listings/1/unban')
+                .send();
+
+            expect(Listing.findById).toHaveBeenCalledWith('1');
+            expect(Listing.findByIdAndUpdate).toHaveBeenCalledWith(
+                '1',
+                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '', 'ban.banMsg': '' } },
+                { new: true }
+            );
+            expect(NotificationModel.create).toHaveBeenCalledWith({
+                userID: mockListing.publisherID,
+                type: "alert",
+                message: `Your listing has been unbanned`,
+                link: `/`,
+                priority: notificationPriorityEnum.MEDIUM
+            });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({
+                message: "Listing unbanned successfully"
+            });
+        });
+
+        it('should return 404 if listing is not found', async () => {
+            jest.spyOn(Listing, 'findById').mockResolvedValue(null);
+
+            const response = await request(app)
+                .put('/api/listings/1/unban')
+                .send();
+
+            expect(Listing.findById).toHaveBeenCalledWith('1');
+            expect(response.status).toBe(404);
+            expect(response.body).toEqual({ message: "Listing not found" });
+        });
+
+        it('should return 400 if listing is not banned', async () => {
+            const mockListing = {
+                _id: '1',
+                publisherID: 'user1',
+                ban: { banPermanently: false, banTime: new Date(Date.now() - 3600 * 1000) }
+            };
+
+            jest.spyOn(Listing, 'findById').mockResolvedValue(mockListing);
+
+            const response = await request(app)
+                .put('/api/listings/1/unban')
+                .send();
+
+            expect(Listing.findById).toHaveBeenCalledWith('1');
+            expect(response.status).toBe(400);
+            expect(response.body).toEqual({ message: "Listing is not banned" });
+        });
+
+        it('should return 500 on internal server error', async () => {
+            jest.spyOn(Listing, 'findById').mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .put('/api/listings/1/unban')
+                .send();
+
+            expect(Listing.findById).toHaveBeenCalledWith('1');
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ message: "Error unbanning listing", error: 'Database error' });
+        });
+    });
+
 
 });
 
