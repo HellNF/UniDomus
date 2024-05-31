@@ -589,7 +589,7 @@ async function banListingById(req, res) {
                 'ban.prevBanNum': prevBanNum,
                 'ban.banMsg': banMsg // Add ban message for listing
             };
-            banDuration = convertSecondsToDHMS(totalBanTimeInSeconds);
+            banDuration = convertSecondsToDHMS(banTimeInSeconds);
         }
 
         // Update the listing's ban details using findByIdAndUpdate
@@ -625,6 +625,56 @@ async function banListingById(req, res) {
     }
 }
 
+
+/**
+ * Controller function to unban a listing by ID.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function unbanListingById(req, res) {
+    try {
+        const { id } = req.params;
+        const currentTime = new Date();
+        const twoHoursLater = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000);
+
+        // Find the listing by ID
+        const listing = await Listing.findById(id);
+        if (!listing) {
+            return res.status(404).json({ message: "Listing not found" });
+        }
+
+        // Check if the listing is banned (permanently or temporarily)
+        const isBanned = listing.ban.banPermanently || (listing.ban.banTime && listing.ban.banTime > twoHoursLater);
+        if (!isBanned) {
+            return res.status(400).json({ message: "Listing is not banned" });
+        }
+
+        // Unban the listing
+        const updatedListing = await Listing.findByIdAndUpdate(
+            id,
+            { $unset: { 'ban.banTime': '', 'ban.banPermanently': '', 'ban.banMsg': '' } },
+            { new: true }
+        );
+
+        await NotificationModel.create({
+            userID: listing.publisherID,
+            type: "alert",
+            message: `Your listing has been unbanned`,
+            link: `/`,
+            priority: notificationPriorityEnum.MEDIUM
+        });
+
+        console.log(`Listing unbanned successfully`);
+        return res.status(200).json({
+            message: "Listing unbanned successfully"
+        });
+    } catch (error) {
+        console.error("Error unbanning listing:", error);
+        return res.status(500).json({ message: "Error unbanning listing", error: error.message });
+    }
+}
+
+
 module.exports = {
     listings,
     addListing,
@@ -633,6 +683,7 @@ module.exports = {
     deleteListingById,
     addressToCoordinates,
     getCoordinatesById,
-    banListingById
+    banListingById,
+    unbanListingById
 };
 

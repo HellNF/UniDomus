@@ -559,6 +559,8 @@ async function getBannedUsers(req, res) {
     }
 }
 
+
+
 /**
  * Controller function to unban a user by ID.
  * Also unbans the associated listing if any.
