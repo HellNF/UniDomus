@@ -9,6 +9,8 @@ const emailService = require('../services/emailService');
 const databaseQueries = require('../database/databaseQueries'); 
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
+const NotificationModel = require('../models/notificationModel'); 
+const { notificationPriorityEnum} = require('../models/enums');
 
 
 // Mock external modules as necessary
@@ -842,7 +844,7 @@ describe('UserController', () => {
             jest.clearAllMocks();
         });
     
-        it('should unban a user and their listing', async () => {
+        it('should unban a user and their listing, and create a notification', async () => {
             const mockUser = {
                 _id: '1',
                 email: 'test@example.com',
@@ -864,6 +866,7 @@ describe('UserController', () => {
                 ...mockListing,
                 ban: {}
             });
+            jest.spyOn(NotificationModel, 'create').mockResolvedValue({});
     
             const response = await request(app)
                 .put('/api/users/1/unban')
@@ -880,12 +883,21 @@ describe('UserController', () => {
                 { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
                 { new: true }
             );
+            expect(NotificationModel.create).toHaveBeenCalledWith({
+                userID: mockUser._id,
+                type: "alert",
+                message: `You have been recently unbanned`,
+                link: `/`,
+                priority: notificationPriorityEnum.MEDIUM
+            });
     
             expect(response.status).toBe(200);
             expect(response.body).toEqual({
                 message: "User and associated listing unbanned successfully"
             });
         });
+
+
     
         it('should return 404 if user is not found', async () => {
             jest.spyOn(UserModel, 'findById').mockResolvedValue(null);

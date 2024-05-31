@@ -12,7 +12,7 @@ function calculateDOBFromAge(age) {
 }
 
 /**
- * Converts seconds to a string in the format dd:hh:mm:ss.
+ * Converts seconds to a string in the format d days, hh:mm:ss.
  * @param {number} seconds - The number of seconds.
  * @returns {string} - The formatted string.
  */
@@ -24,7 +24,7 @@ function convertSecondsToDHMS(seconds) {
     const minutes = Math.floor(seconds / 60);
     seconds = seconds % 60;
     
-    return `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    return `${String(days)} days, ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 module.exports = { calculateDOBFromAge,convertSecondsToDHMS };

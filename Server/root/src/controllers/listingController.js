@@ -5,6 +5,7 @@ const User = require('../models/userModel');
 const { query } = require('express');
 const NotificationModel = require('../models/notificationModel'); 
 const { notificationPriorityEnum} = require('../models/enums');
+const { convertSecondsToDHMS } = require('../utils/dateUtils');
 
 /**
  * Controller function for retrieving listings with filters.
@@ -536,6 +537,90 @@ async function getCoordinatesById(req, res) {
 }
 
 
+/**
+ * Controller function to ban a listing by ID for a specified duration or permanently.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+async function banListingById(req, res) {
+    try {
+        const { id } = req.params;
+        const { banTimeInSeconds, banPermanently } = req.body;
+
+        let listingUpdateData = {};
+        
+        // Retrieve the listing to check current ban details
+        const listing = await Listing.findById(id);
+        if (!listing) {
+            return res.status(404).json({ message: "Listing not found" });
+        }
+
+        // Increment prevBanNum
+        const prevBanNum = listing.ban && listing.ban.prevBanNum ? listing.ban.prevBanNum + 1 : 1;
+
+        let banDuration;
+        if (banPermanently) {
+            listingUpdateData = {
+                'ban.banPermanently': true,
+                'ban.banTime': null,
+                'ban.prevBanNum': prevBanNum
+            };
+            banDuration = 'permanently';
+        } else {
+            if (!banTimeInSeconds || isNaN(banTimeInSeconds) || banTimeInSeconds <= 0) {
+                return res.status(400).json({ message: "Invalid ban time provided" });
+            }
+
+            console.log(`Banning listing with ID: ${id} for ${banTimeInSeconds} seconds plus 2 hours`);
+
+            // Calculate the ban expiration date by adding banTimeInSeconds and additional 2 hours (7200 seconds)
+            const totalBanTimeInSeconds = banTimeInSeconds + 7200;
+            const banExpirationDate = new Date(Date.now() + totalBanTimeInSeconds * 1000);
+
+            console.log(`Calculated ban expiration date: ${banExpirationDate}`);
+
+            listingUpdateData = {
+                'ban.banTime': banExpirationDate,
+                'ban.banPermanently': false,
+                'ban.prevBanNum': prevBanNum
+            };
+            banDuration = convertSecondsToDHMS(banTimeInSeconds);
+        }
+
+        // Update the listing's ban details using findByIdAndUpdate
+        const updatedListing = await Listing.findByIdAndUpdate(
+            id,
+            { $set: listingUpdateData },
+            { new: true, runValidators: true } // Ensure validators run
+        );
+
+        if (!updatedListing) {
+            return res.status(404).json({ message: "Listing not found" });
+        }
+
+        console.log(`Listing updated successfully`);
+
+        await NotificationModel.create({
+            userID: listing.publisherID,
+            type: "alert",
+            message: banPermanently ? 
+                `Your listing has been banned permanently because it did not comply with UniDomus policies.` :
+                `Your listing has been banned for ${banDuration} because it did not comply with UniDomus policies.`,
+            link: `/`,
+            priority: notificationPriorityEnum.HIGH
+        });
+
+        return res.status(200).json({ 
+            message: "Listing banned successfully", 
+            listingBan: updatedListing.ban 
+        });
+    } catch (error) {
+        console.error("Error banning listing:", error);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+}
+
+
 module.exports = {
     listings,
     addListing,
@@ -543,6 +628,7 @@ module.exports = {
     updateListingById,
     deleteListingById,
     addressToCoordinates,
-    getCoordinatesById
+    getCoordinatesById,
+    banListingById
 };
 

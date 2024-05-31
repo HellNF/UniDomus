@@ -345,7 +345,87 @@ async function deleteUserById(req, res) {
 
 
 
-/**
+
+
+
+
+async function requestPasswordChange(req, res) {
+    console.log(req.body)
+    const { email } = req.body;
+
+    try {
+        // Find the user by email
+        const user = await User.findOne({ email });
+
+        // If no user found, return error
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Generate a unique token for password reset
+        const token = generateRandomToken(30);
+
+        // Save the token in the database
+        await TokenModel.create({ token, userID: user._id });
+
+        // Construct password reset link
+        const base_url = process.env.FRONTEND_BASE;
+
+        const resetLink = `${base_url}/resetpassword/${token}`;
+
+        // Send password reset email to the usesr
+        await sendPasswordResetEmail(user.email, resetLink);
+
+        return res.status(200).json({ message: 'Password reset email sent' });
+    } catch (error) {
+        console.error('Error initiating password change:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
+
+async function updatePassword(req, res) {
+    const { token } = req.params;
+    const { password } = req.body;
+  
+    try {
+      // Verify the token
+      const tokenRecord = await TokenModel.findOne({ token });
+  
+      // If no token found, return error
+      if (!tokenRecord) {
+        return res.status(404).json({ message: 'Invalid or expired token' });
+      }
+  
+      // Verify the token's expiration
+      const tokenExpiration = new Date(tokenRecord.expiresAt);
+
+      if (tokenExpiration < Date.now()) {
+        // If token is expired, delete it from the database and return error
+        await TokenModel.deleteOne({ token });
+        return res.status(404).json({ message: 'Token expired' });
+      }
+  
+      // Find the user associated with the token
+      const user = await User.findById(tokenRecord.userID);
+  
+      // Update the user's password
+      user.password = password;
+      await user.save();
+  
+      // Delete the token record from the database
+      await TokenModel.deleteOne({ token });
+  
+      return res.status(200).json({ message: 'Password updated successfully' });
+    } catch (error) {
+      console.error('Error updating password:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+
+  /**
  * Controller function to ban a user by ID for a specified duration or permanently.
  * Also bans the associated listing.
  * @param {Request} req - The Express request object.
@@ -442,84 +522,6 @@ async function banUserById(req, res) {
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 }
-
-
-
-
-async function requestPasswordChange(req, res) {
-    console.log(req.body)
-    const { email } = req.body;
-
-    try {
-        // Find the user by email
-        const user = await User.findOne({ email });
-
-        // If no user found, return error
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Generate a unique token for password reset
-        const token = generateRandomToken(30);
-
-        // Save the token in the database
-        await TokenModel.create({ token, userID: user._id });
-
-        // Construct password reset link
-        const base_url = process.env.FRONTEND_BASE;
-
-        const resetLink = `${base_url}/resetpassword/${token}`;
-
-        // Send password reset email to the usesr
-        await sendPasswordResetEmail(user.email, resetLink);
-
-        return res.status(200).json({ message: 'Password reset email sent' });
-    } catch (error) {
-        console.error('Error initiating password change:', error);
-        return res.status(500).json({ message: 'Internal server error' });
-    }
-}
-
-
-
-async function updatePassword(req, res) {
-    const { token } = req.params;
-    const { password } = req.body;
-  
-    try {
-      // Verify the token
-      const tokenRecord = await TokenModel.findOne({ token });
-  
-      // If no token found, return error
-      if (!tokenRecord) {
-        return res.status(404).json({ message: 'Invalid or expired token' });
-      }
-  
-      // Verify the token's expiration
-      const tokenExpiration = new Date(tokenRecord.expiresAt);
-
-      if (tokenExpiration < Date.now()) {
-        // If token is expired, delete it from the database and return error
-        await TokenModel.deleteOne({ token });
-        return res.status(404).json({ message: 'Token expired' });
-      }
-  
-      // Find the user associated with the token
-      const user = await User.findById(tokenRecord.userID);
-  
-      // Update the user's password
-      user.password = password;
-      await user.save();
-  
-      // Delete the token record from the database
-      await TokenModel.deleteOne({ token });
-  
-      return res.status(200).json({ message: 'Password updated successfully' });
-    } catch (error) {
-      console.error('Error updating password:', error);
-      return res.status(500).json({ message: 'Internal server error' });
-    }
-  }
 
 
 
