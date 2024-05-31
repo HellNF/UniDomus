@@ -434,7 +434,9 @@ async function updatePassword(req, res) {
 async function banUserById(req, res) {
     try {
         const { id } = req.params;
-        const { banTimeInSeconds, banPermanently } = req.body;
+        const { banTimeInSeconds, 
+            banPermanently, 
+            banMsg } = req.body;
 
         let userUpdateData = {};
         let listingUpdateData = {};
@@ -453,7 +455,8 @@ async function banUserById(req, res) {
             userUpdateData = {
                 'ban.banPermanently': true,
                 'ban.banTime': null,
-                'ban.prevBanNum': prevBanNum
+                'ban.prevBanNum': prevBanNum,
+                'ban.banMsg': banMsg // Add ban message for user
             };
             listingUpdateData = {
                 'ban.banPermanently': true,
@@ -475,7 +478,8 @@ async function banUserById(req, res) {
             userUpdateData = {
                 'ban.banTime': banExpirationDate,
                 'ban.banPermanently': false,
-                'ban.prevBanNum': prevBanNum
+                'ban.prevBanNum': prevBanNum,
+                'ban.banMsg': banMsg // Add ban message for user
             };
             listingUpdateData = {
                 'ban.banTime': banExpirationDate,
@@ -495,7 +499,7 @@ async function banUserById(req, res) {
         }
 
         // Send ban email to the user
-        await sendUserBannedEmail(updatedUser.email, banTimeInSeconds, banPermanently,prevBanNum);
+        await sendUserBannedEmail(updatedUser.email, banTimeInSeconds, banPermanently, prevBanNum, banMsg);
 
         // Update the associated listing's ban details if listingID exists
         if (updatedUser.listingID) {
@@ -582,7 +586,7 @@ async function unbanUserById(req, res) {
         // Unban the user
         const updatedUser = await UserModel.findByIdAndUpdate(
             id,
-            { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
+            { $unset: { 'ban.banTime': '', 'ban.banPermanently': '', 'ban.banMsg': '' } },
             { new: true }
         );
 
@@ -591,7 +595,7 @@ async function unbanUserById(req, res) {
         if (user.listingID) {
             updatedListing = await ListingModel.findByIdAndUpdate(
                 user.listingID,
-                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '' } },
+                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '', 'ban.banMsg': '' } },
                 { new: true }
             );
         }

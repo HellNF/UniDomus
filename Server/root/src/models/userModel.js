@@ -124,6 +124,10 @@ const userSchema = new mongoose.Schema({
         prevBanNum:{
             type: Number,
             default: 0
+        },
+        banMsg: {
+            type: String,
+            maxLength: 500
         }
     }
     

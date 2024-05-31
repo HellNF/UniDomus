@@ -537,6 +537,8 @@ async function getCoordinatesById(req, res) {
 }
 
 
+
+
 /**
  * Controller function to ban a listing by ID for a specified duration or permanently.
  * @param {Request} req - The Express request object.
@@ -545,7 +547,12 @@ async function getCoordinatesById(req, res) {
 async function banListingById(req, res) {
     try {
         const { id } = req.params;
-        const { banTimeInSeconds, banPermanently } = req.body;
+        const { banTimeInSeconds, banPermanently, banMsg } = req.body;
+
+        // Validate ban time
+        if (!banPermanently && (!banTimeInSeconds || isNaN(banTimeInSeconds) || banTimeInSeconds <= 0)) {
+            return res.status(400).json({ message: "Invalid ban time provided" });
+        }
 
         let listingUpdateData = {};
         
@@ -563,14 +570,11 @@ async function banListingById(req, res) {
             listingUpdateData = {
                 'ban.banPermanently': true,
                 'ban.banTime': null,
-                'ban.prevBanNum': prevBanNum
+                'ban.prevBanNum': prevBanNum,
+                'ban.banMsg': banMsg // Add ban message for listing
             };
             banDuration = 'permanently';
         } else {
-            if (!banTimeInSeconds || isNaN(banTimeInSeconds) || banTimeInSeconds <= 0) {
-                return res.status(400).json({ message: "Invalid ban time provided" });
-            }
-
             console.log(`Banning listing with ID: ${id} for ${banTimeInSeconds} seconds plus 2 hours`);
 
             // Calculate the ban expiration date by adding banTimeInSeconds and additional 2 hours (7200 seconds)
@@ -582,9 +586,10 @@ async function banListingById(req, res) {
             listingUpdateData = {
                 'ban.banTime': banExpirationDate,
                 'ban.banPermanently': false,
-                'ban.prevBanNum': prevBanNum
+                'ban.prevBanNum': prevBanNum,
+                'ban.banMsg': banMsg // Add ban message for listing
             };
-            banDuration = convertSecondsToDHMS(banTimeInSeconds);
+            banDuration = convertSecondsToDHMS(totalBanTimeInSeconds);
         }
 
         // Update the listing's ban details using findByIdAndUpdate
@@ -604,8 +609,8 @@ async function banListingById(req, res) {
             userID: listing.publisherID,
             type: "alert",
             message: banPermanently ? 
-                `Your listing has been banned permanently because it did not comply with UniDomus policies.` :
-                `Your listing has been banned for ${banDuration} because it did not comply with UniDomus policies.`,
+                `Your listing has been banned permanently because it did not comply with UniDomus policies. Reason: ${banMsg}` :
+                `Your listing has been banned for ${banDuration} because it did not comply with UniDomus policies. Reason: ${banMsg}`,
             link: `/`,
             priority: notificationPriorityEnum.HIGH
         });
@@ -619,7 +624,6 @@ async function banListingById(req, res) {
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 }
-
 
 module.exports = {
     listings,
