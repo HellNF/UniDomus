@@ -520,15 +520,15 @@ export default function ListingDetails() {
                           <img src={reportIcon} alt="Report" />
                         </button>
                         {isLoggedIn && userCurrent && userCurrent.isAdmin && (
-                            <button onClick={() => handleButtonClickBan("listings", listing._id)} className="bg-red-700 font-bold text-white p-2 rounded-md m-2" >
-                              <img height="28px" width="28px" src={judge} alt="judge" />
-                            </button>
-                          )}
+                          <button onClick={() => handleButtonClickBan("listings", listing._id)} className="bg-red-700 font-bold text-white p-2 rounded-md m-2" >
+                            <img height="28px" width="28px" src={judge} alt="judge" />
+                          </button>
+                        )}
                         <button
                           className="bg-white font-bold text-blue-950 p-2 rounded-md m-2"
                           onClick={handleLikeButtonClick}
                         >
-                        
+
                           {!isLiked ? (
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -1078,7 +1078,7 @@ export default function ListingDetails() {
         show={showPopupBan}
         onClose={handleClosePopupBan}
         onSubmit={handleSubmitBan}
-        prevBan={listing.ban.prevBanNum}
+        prevBan={listing.ban && listing.ban.prevBanNum ? listing.ban.prevBanNum : undefined}
       />
     </>
   );

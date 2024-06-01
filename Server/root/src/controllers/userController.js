@@ -130,7 +130,14 @@ async function authenticateUser(req, res) {
 
         var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
 
-        return res.status(200).json({ success: true, message: 'Token returned', token: token, email: user.email, id: user._id, self: "api/users/authentication/" + user._id });
+        return res.status(200).json({ success: true, 
+            message: 'Token returned', 
+            token: token, 
+            email: user.email, 
+            id: user._id,
+            banTime: user.ban.banTime,
+            banPermanently: user.ban.banPermanently, 
+            self: "api/users/authentication/" + user._id });
     } catch (error) {
         console.error("Error authenticating user:", error);
         return res.status(500).json({ success: false, message: 'Internal server error' });
@@ -731,7 +738,9 @@ async function googleLogin(req, res) {
         }, process.env.SUPER_SECRET, { expiresIn: '4h' });
 
         // Invia il JWT all'utente
-        return res.status(200).json({ token: userJwt });
+        return res.status(200).json({ token: userJwt,
+            banTime: user.ban.banTime,
+            banPermanently: user.ban.banPermanently });
 
     } catch (error) {
         console.error(error);

@@ -142,27 +142,33 @@ describe('UserController', () => {
     describe('POST /api/users/authentication', () => {
         beforeEach(() => {
             jest.clearAllMocks(); // Reset all mocks
-
+    
             jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(null);
             jest.spyOn(jwt, 'sign').mockReturnValue('fake_jwt_token');
         });
-
-        it('should authenticate a user and return a token', async () => {
+    
+        it('should authenticate a user and return a token with ban details', async () => {
             const userMock = {
                 _id: '1',
                 email: 'test@example.com',
-                isValidPassword: jest.fn().mockResolvedValue(true)
+                username: 'testuser',
+                isAdmin: false,
+                isValidPassword: jest.fn().mockResolvedValue(true),
+                ban: {
+                    banTime: new Date(Date.now() + 3600 * 1000).toISOString(), // 1 hour from now
+                    banPermanently: false
+                }
             };
-
+    
             jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(userMock);
-
+    
             const response = await request(app)
                 .post('/api/users/authentication')
                 .send({
                     email: 'test@example.com',
                     password: 'Password123!'
                 });
-
+    
             expect(databaseQueries.getUserByEmail).toHaveBeenCalledWith('test@example.com');
             expect(userMock.isValidPassword).toHaveBeenCalledWith('Password123!');
             expect(response.status).toBe(200);
@@ -172,25 +178,27 @@ describe('UserController', () => {
                 token: 'fake_jwt_token',
                 email: 'test@example.com',
                 id: '1',
+                banTime: userMock.ban.banTime,
+                banPermanently: userMock.ban.banPermanently,
                 self: 'api/users/authentication/1'
             });
         });
-
+    
         it('should return 401 status if the password is incorrect', async () => {
             const userMock = {
                 email: 'test@example.com',
                 isValidPassword: jest.fn().mockResolvedValue(false)
             };
-
+    
             jest.spyOn(databaseQueries, 'getUserByEmail').mockResolvedValue(userMock);
-
+    
             const response = await request(app)
                 .post('/api/users/authentication')
                 .send({
                     email: 'test@example.com',
                     password: 'WrongPassword123!'
                 });
-
+    
             expect(userMock.isValidPassword).toHaveBeenCalledWith('WrongPassword123!');
             expect(response.status).toBe(401);
             expect(response.body).toEqual({
@@ -198,7 +206,7 @@ describe('UserController', () => {
                 message: 'Wrong password'
             });
         });
-
+    
         it('should handle user not found and return 401 status', async () => {
             const response = await request(app)
                 .post('/api/users/authentication')
@@ -206,24 +214,24 @@ describe('UserController', () => {
                     email: 'nonexistent@example.com',
                     password: 'Password123!'
                 });
-
+    
             expect(response.status).toBe(401);
             expect(response.body).toEqual({
                 success: false,
                 message: 'User not found'
             });
         });
-
+    
         it('should handle database errors during user lookup and return 500 status', async () => {
             jest.spyOn(databaseQueries, 'getUserByEmail').mockRejectedValue(new Error('Database error'));
-
+    
             const response = await request(app)
                 .post('/api/users/authentication')
                 .send({
                     email: 'test@example.com',
                     password: 'Password123!'
                 });
-
+    
             expect(response.status).toBe(500);
             expect(response.body).toEqual({
                 success: false,
@@ -509,20 +517,19 @@ describe('UserController', () => {
 
     describe('POST /api/users/auth/google', () => {
         let mockVerifyIdToken;
-
+    
         beforeEach(() => {
             jest.clearAllMocks();
             mockVerifyIdToken = jest.fn();
         });
-
+    
         jest.mock('google-auth-library', () => {
-        return {
-            OAuth2Client: jest.fn(() => ({
-            verifyIdToken: mockVerifyIdToken,
-            })),
-        };
+            return {
+                OAuth2Client: jest.fn(() => ({
+                    verifyIdToken: mockVerifyIdToken,
+                })),
+            };
         });
-        
     
         it('should authenticate user with valid token and return JWT', async () => {
             const mockGoogleId = '1234567890';
@@ -531,6 +538,7 @@ describe('UserController', () => {
             const mockName = 'Test';
             const mockSurname = 'User';
             const mockToken = 'mockGoogleIdToken';
+            const mockBanTime = new Date(Date.now() + 3600 * 1000).toISOString(); // 1 hour from now
     
             // Mock the Google token verification
             mockVerifyIdToken.mockResolvedValue({
@@ -551,6 +559,7 @@ describe('UserController', () => {
                     email: mockEmail,
                     username: 'test',
                     save: jest.fn(),
+                    ban: { banTime: mockBanTime, banPermanently: false }
                 }); // Second call for googleId
     
             // Mock the User.create method
@@ -562,6 +571,7 @@ describe('UserController', () => {
                 surname: mockSurname,
                 proPic: [mockPicture],
                 active: true,
+                ban: { banTime: mockBanTime, banPermanently: false }
             });
     
             const response = await request(app)
@@ -570,6 +580,8 @@ describe('UserController', () => {
     
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('token');
+            expect(response.body.banTime).toBe(mockBanTime);
+            expect(response.body.banPermanently).toBe(false);
     
             // Verifica che il JWT sia stato generato correttamente
             const decoded = jwt.verify(response.body.token, process.env.SUPER_SECRET);

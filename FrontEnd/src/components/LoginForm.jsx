@@ -47,8 +47,23 @@ export default function LoginForm() {
         }
       })
       .then((data) => {
-        login(data.token); // Assume server sends token as { token: 'jwt_token' }
-        navigate("/");
+        if (data.banPermanently === true) {
+          alert("This user is permanently banned!");
+          
+        } else {
+          const currentTime = new Date();
+          const banEndTime = new Date(data.banTime);
+          const timeCheck = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000); // Aggiungi 2 ore all'ora corrente
+    
+          if (banEndTime > timeCheck) {
+            const displayBanEndTime = new Date(banEndTime.getTime() - 2 * 60 * 60 * 1000);
+            alert("This user is ban until " + displayBanEndTime.toLocaleString());
+            
+          } else {
+            login(data.token); // Assume server sends token as { token: 'jwt_token' }
+            navigate("/");
+          }
+        }
       })
       .catch((error) => {
         console.error("Error:", error.message);
@@ -71,8 +86,23 @@ export default function LoginForm() {
 
       if (response.ok) {
         const data = await response.json();
-        login(data.token); // Assume server sends token as { token: 'jwt_token' }
-        navigate("/");
+        if (data.banPermanently === true) {
+          alert("This user is permanently banned!");
+          
+        } else {
+          const currentTime = new Date();
+          const banEndTime = new Date(data.banTime);
+          const timeCheck = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000); // Aggiungi 2 ore all'ora corrente
+    
+          if (banEndTime > timeCheck) {
+            const displayBanEndTime = new Date(banEndTime.getTime() - 2 * 60 * 60 * 1000);
+            alert("This user is ban until " + displayBanEndTime.toLocaleString());
+            
+          } else {
+            login(data.token); // Assume server sends token as { token: 'jwt_token' }
+            navigate("/");
+          }
+        }
       } else {
         throw new Error("Google authentication failed");
       }
