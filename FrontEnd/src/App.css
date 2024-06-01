@@ -130,3 +130,75 @@
   .checkbox-btn:hover {
     background-color: #cce5ff;
   }
+
+
+
+  .checkbox-container-ban {
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  
+
+  .checkbox-label-ban {
+    display: inline-block;
+    width: 90px;
+    height: 40px;
+    border-radius: 10px;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+    cursor: pointer;
+    text-align: center;
+    line-height: 40px;
+    font-size: 12px;
+    color: white;
+    position: relative;
+  }
+
+  
+  .checkbox-btn-ban {
+    display: none;
+  }
+
+  
+  .checkbox-label-ban-yellow {
+    background-color: rgba(232, 202, 13, 1);
+  }
+
+  
+  .checkbox-label-ban-orange {
+    background-color: rgba(230, 149, 10, 1);
+  }
+
+  
+  .checkbox-label-ban-dark-orange {
+    background-color: rgba(230, 98, 10, 1);
+  }
+  
+
+  .checkbox-label-ban-red {
+    background-color: rgba(219, 24, 10, 1);
+  }
+  
+
+  .checkbox-btn-ban:checked + .checkbox-label-ban {
+    transform: scale(1.15);
+  }
+  
+
+  .checkbox-btn-ban:checked + .checkbox-label-ban-yellow {
+    background-color: rgba(232, 202, 13, 1);
+  }
+  
+
+  .checkbox-btn-ban:checked + .checkbox-label-ban-orange {
+    background-color: rgba(230, 149, 10, 1);
+  }
+  
+
+  .checkbox-btn-ban:checked + .checkbox-label-ban-dark-orange {
+    background-color: rgba(230, 98, 10, 1);
+  }
+  
+
+  .checkbox-btn-ban:checked + .checkbox-label-ban-red {
+    background-color: rgba(219, 24, 10, 1);
+  }

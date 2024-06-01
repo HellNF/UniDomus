@@ -11,6 +11,7 @@
  * @param {string} [props.messageID] - The optional ID of the message to be reported (if applicable).
  * @returns {JSX.Element|null} - The rendered component.
  */
+
 import React, { useState } from 'react';
 import UniDomusLogo from '/UniDomusLogo.png';
 
@@ -80,5 +81,6 @@ const ReportPopup = ({ show, onClose, onSubmit, reportType, targetID, messageID 
         </div>
     );
 };
+
 
 export default ReportPopup;

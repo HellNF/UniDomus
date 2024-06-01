@@ -5,13 +5,16 @@ import Carousel from "../components/Carousel";
 import { API_BASE_URL, matchTypeEnum, reportTypeEnum } from "../constant";
 import MapComponent from "../components/MapComponent";
 import { useAuth } from "../AuthContext";
+import judge from "../assets/judge.svg";
 import { PhotoIcon } from '@heroicons/react/24/solid'
 import heartFilled from "../assets/favorite_filled.svg";
 import reportIcon from "../assets/report.svg"; // Import the report icon
 import SearchBar from "../components/SearchBar";
 import ReportPopup from "../components/ReportPopup"; // Import the ReportPopup component
 import useReport from "../hooks/useReport"; // Import the useReport hook
-import {XMarkIcon,CheckIcon} from "@heroicons/react/24/solid";
+import { XMarkIcon, CheckIcon } from "@heroicons/react/24/solid";
+import useBan from "../hooks/useBan";
+import BanPopup from "../components/BanPopup";
 
 
 export default function ListingDetails() {
@@ -24,6 +27,7 @@ export default function ListingDetails() {
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [addressCordinates, setAddressCordinates] = useState({});
   const [listing, setListing] = useState({});
+  const [userCurrent, setUserCurrent] = useState(null); // State for current user
   const [publisher, setPublisher] = useState({ img: "", username: "" });
   const [searchResult, setSearchResult] = useState([]);
   const [formData, setFormData] = useState({
@@ -70,6 +74,13 @@ export default function ListingDetails() {
     handleSubmitReport,
   } = useReport(); // Destructure the useReport hook
 
+  const {
+    showPopupBan,
+    handleButtonClickBan,
+    handleClosePopupBan,
+    handleSubmitBan
+  } = useBan();
+
   const handleLikeButtonClick = () => {
     const matchData = {
       requesterID: userId,
@@ -98,7 +109,7 @@ export default function ListingDetails() {
   function handleChangeInput(e) {
     const { name, value } = e.target;
     const [field, subfield] = name.split('.');
-  
+
     if (subfield) {
       setFormData(prevState => ({
         ...prevState,
@@ -117,7 +128,8 @@ export default function ListingDetails() {
 
   useEffect(() => {
     fetchListingData();
-    
+    fetchUserCurrentData();
+
   }, []);
   useEffect(() => {
     setFormData({
@@ -142,32 +154,32 @@ export default function ListingDetails() {
       fetchUserData();
       getCordinatesFromId();
     }
-    if(listing.tenantsID){
+    if (listing.tenantsID) {
       fetchTenantsInfo();
     }
   }, [listing.publisherID]);
-  
-  async function fetchTenantsInfo(){
-      setTenantsInfo([]);
-      try {
-        const tenantPromises = listing.tenantsID.map(async (tenantID) => {
-          const response = await fetch(`${API_BASE_URL}users/${tenantID}?proPic=1`);
-          const data = await response.json();
-          return {
-            img: data.user.proPic[0]
-              ? data.user.proPic[0]
-              : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            username: data.user.username,
-            id: tenantID,
-          };
-        });
 
-        const tenantsData = await Promise.all(tenantPromises);
-        setTenantsInfo(tenantsData);
-      } catch (error) {
-        console.error("Error fetching tenant data:", error);
-      }
-}
+  async function fetchTenantsInfo() {
+    setTenantsInfo([]);
+    try {
+      const tenantPromises = listing.tenantsID.map(async (tenantID) => {
+        const response = await fetch(`${API_BASE_URL}users/${tenantID}?proPic=1`);
+        const data = await response.json();
+        return {
+          img: data.user.proPic[0]
+            ? data.user.proPic[0]
+            : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+          username: data.user.username,
+          id: tenantID,
+        };
+      });
+
+      const tenantsData = await Promise.all(tenantPromises);
+      setTenantsInfo(tenantsData);
+    } catch (error) {
+      console.error("Error fetching tenant data:", error);
+    }
+  }
   async function fetchListingData() {
     await fetch(`${API_BASE_URL}listings/${id}`)
       .then((response) => response.json())
@@ -177,6 +189,18 @@ export default function ListingDetails() {
       .catch((error) => {
         console.error("Error fetching listing data:", error);
       });
+  }
+
+  async function fetchUserCurrentData() {
+    try {
+      const response = await fetch(`${API_BASE_URL}users/${userId}?proPic=false`);
+      const data = await response.json();
+      setUserCurrent(data.user); // Set userCurrent with the fetched data
+      setIsCurrentLoading(false); // Set loading state to false after fetching data
+    } catch (error) {
+      console.error("Error fetching current user data:", error);
+      setIsCurrentLoading(false); // Set loading state to false on error
+    }
   }
 
   async function fetchUserData() {
@@ -190,7 +214,7 @@ export default function ListingDetails() {
           img: userData.proPic[0]
             ? userData.proPic[0]
             : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-          username: userData.username,
+          username: userData.username
         });
       })
       .catch((error) => {
@@ -215,11 +239,11 @@ export default function ListingDetails() {
   }
   async function handleSubmitChanges(e) {
     e.preventDefault();
-    const tenantsID=tenantsInfo.map((tenant)=>tenant.id);
-    
-    
+    const tenantsID = tenantsInfo.map((tenant) => tenant.id);
+
+
     //setFormData({...formData, photos: photoPreviews, tenantsID: tenantsID});
-    const formDataCopy = { ...formData ,photos: photoPreviews, tenantsID: tenantsID};
+    const formDataCopy = { ...formData, photos: photoPreviews, tenantsID: tenantsID };
     fetch(`${API_BASE_URL}listings/${id}`, {
       method: "PUT",
       headers: {
@@ -228,31 +252,31 @@ export default function ListingDetails() {
       },
       body: JSON.stringify(formDataCopy),
     })
-      .then((response) =>{
-        if(!response.ok){
-          if(response.status === 404){
+      .then((response) => {
+        if (!response.ok) {
+          if (response.status === 404) {
             throw new Error("Listing not found");
           }
-          else if(response.status === 400){
+          else if (response.status === 400) {
             return response.json();
           }
-          else{
+          else {
             throw new Error("Error updating listing");
           }
 
         }
-        else{
+        else {
           return response.json();
         }
       })
       .then((data) => {
-        if(data.message==="Validation errors" && data.errors){
+        if (data.message === "Validation errors" && data.errors) {
           data.errors.map((error) => {
-            setFormDataErr({...formDataErr, [`${error.field}Err`] : error.message});
+            setFormDataErr({ ...formDataErr, [`${error.field}Err`]: error.message });
           });
-          showPopupDiv("Errore: dati invalidi!","red");
+          showPopupDiv("Errore: dati invalidi!", "red");
         }
-        else{
+        else {
           console.log("Listing updated successfully:", data);
           setFormDataErr({
             streetErr: "",
@@ -270,7 +294,7 @@ export default function ListingDetails() {
             publisherIDErr: "",
           })
           setModifyMode(false);
-          showPopupDiv("Modifica effettuata","green");
+          showPopupDiv("Modifica effettuata", "green");
         }
       })
       .catch((error) => {
@@ -305,7 +329,7 @@ export default function ListingDetails() {
     newPhotoPreviews.splice(index, 1);
     setPhotoPreviews(newPhotoPreviews);
   };
-  function showPopupDiv(message,color){
+  function showPopupDiv(message, color) {
     // Visualizza il popup di successo
     const successPopup = document.createElement('div');
     successPopup.textContent = message;
@@ -321,26 +345,26 @@ export default function ListingDetails() {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     z-index: 9999;
     `;
-  
+
     document.body.appendChild(successPopup);
-  
+
     setTimeout(() => {
       successPopup.remove();
-       
-    }, 2000); 
+
+    }, 2000);
   }
   const handleCancelModify = (e) => {
     e.preventDefault();
-    showPopupDiv("Modifica annullata","orange");
+    showPopupDiv("Modifica annullata", "orange");
     setModifyMode(false);
   };
-  async function handleSearch(e){
-    
+  async function handleSearch(e) {
+
     const searchValue = document.getElementById("searchBar").value;
-    if(searchValue){
+    if (searchValue) {
       const response = await fetch(`${API_BASE_URL}users/search?username=${searchValue}`);
       const data = await response.json();
-      if(data.users){
+      if (data.users) {
         setSearchResult(data.users);
       }
     }
@@ -368,7 +392,7 @@ export default function ListingDetails() {
                       <img
                         src={
                           element.includes("http") ||
-                            element.includes("data:image/png;base64,")||
+                            element.includes("data:image/png;base64,") ||
                             element.includes("data:image/jpeg;base64,")
                             ? element
                             : `data:image/png;base64,${element}`
@@ -422,31 +446,31 @@ export default function ListingDetails() {
                       <label className="font-semibold">Descrizione</label>
                       <p>
                         {listing.description}
-                        
+
                       </p>
                       <label className="font-semibold">Metratura</label>
                       <h2>{listing.floorArea} m²</h2>
                       <label className="font-semibold">Inquilini</label>
                       <div className="flex flex-row space-x-4">
                         {
-                          tenantsInfo ? 
+                          tenantsInfo ?
                             tenantsInfo.map((tenant, index) => (
                               <Link to={`/findatenant/${tenant.id}`}>
-                                <img 
+                                <img
                                   src={
                                     tenant.img.includes("http") ||
-                                    tenant.img.includes("data:image/png;base64,")||
-                                    tenant.img.includes("data:image/jpeg;base64,")
-                                    ? tenant.img
-                                    : `data:image/png;base64,${tenant.img}`
-                                  } 
-                                  alt={tenant.username} 
-                                  key={index} 
-                                  className="rounded-full h-7 w-7" 
+                                      tenant.img.includes("data:image/png;base64,") ||
+                                      tenant.img.includes("data:image/jpeg;base64,")
+                                      ? tenant.img
+                                      : `data:image/png;base64,${tenant.img}`
+                                  }
+                                  alt={tenant.username}
+                                  key={index}
+                                  className="rounded-full h-7 w-7"
                                 />
                               </Link>
                             ))
-                          : (<p>{listing.tenantsID || "non ci sono inquilini"}</p>)
+                            : (<p>{listing.tenantsID || "non ci sono inquilini"}</p>)
                         }
                       </div>
                       <label className="font-semibold">
@@ -474,7 +498,7 @@ export default function ListingDetails() {
                         <label className="font-semibold">Disponibilità: </label>
                         <h2>{listing.availability}</h2>
                       </div>
-                      <div className="flex flex-row items-center justify-evenly min-w-52">
+                      <div className="flex flex-row items-center justify-evenly min-w-72">
                         {isLoggedIn && listing.publisherID === userId ? (
                           <button
                             className="bg-white font-bold text-blue-950 p-2 rounded-md m-2"
@@ -495,10 +519,16 @@ export default function ListingDetails() {
                         >
                           <img src={reportIcon} alt="Report" />
                         </button>
+                        {isLoggedIn && userCurrent && userCurrent.isAdmin && (
+                            <button onClick={() => handleButtonClickBan("listings", listing._id)} className="bg-red-700 font-bold text-white p-2 rounded-md m-2" >
+                              <img height="28px" width="28px" src={judge} alt="judge" />
+                            </button>
+                          )}
                         <button
                           className="bg-white font-bold text-blue-950 p-2 rounded-md m-2"
                           onClick={handleLikeButtonClick}
                         >
+                        
                           {!isLiked ? (
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -596,7 +626,7 @@ export default function ListingDetails() {
                               <img
                                 src={
                                   imgSrc.includes("http") ||
-                                    imgSrc.includes("data:image/png;base64,")|| 
+                                    imgSrc.includes("data:image/png;base64,") ||
                                     imgSrc.includes("data:image/jpeg;base64,")
                                     ? imgSrc
                                     : `data:image/png;base64,${imgSrc}`
@@ -948,71 +978,71 @@ export default function ListingDetails() {
                 </h2>
                 <div className="flex flex-col space-y-3 bg-slate-50 rounded-md p-2">
                   <SearchBar placeholder={"Digita l'username da cercare..."} onSearch={handleSearch}></SearchBar>
-                  {tenantsInfo ? 
-                    
-                      tenantsInfo.map((tenant, index) => (
-                        <div className="flex flex-row space-x-4 items-center justify-between rounded-md shadow-sm w-full">
-                          <Link to={`/findatenant/${tenant.id}`} className="flex flex-row   place-items-center justify-start p-2 space-x-6">
-                            <img
-                              src={tenant.img?
-                                tenant.img.includes("http") ||
-                                tenant.img.includes("data:image/png;base64,")||
+                  {tenantsInfo ?
+
+                    tenantsInfo.map((tenant, index) => (
+                      <div className="flex flex-row space-x-4 items-center justify-between rounded-md shadow-sm w-full">
+                        <Link to={`/findatenant/${tenant.id}`} className="flex flex-row   place-items-center justify-start p-2 space-x-6">
+                          <img
+                            src={tenant.img ?
+                              tenant.img.includes("http") ||
+                                tenant.img.includes("data:image/png;base64,") ||
                                 tenant.img.includes("data:image/jpeg;base64,")
                                 ? tenant.img
                                 : `data:image/png;base64,${tenant.img}`
-                                : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                              }
-                              alt={tenant.username}
-                              key={index}
-                              className="rounded-full h-6 w-6"
-                            />
-                            <p className="text-normal font-normal">{tenant.username}</p>
-                            <p className="text-sm italic text-gray-400">Current tenant</p>
-                          </Link>
-                          <div className="flex flex-row space-x-4">
-                            <button type="button" onClick={()=>removeTenant(tenant.id)} className="h-6 w-6 p-1 bg-slate-300 hover:bg-red-500 rounded-full"><XMarkIcon fill={"white"}></XMarkIcon></button>
+                              : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                            }
+                            alt={tenant.username}
+                            key={index}
+                            className="rounded-full h-6 w-6"
+                          />
+                          <p className="text-normal font-normal">{tenant.username}</p>
+                          <p className="text-sm italic text-gray-400">Current tenant</p>
+                        </Link>
+                        <div className="flex flex-row space-x-4">
+                          <button type="button" onClick={() => removeTenant(tenant.id)} className="h-6 w-6 p-1 bg-slate-300 hover:bg-red-500 rounded-full"><XMarkIcon fill={"white"}></XMarkIcon></button>
 
-                          </div>
                         </div>
-                      ))
-                    
-                    
-                  
-                  : (<p>Non ci sono inquilini</p>)
+                      </div>
+                    ))
+
+
+
+                    : (<p>Non ci sono inquilini</p>)
                   }
-                  { searchResult.length > 0 ?
+                  {searchResult.length > 0 ?
                     searchResult.map((user, index) => (
                       <div className="flex flex-row space-x-4 items-center justify-between rounded-md shadow-sm w-full">
-                          <Link to={`/findatenant/${user._id}`} className="flex flex-row   place-items-center justify-start p-2 space-x-6">
-                            <img
-                              src={
-                               user.proPic?
-                                  user.proPic.includes("http") ||
-                                  user.proPic.includes("data:image/png;base64,")||
+                        <Link to={`/findatenant/${user._id}`} className="flex flex-row   place-items-center justify-start p-2 space-x-6">
+                          <img
+                            src={
+                              user.proPic ?
+                                user.proPic.includes("http") ||
+                                  user.proPic.includes("data:image/png;base64,") ||
                                   user.proPic.includes("data:image/jpeg;base64,")
                                   ? user.proPic
                                   : `data:image/png;base64,${user.proPic}`
                                 : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                              }
-                              alt={user.username}
-                              key={index}
-                              className="rounded-full h-6 w-6"
-                            />
-                            <p className="text-normal font-normal">{user.username}</p>
-                          </Link>
-                          <div className="flex flex-row space-x-4">
-                          
-                            <button type="button" className="h-6 w-6 p-1 bg-slate-300 hover:bg-green-500 rounded-full" onClick={
-                              () => {
-                                setTenantsInfo([...tenantsInfo,{img: user.proPic, username: user.username, id: user._id}]);
-                              }
-                            }><CheckIcon fill={"white"}></CheckIcon></button>
-                          </div>
+                            }
+                            alt={user.username}
+                            key={index}
+                            className="rounded-full h-6 w-6"
+                          />
+                          <p className="text-normal font-normal">{user.username}</p>
+                        </Link>
+                        <div className="flex flex-row space-x-4">
+
+                          <button type="button" className="h-6 w-6 p-1 bg-slate-300 hover:bg-green-500 rounded-full" onClick={
+                            () => {
+                              setTenantsInfo([...tenantsInfo, { img: user.proPic, username: user.username, id: user._id }]);
+                            }
+                          }><CheckIcon fill={"white"}></CheckIcon></button>
                         </div>
+                      </div>
                     ))
                     : (<p>Nessun risultato</p>)
 
-                  
+
 
                   }
                 </div>
@@ -1043,6 +1073,12 @@ export default function ListingDetails() {
         reportType={currentReportType}
         targetID={currentTargetID}
         messageID={currentMessageID}
+      />
+      <BanPopup
+        show={showPopupBan}
+        onClose={handleClosePopupBan}
+        onSubmit={handleSubmitBan}
+        prevBan={listing.ban.prevBanNum}
       />
     </>
   );
