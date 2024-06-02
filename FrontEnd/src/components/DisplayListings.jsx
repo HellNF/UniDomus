@@ -52,6 +52,7 @@ import { API_BASE_URL } from "../constant";
             console.error('Error fetching coordinates data:', error);
         });
     }
+
     function fetchListings(){
         fetch(`${API_BASE_URL}listings?`+ new URLSearchParams({
             typology: typology,
@@ -60,7 +61,13 @@ import { API_BASE_URL } from "../constant";
             floorAreaMin: floorArea[0],
             floorAreaMax: floorArea[1],
             banned: false
-        }))
+        }), {
+        headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': localStorage.getItem("token")
+            }
+        }
+        )
         .then(response => response.json())
         .then(data => {
             setListings(data.listings)

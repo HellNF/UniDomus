@@ -16,13 +16,14 @@ const NotificationModel = require('../models/notificationModel');
 const { notificationPriorityEnum} = require('../models/enums');
 
 describe('Listing Controller', () => {
-    let token;
+    let token, adminToken;
 
     beforeEach(() => {
         jest.clearAllMocks(); // Clear mock function calls before each test
 
         // Generate a valid JWT token for testing
-        token = jwt.sign({ id: 'testUserId' }, process.env.SUPER_SECRET, { expiresIn: '1h' });
+        token = jwt.sign({ id: 'testUserId', isAdmin: false }, process.env.SUPER_SECRET, { expiresIn: '1h' });
+        adminToken = jwt.sign({ id: 'adminUserId', isAdmin: true }, process.env.SUPER_SECRET, { expiresIn: '1h' });
     });
 
     describe('GET /api/listings', () => {
@@ -32,7 +33,7 @@ describe('Listing Controller', () => {
                 { price: 1800, typology: 'doppia', address: { city: 'Trento' }, floorArea: 90 },
             ];
 
-            Listing.find.mockResolvedValue(mockListings);
+            jest.spyOn(Listing, 'find').mockResolvedValue(mockListings);
 
             const response = await request(app)
                 .get('/api/listings')
@@ -47,16 +48,147 @@ describe('Listing Controller', () => {
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ listings: mockListings });
-            expect(Listing.find).toHaveBeenCalledWith({
+            expect(Listing.find).toHaveBeenCalledWith(expect.objectContaining({
+                price: { $gte: 1000, $lte: 2000 },
+                typology: 'doppia',
+                'address.city': 'Trento',
+                floorArea: { $gte: 50, $lte: 100 },
+                $and: expect.arrayContaining([
+                    expect.objectContaining({
+                        $or: expect.arrayContaining([
+                            { 'ban.banPermanently': { $ne: true } },
+                            { 'ban.banPermanently': { $exists: false } },
+                        ]),
+                    }),
+                    expect.objectContaining({
+                        $or: expect.arrayContaining([
+                            { 'ban.banTime': { $lte: expect.any(Date) } },
+                            { 'ban.banTime': { $exists: false } },
+                        ]),
+                    }),
+                ])
+            }));
+        });
+
+        it('should return only non-banned listings when no token is provided', async () => {
+            const mockListings = [
+                { price: 1500, typology: 'doppia', address: { city: 'Trento' }, floorArea: 80, ban: { banPermanently: false, banTime: new Date(Date.now() - 3600 * 1000).toISOString() } },
+                { price: 1800, typology: 'doppia', address: { city: 'Trento' }, floorArea: 90, ban: { banPermanently: true } }
+            ];
+
+            jest.spyOn(Listing, 'find').mockResolvedValue([mockListings[0]]);
+
+            const response = await request(app)
+                .get('/api/listings')
+                .query({
+                    priceMin: '1000',
+                    priceMax: '2000',
+                    typology: 'doppia',
+                    city: 'Trento',
+                    floorAreaMin: '50',
+                    floorAreaMax: '100'
+                });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ listings: [mockListings[0]] });
+            expect(Listing.find).toHaveBeenCalledWith(expect.objectContaining({
+                price: { $gte: 1000, $lte: 2000 },
+                typology: 'doppia',
+                'address.city': 'Trento',
+                floorArea: { $gte: 50, $lte: 100 },
+                $and: expect.arrayContaining([
+                    expect.objectContaining({
+                        $or: expect.arrayContaining([
+                            { 'ban.banPermanently': { $ne: true } },
+                            { 'ban.banPermanently': { $exists: false } },
+                        ]),
+                    }),
+                    expect.objectContaining({
+                        $or: expect.arrayContaining([
+                            { 'ban.banTime': { $lte: expect.any(Date) } },
+                            { 'ban.banTime': { $exists: false } },
+                        ]),
+                    }),
+                ])
+            }));
+        });
+
+        it('should return only non-banned listings when authenticated as a non-admin user', async () => {
+            const mockListings = [
+                { price: 1500, typology: 'doppia', address: { city: 'Trento' }, floorArea: 80, ban: { banPermanently: false, banTime: new Date(Date.now() - 3600 * 1000).toISOString() } },
+                { price: 1800, typology: 'doppia', address: { city: 'Trento' }, floorArea: 90, ban: { banPermanently: true } }
+            ];
+
+            jest.spyOn(Listing, 'find').mockResolvedValue([mockListings[0]]);
+
+            const response = await request(app)
+                .get('/api/listings')
+                .set('x-access-token', token)
+                .query({
+                    priceMin: '1000',
+                    priceMax: '2000',
+                    typology: 'doppia',
+                    city: 'Trento',
+                    floorAreaMin: '50',
+                    floorAreaMax: '100'
+                });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ listings: [mockListings[0]] });
+            expect(Listing.find).toHaveBeenCalledWith(expect.objectContaining({
+                price: { $gte: 1000, $lte: 2000 },
+                typology: 'doppia',
+                'address.city': 'Trento',
+                floorArea: { $gte: 50, $lte: 100 },
+                $and: expect.arrayContaining([
+                    expect.objectContaining({
+                        $or: expect.arrayContaining([
+                            { 'ban.banPermanently': { $ne: true } },
+                            { 'ban.banPermanently': { $exists: false } },
+                        ]),
+                    }),
+                    expect.objectContaining({
+                        $or: expect.arrayContaining([
+                            { 'ban.banTime': { $lte: expect.any(Date) } },
+                            { 'ban.banTime': { $exists: false } },
+                        ]),
+                    }),
+                ])
+            }));
+        });
+
+        it('should return all listings including banned ones when authenticated as an admin user', async () => {
+            const mockListings = [
+                { price: 1500, typology: 'doppia', address: { city: 'Trento' }, floorArea: 80, ban: { banPermanently: false, banTime: new Date(Date.now() - 3600 * 1000).toISOString() } },
+                { price: 1800, typology: 'doppia', address: { city: 'Trento' }, floorArea: 90, ban: { banPermanently: true } }
+            ];
+
+            jest.spyOn(Listing, 'find').mockResolvedValue(mockListings);
+
+            const response = await request(app)
+                .get('/api/listings')
+                .set('x-access-token', adminToken)
+                .query({
+                    priceMin: '1000',
+                    priceMax: '2000',
+                    typology: 'doppia',
+                    city: 'Trento',
+                    floorAreaMin: '50',
+                    floorAreaMax: '100'
+                });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ listings: mockListings });
+            expect(Listing.find).toHaveBeenCalledWith(expect.objectContaining({
                 price: { $gte: 1000, $lte: 2000 },
                 typology: 'doppia',
                 'address.city': 'Trento',
                 floorArea: { $gte: 50, $lte: 100 }
-            });
+            }));
         });
 
         it('should return an empty array when no listings match the filter criteria', async () => {
-            Listing.find.mockResolvedValue([]);
+            jest.spyOn(Listing, 'find').mockResolvedValue([]);
 
             const response = await request(app)
                 .get('/api/listings')
@@ -74,7 +206,7 @@ describe('Listing Controller', () => {
         });
 
         it('should handle errors and return 500 status code with an error message', async () => {
-            Listing.find.mockRejectedValue(new Error('Database error'));
+            jest.spyOn(Listing, 'find').mockRejectedValue(new Error('Database error'));
 
             const response = await request(app)
                 .get('/api/listings')

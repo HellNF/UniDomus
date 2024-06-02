@@ -25,6 +25,7 @@ const { notificationPriorityEnum} = require('../models/enums');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const User = require('../models/userModel');
+const tokenChecker = require('../middleware/tokenChecker');
 
 
 /**
@@ -664,23 +665,42 @@ async function getHousingSeekers(req, res) {
             query.habits = { $all: habits };
         }
 
-        // Exclude banned users
-        const currentTime = new Date();
-        const twoHoursLater = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000); 
-        query.$and = [
-            {
-                $or: [
-                    { 'ban.banPermanently': { $ne: true } },
-                    { 'ban.banPermanently': { $exists: false } }
-                ]
-            },
-            {
-                $or: [
-                    { 'ban.banTime': { $lte: twoHoursLater } },
-                    { 'ban.banTime': { $exists: false } }
-                ]
+        let isAdmin = false;
+
+        // Check if the user is authenticated
+        const token = req.headers['x-access-token'];
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.SUPER_SECRET);
+                req.loggedUser = decoded;
+                isAdmin = req.loggedUser.isAdmin;
+            } catch (err) {
+                console.error("Failed to authenticate token:", err);
+                // If token verification fails, continue without isAdmin privileges
             }
-        ];
+        } else {
+            console.log("No token provided");
+        }
+
+        if (!isAdmin) {
+            // Exclude banned users if the user is not an administrator
+            const currentTime = new Date();
+            const twoHoursLater = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000);
+            query.$and = [
+                {
+                    $or: [
+                        { 'ban.banPermanently': { $ne: true } },
+                        { 'ban.banPermanently': { $exists: false } }
+                    ]
+                },
+                {
+                    $or: [
+                        { 'ban.banTime': { $lte: twoHoursLater } },
+                        { 'ban.banTime': { $exists: false } }
+                    ]
+                }
+            ];
+        }
 
         const users = await User.find(query);
 
@@ -691,6 +711,7 @@ async function getHousingSeekers(req, res) {
         return res.status(500).json({ message: "Error retrieving housing seekers", error: error.message });
     }
 }
+
 
 async function googleLogin(req, res) {
     try {

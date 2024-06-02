@@ -5,7 +5,6 @@ info:
   description: API for the Unidomus application, a platform for real estate listings and roommate matching.
   
 paths:
-  
   /api/token/token/{token}:
     get:
       summary: Confirm token and activate user account
@@ -28,44 +27,57 @@ paths:
           description: Internal server error occurred.
   /api/listings:
     get:
-      summary: Retrieve listings based on query parameters
-      description: Retrieve listings based on price range, typology, city, and floor area range.
       tags:
         - Listings
+      summary: Retrieve listings
+      description: >
+        Retrieve a list of listings. If the request is made by an admin, the response will include both banned and non-banned listings. If the request is made by a non-admin or an unauthenticated user, only non-banned listings will be returned.
       parameters:
-        - in: query
-          name: priceMin
+        - name: priceMin
+          in: query
+          description: Minimum price of the listings
+          required: false
           schema:
-            type: number
-          description: Minimum price filter
-        - in: query
-          name: priceMax
+            type: integer
+            example: 1000
+        - name: priceMax
+          in: query
+          description: Maximum price of the listings
+          required: false
           schema:
-            type: number
-          description: Maximum price filter
-        - in: query
-          name: typology
+            type: integer
+            example: 2000
+        - name: typology
+          in: query
+          description: Typology of the listings
+          required: false
           schema:
             type: string
-          description: Typology filter
-        - in: query
-          name: city
+            example: doppia
+        - name: city
+          in: query
+          description: City where the listings are located
+          required: false
           schema:
             type: string
-          description: City filter
-        - in: query
-          name: floorAreaMin
+            example: Trento
+        - name: floorAreaMin
+          in: query
+          description: Minimum floor area of the listings
+          required: false
           schema:
-            type: number
-          description: Minimum floor area filter
-        - in: query
-          name: floorAreaMax
+            type: integer
+            example: 50
+        - name: floorAreaMax
+          in: query
+          description: Maximum floor area of the listings
+          required: false
           schema:
-            type: number
-          description: Maximum floor area filter
+            type: integer
+            example: 100
       responses:
-        "200":
-          description: A list of listings matching the query parameters
+        '200':
+          description: List of listings retrieved successfully
           content:
             application/json:
               schema:
@@ -74,7 +86,59 @@ paths:
                   listings:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Listing"
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: 60d21b4667d0d8992e610c85
+                        price:
+                          type: integer
+                          example: 1500
+                        typology:
+                          type: string
+                          example: doppia
+                        address:
+                          type: object
+                          properties:
+                            city:
+                              type: string
+                              example: Trento
+                        floorArea:
+                          type: integer
+                          example: 80
+                        ban:
+                          type: object
+                          properties:
+                            banTime:
+                              type: string
+                              format: date-time
+                              example: "2024-06-02T00:47:01.872Z"
+                            banPermanently:
+                              type: boolean
+                              example: false
+        '401':
+          description: Unauthorized - Token is missing or invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No token provided
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error retrieving listings
+                  error:
+                    type: string
+                    example: Database error
   /api/listings/{id}:
     get:
       summary: Retrieve a listing by ID
@@ -731,6 +795,117 @@ paths:
                   message:
                     type: string
                     example: Internal server error
+  /api/users/housingseekers:
+    get:
+      tags:
+        - Users
+      summary: Retrieve housing seekers
+      description: >
+        Retrieve a list of housing seekers. If the request is made by an admin, the response will include both banned and non-banned users. If the request is made by a non-admin or an unauthenticated user, only non-banned users will be returned.
+      parameters:
+        - name: etaMin
+          in: query
+          description: Minimum age of the housing seekers
+          required: false
+          schema:
+            type: integer
+            example: 18
+        - name: etaMax
+          in: query
+          description: Maximum age of the housing seekers
+          required: false
+          schema:
+            type: integer
+            example: 65
+        - name: gender
+          in: query
+          description: Gender of the housing seekers
+          required: false
+          schema:
+            type: string
+            example: male
+        - name: hobbies
+          in: query
+          description: List of hobbies the housing seekers should have
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            example: [reading, sports]
+        - name: habits
+          in: query
+          description: List of habits the housing seekers should have
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            example: [non-smoker, early-riser]
+      responses:
+        '200':
+          description: List of housing seekers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: 60d21b4667d0d8992e610c85
+                        email:
+                          type: string
+                          example: user@example.com
+                        username:
+                          type: string
+                          example: john_doe
+                        gender:
+                          type: string
+                          example: male
+                        hobbies:
+                          type: array
+                          items:
+                            type: string
+                        habits:
+                          type: array
+                          items:
+                            type: string
+                        ban:
+                          type: object
+                          properties:
+                            banTime:
+                              type: string
+                              format: date-time
+                            banPermanently:
+                              type: boolean
+        '401':
+          description: Unauthorized - Token is missing or invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No token provided
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error retrieving housing seekers
+                  error:
+                    type: string
+                    example: Database error
   /api/users/tags:
     get:
       summary: Get user tags

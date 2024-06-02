@@ -67,7 +67,13 @@ export default function DisplayTenantsPage() {
 
     console.log(params.toString())
 
-    fetch(`${API_BASE_URL}users/housingseekers?${params.toString()}`)
+    fetch(`${API_BASE_URL}users/housingseekers?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'x-access-token': localStorage.getItem("token"),
+        'Content-Type': 'application/json'
+      },
+    })
       .then(response => response.json())
       .then(data => {
         setUsers(data.users);
@@ -244,37 +250,42 @@ const resetFilters = () => {
         <div className="w-3/4 p-4 h-screen overflow-y-scroll">
         <h3 className="mb-4 text-lg font-semibold">Utenti in cerca di appartamento</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-          {users.map(user => (
+            {users.map(user => {
+                // Get current time and add 2 hours
+                const currentTime = new Date();
+                currentTime.setHours(currentTime.getHours() + 2);
 
-            <Link to={`/findatenant/${user._id}`} className="relative p-4  hover:bg-gray-100 border rounded-lg shadow flex flex-col items-center">
-             {user.proPic.length > 0 ? (
-              
-                
-                  <img 
-                    src={user.proPic[0].includes("http") || user.proPic[0].includes("data:image/png;base64,") ? user.proPic[0] : `data:image/png;base64,${user.proPic[0]}`} 
-                    alt="ciao" 
-                    className=" rounded-full object-cover" 
-                  />
-               )
-             : (
-    
-              <img 
-                src={genericUser} 
-                alt="Generic User" 
-                className="flex  items-center justify-center" 
-              />
-            )}
-              <button type="button"  className="flex absolute top-0 right-0 justify-center rounded-md bg-blue-950 p-2 text-sm font-semibold leading-6 text-center text-white shadow-sm hover:bg-blue-700"><img src={heart} alt="Like" /></button>
+                // Check if the user is banned
+                const isBanned = user.ban?.banPermanently || (user.ban?.banTime && new Date(user.ban.banTime) > currentTime);
 
-              <div className="text-center mt-4">
-                <p><strong> {user.username}</strong></p>
-                <p> {user.name?`${user.name} `:``}
-                    {user.surname?` ${user.surname}`:``}
-                    {user.surname && user.birthDate?`, `:``}
-                    {user.birthDate?`${calculateAge(user.birthDate)} `:``}</p>
-              </div>
-            </Link>
-          ))}
+                return (
+                    <Link to={`/findatenant/${user._id}`} key={user._id} className="relative p-4 hover:bg-gray-100 border rounded-lg shadow flex flex-col items-center">
+                        {user.proPic.length > 0 ? (
+                            <img
+                                src={user.proPic[0].includes("http") || user.proPic[0].includes("data:image/png;base64,") ? user.proPic[0] : `data:image/png;base64,${user.proPic[0]}`}
+                                alt="ciao"
+                                className="rounded-full object-cover"
+                            />
+                        ) : (
+                            <img
+                                src={genericUser}
+                                alt="Generic User"
+                                className="flex items-center justify-center"
+                            />
+                        )}
+                        <button type="button" className="flex absolute top-0 right-0 justify-center rounded-md bg-blue-950 p-2 text-sm font-semibold leading-6 text-center text-white shadow-sm hover:bg-blue-700">
+                            <img src={heart} alt="Like" />
+                        </button>
+                        <div className="text-center mt-4">
+                            <p className={`${isBanned ? 'text-red-500' : 'text-black'}`}><strong>{user.username}</strong></p>
+                            <p>{user.name ? `${user.name} ` : ``}
+                                {user.surname ? ` ${user.surname}` : ``}
+                                {user.surname && user.birthDate ? `, ` : ``}
+                                {user.birthDate ? `${calculateAge(user.birthDate)} ` : ``}</p>
+                        </div>
+                    </Link>
+                );
+            })}
         </div>
       </div>
       </div>
