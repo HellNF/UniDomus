@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import UniDomusLogo from "/UniDomusLogoWhite.png";
@@ -7,11 +8,13 @@ import { API_BASE_URL, reportTypeEnum } from "../constant";
 import { useAuth } from "../AuthContext";
 import heartFilled from "../assets/favorite_filled.svg";
 import judge from "../assets/judge.svg";
+import unban from "../assets/unban.svg";
 import reportIcon from "../assets/report.svg"; // Import the report icon
 import useReport from "../hooks/useReport";
 import ReportPopup from "../components/ReportPopup";
 import useBan from "../hooks/useBan";
 import BanPopup from "../components/BanPopup";
+import { useLoadContext } from '../context/LoadContext';
 
 export default function TenantDetails() {
   const { id } = useParams();
@@ -22,8 +25,8 @@ export default function TenantDetails() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCurrentLoading, setIsCurrentLoading] = useState(true); // State for current user loading
-
-
+  const [isUserBanned, setIsUserBanned] = useState(false); 
+  const { load, setLoad } = useLoadContext();
 
   const {
     showPopupBan,
@@ -43,15 +46,22 @@ export default function TenantDetails() {
 
 
   useEffect(() => {
+    console.log(isLoggedIn)
     fetchUserData();
     fetchUserCurrentData(); // Fetch data for the current authenticated user
-  }, []);
+  },[load]);//reload
 
   async function fetchUserData() {
     try {
       const response = await fetch(`${API_BASE_URL}users/${id}?proPic=True`);
       const data = await response.json();
       setUser(data.user);
+
+      const currentTime = new Date();
+      currentTime.setHours(currentTime.getHours() + 2);
+      
+      setIsUserBanned( data.user.ban.banPermanently || (data.user.ban.banTime && new Date(data.user.ban.banTime) > currentTime));
+      
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -61,9 +71,16 @@ export default function TenantDetails() {
 
   async function fetchUserCurrentData() {
     try {
-      const response = await fetch(`${API_BASE_URL}users/${userId}?proPic=false`);
+      const response = await fetch(`${API_BASE_URL}users/${userId}?proPic=false`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': localStorage.getItem('token'),
+        },
+    });
+      
       const data = await response.json();
       setUserCurrent(data.user); // Set userCurrent with the fetched data
+
       setIsCurrentLoading(false); // Set loading state to false after fetching data
     } catch (error) {
       console.error("Error fetching current user data:", error);
@@ -96,6 +113,27 @@ export default function TenantDetails() {
     window.location.href = '/editprofile?editMode=true';
   };
 
+
+   const handleUnban = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}users/${user._id}/unban`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-access-token': localStorage.getItem('token'), 
+            },
+        });
+
+        if (response.ok) {
+            console.log('User unbanned successfully');
+            setLoad(!load); // Toggle reload state to trigger re-render
+        } else {
+            console.error('Failed to unban user');
+        }
+    } catch (error) {
+        console.error('Error unbanning user:', error);
+    }
+};
 
   return (
     <div>
@@ -183,7 +221,7 @@ export default function TenantDetails() {
               </div>
 
               <div className="flex justify-between py-8">
-                {isLoggedIn && user._id !== userId && (
+                {isLoggedIn && !isUserBanned && user._id !== userId && (
                   <button onClick={() => handleButtonClick(reportTypeEnum.USER, user._id)} className="bg-transparent">
                     <img src={reportIcon} alt="Report" className="h-8 w-8" />
                   </button>
@@ -191,12 +229,17 @@ export default function TenantDetails() {
                 {isLoggedIn && user._id === userId && (
                   <button className="bg-blue-950 font-bold text-white p-2 rounded-md m-2" onClick={handleClickModify}>Modifica</button>
                 )}
-                {isLoggedIn && userCurrent && userCurrent.isAdmin && (
+                {isLoggedIn && userCurrent && !isUserBanned &&  user._id !== userId &&  userCurrent.isAdmin && (
                   <button onClick={() => handleButtonClickBan("users",user._id)} className="bg-red-700 font-bold text-white p-2 rounded-md m-2" >
                     <img height="30px" width="30px" src={judge} alt="judge" />
                   </button>
                 )}
-                {isLoggedIn && user._id !== userId && (
+                {isLoggedIn && userCurrent && isUserBanned &&  user._id !== userId &&  userCurrent.isAdmin && (
+                  <button onClick={() => handleUnban()} className="bg-green-600 font-bold text-white p-2 rounded-md m-2" >
+                    <img height="30px" width="30px" src={unban} alt="unban" />
+                  </button>
+                )}
+                {isLoggedIn && !isUserBanned &&  user._id !== userId && (
                   <button className="bg-blue-950 font-bold text-white p-2 rounded-md m-2">
                     {!isLiked ? (
                       <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="white">
