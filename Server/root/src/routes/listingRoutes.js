@@ -17,9 +17,9 @@ router.post('/', tokenChecker, addListing);
 
 router.put('/:id',updateListingById);
 
-router.put('/:id/ban',banListingById);
+router.put('/:id/ban',tokenChecker,banListingById);
 
-router.put('/:id/unban',unbanListingById);
+router.put('/:id/unban',tokenChecker,unbanListingById);
 
 router.delete('/:id',tokenChecker,deleteListingById);
 

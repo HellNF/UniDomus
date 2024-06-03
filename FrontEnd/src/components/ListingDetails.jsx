@@ -11,12 +11,14 @@ import heartFilled from "../assets/favorite_filled.svg";
 import reportIcon from "../assets/report.svg"; // Import the report icon
 import SearchBar from "./SearchBar";
 import unban from "../assets/unban.svg";
+import deleteListing from "../assets/deleteListing.svg";
 import ReportPopup from "./ReportPopup"; // Import the ReportPopup component
 import useReport from "../hooks/useReport"; // Import the useReport hook
 import { XMarkIcon, CheckIcon } from "@heroicons/react/24/solid";
 import useBan from "../hooks/useBan";
 import BanPopup from "./BanPopup";
 import { useLoadContext } from '../context/LoadContext';
+
 
 
 export default function ListingDetails() {
@@ -85,6 +87,8 @@ export default function ListingDetails() {
     handleSubmitBan
   } = useBan();
 
+  const navigate = useNavigate();
+
   const handleLikeButtonClick = () => {
     const matchData = {
       requesterID: userId,
@@ -130,26 +134,50 @@ export default function ListingDetails() {
     }
   }
 
+
   const handleUnban = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}listings/${listing._id}/unban`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-access-token': localStorage.getItem('token'), 
-            },
-        });
+      const response = await fetch(`${API_BASE_URL}listings/${listing._id}/unban`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': localStorage.getItem('token'),
+        },
+      });
 
-        if (response.ok) {
-            console.log('Listing unbanned successfully');
-            setLoad(!load); // Toggle reload state to trigger re-render
-        } else {
-            console.error('Failed to unban listing');
-        }
+      if (response.ok) {
+        console.log('Listing unbanned successfully');
+        setLoad(!load); // Toggle reload state to trigger re-render
+      } else {
+        console.error('Failed to unban listing');
+      }
     } catch (error) {
-        console.error('Error unbanning listing:', error);
+      console.error('Error unbanning listing:', error);
     }
-};
+  };
+
+
+  const handleDeleteListing = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}listings/${listing._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': localStorage.getItem('token'),
+        },
+      });
+
+      if (response.ok) {
+        console.log('Listing deleted successfully');
+        navigate("/findaflat");
+      } else {
+        console.error('Failed to delete listing');
+      }
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+    }
+  };
+
 
   useEffect(() => {
     fetchListingData();
@@ -214,7 +242,7 @@ export default function ListingDetails() {
         currentTime.setHours(currentTime.getHours() + 2);
         console.log(data.listing)
         console.log(data.listing.ban.banPermanently || (data.listing.ban.banTime && new Date(data.listing.ban.banTime) > currentTime))
-        setIsListingBanned( data.listing.ban.banPermanently || (data.listing.ban.banTime && new Date(data.listing.ban.banTime) > currentTime));
+        setIsListingBanned(data.listing.ban.banPermanently || (data.listing.ban.banTime && new Date(data.listing.ban.banTime) > currentTime));
       })
       .catch((error) => {
         console.error("Error fetching listing data:", error);
@@ -541,46 +569,51 @@ export default function ListingDetails() {
                         ) : (
                           <></>
                         )}
-                        {isLoggedIn && userCurrent && !isListingBanned  && listing.publisherID !== userId &&  userCurrent.isAdmin && (
-                        <button
-                          className="bg-white font-bold text-blue-950 p-2 rounded-md m-2"
-                          onClick={() =>
-                            handleButtonClick(reportTypeEnum.LISTING, listing._id)
-                          }
-                        >
-                          <img src={reportIcon} alt="Report" />
-                        </button>
+                        {isLoggedIn && userCurrent && !isListingBanned && listing.publisherID !== userId && userCurrent.isAdmin && (
+                          <button
+                            className="bg-white font-bold text-blue-950 p-2 rounded-md m-2"
+                            onClick={() =>
+                              handleButtonClick(reportTypeEnum.LISTING, listing._id)
+                            }
+                          >
+                            <img src={reportIcon} alt="Report" />
+                          </button>
                         )}
-                        {isLoggedIn && userCurrent && !isListingBanned  && listing.publisherID !== userId && userCurrent.isAdmin && (
+                        {isLoggedIn && userCurrent && !isListingBanned && listing.publisherID !== userId && userCurrent.isAdmin && (
                           <button onClick={() => handleButtonClickBan("listings", listing._id)} className="bg-red-700 font-bold text-white p-2 rounded-md m-2" >
                             <img height="28px" width="28px" src={judge} alt="judge" />
                           </button>
                         )}
-                        {isLoggedIn && userCurrent && isListingBanned  && listing.publisherID !== userId &&  userCurrent.isAdmin && (
-                  <button onClick={() => handleUnban()} className="bg-green-600 font-bold text-white p-2 rounded-md m-2" >
-                    <img height="30px" width="30px" src={unban} alt="unban" />
-                  </button>
-                )}
-                {isLoggedIn && userCurrent && !isListingBanned &&  listing.publisherID !== userId &&  userCurrent.isAdmin && (
-                        <button
-                          className="bg-white font-bold text-blue-950 p-2 rounded-md m-2"
-                          onClick={handleLikeButtonClick}
-                        >
+                        {isLoggedIn && userCurrent && isListingBanned && listing.publisherID !== userId && userCurrent.isAdmin && (
+                          <button onClick={() => handleUnban()} className="bg-green-600 font-bold text-white p-2 rounded-md m-2" >
+                            <img height="30px" width="30px" src={unban} alt="unban" />
+                          </button>
+                        )}
+                        {isLoggedIn && userCurrent && userCurrent.isAdmin && (
+                          <button onClick={() => handleDeleteListing()} className="bg-red-700 font-bold text-white p-2 rounded-md m-2" >
+                            <img height="30px" width="30px" src={deleteListing} alt="deleteListing" />
+                          </button>
+                        )}
+                        {isLoggedIn && userCurrent && !isListingBanned && listing.publisherID !== userId && userCurrent.isAdmin && (
+                          <button
+                            className="bg-white font-bold text-blue-950 p-2 rounded-md m-2"
+                            onClick={handleLikeButtonClick}
+                          >
 
-                          {!isLiked ? (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              height="24px"
-                              viewBox="0 -960 960 960"
-                              width="24px"
-                              fill="blue-950"
-                            >
-                              <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
-                            </svg>
-                          ) : (
-                            <img src={heartFilled} alt="Like" />
-                          )}
-                        </button>
+                            {!isLiked ? (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                height="24px"
+                                viewBox="0 -960 960 960"
+                                width="24px"
+                                fill="blue-950"
+                              >
+                                <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
+                              </svg>
+                            ) : (
+                              <img src={heartFilled} alt="Like" />
+                            )}
+                          </button>
                         )}
                       </div>
                     </div>
