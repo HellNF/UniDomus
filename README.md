@@ -135,7 +135,7 @@ After starting both the backend and frontend servers, you can access the applica
 
 ## API Documentation
 
-The API is documented using OpenAPI 3.0. The documentation can be found either in the `swagger.yaml` file located in the `Server/root` directory or at https://unidomus.docs.apiary.io/#reference/0//api/listing.
+The API is documented using OpenAPI 3.0. The documentation can be found either in the `swagger.yaml` file located in the `Server/root` directory or at https://unidomus.docs.apiary.io/#.
 
 
 ## Contributing
