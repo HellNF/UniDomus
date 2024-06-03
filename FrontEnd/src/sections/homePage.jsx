@@ -26,7 +26,7 @@ const sections = [
   {
     title: "Find a Roommate",
     description: "Connect with people looking for roommates.",
-    link: "/displayTenants",
+    link: "/findatenant",
     svg: (
       <svg
         className="h-8 w-8 text-green-600"
@@ -67,48 +67,6 @@ const sections = [
           strokeLinejoin="round"
           strokeWidth="2"
           d="M12 14l6-6M6 18V6a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H8a2 2 0 01-2-2v-2H4a2 2 0 01-2-2v-8a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-2"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Manage Listings",
-    description: "Edit or remove your existing property listings.",
-    link: "/manageListings",
-    svg: (
-      <svg
-        className="h-8 w-8 text-yellow-600"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M11 5a2 2 0 014 0v2M5 7h14M4 15h16M6 9v10a2 2 0 002 2h8a2 2 0 002-2V9"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Contact Support",
-    description: "Get help and support for any issues you face.",
-    link: "/support",
-    svg: (
-      <svg
-        className="h-8 w-8 text-purple-600"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M18.364 5.636a9 9 0 110 12.728M12 9v2M12 15h.01"
         />
       </svg>
     ),

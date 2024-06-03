@@ -3,7 +3,7 @@ info:
   title: Unidomus API
   version: 2.0.0
   description: API for the Unidomus application, a platform for real estate listings and roommate matching.
-  
+
 paths:
   /api/token/token/{token}:
     get:
@@ -76,7 +76,7 @@ paths:
             type: integer
             example: 100
       responses:
-        '200':
+        "200":
           description: List of listings retrieved successfully
           content:
             application/json:
@@ -116,7 +116,7 @@ paths:
                             banPermanently:
                               type: boolean
                               example: false
-        '401':
+        "401":
           description: Unauthorized - Token is missing or invalid
           content:
             application/json:
@@ -126,7 +126,7 @@ paths:
                   message:
                     type: string
                     example: No token provided
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -183,18 +183,19 @@ paths:
                   error:
                     type: string
     delete:
-      description: Deletes a listing by its ID. The publisher of the listing is notified
+      description:
+        Deletes a listing by its ID. The publisher of the listing is notified
         upon deletion.
       parameters:
-      - description: The ID of the listing to delete
-        in: path
-        name: id
-        required: true
-        schema:
-          format: uuid
-          type: string
+        - description: The ID of the listing to delete
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -203,7 +204,7 @@ paths:
                     type: string
                 type: object
           description: Listing deleted successfully
-        '400':
+        "400":
           content:
             application/json:
               schema:
@@ -212,7 +213,7 @@ paths:
                     type: string
                 type: object
           description: Listing not found or Publisher not found
-        '500':
+        "500":
           content:
             application/json:
               schema:
@@ -225,18 +226,19 @@ paths:
           description: Internal server error
       summary: Delete listing by ID
       tags:
-      - Listings
+        - Listings
     put:
-      description: Updates the details of a listing by its ID. This includes updating
+      description:
+        Updates the details of a listing by its ID. This includes updating
         fields such as price, typology, address, description, and more.
       parameters:
-      - description: The ID of the listing to update
-        in: path
-        name: id
-        required: true
-        schema:
-          format: uuid
-          type: string
+        - description: The ID of the listing to update
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
       requestBody:
         content:
           application/json:
@@ -280,16 +282,16 @@ paths:
               type: object
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 properties:
                   listing:
-                    $ref: '#/components/schemas/Listing'
+                    $ref: "#/components/schemas/Listing"
                 type: object
           description: Listing updated successfully
-        '400':
+        "400":
           content:
             application/json:
               schema:
@@ -307,7 +309,7 @@ paths:
                     type: string
                 type: object
           description: Validation errors
-        '404':
+        "404":
           content:
             application/json:
               schema:
@@ -316,7 +318,7 @@ paths:
                     type: string
                 type: object
           description: Listing not found
-        '500':
+        "500":
           content:
             application/json:
               schema:
@@ -329,7 +331,7 @@ paths:
           description: Internal server error
       summary: Update listing by ID
       tags:
-      - Listings
+        - Listings
   /api/listings/{id}/ban:
     put:
       summary: Ban a listing by ID for a specified duration or permanently
@@ -363,7 +365,7 @@ paths:
                   description: The message explaining the reason for the ban
                   example: "Violation of terms"
       responses:
-        '200':
+        "200":
           description: Listing banned successfully
           content:
             application/json:
@@ -385,7 +387,7 @@ paths:
                         type: integer
                       banMsg:
                         type: string
-        '400':
+        "400":
           description: Invalid ban time provided
           content:
             application/json:
@@ -395,7 +397,7 @@ paths:
                   message:
                     type: string
                     example: "Invalid ban time provided"
-        '404':
+        "404":
           description: Listing not found
           content:
             application/json:
@@ -405,7 +407,7 @@ paths:
                   message:
                     type: string
                     example: "Listing not found"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -432,7 +434,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Listing unbanned successfully
           content:
             application/json:
@@ -442,7 +444,7 @@ paths:
                   message:
                     type: string
                     example: "Listing unbanned successfully"
-        '400':
+        "400":
           description: Listing is not banned
           content:
             application/json:
@@ -452,7 +454,7 @@ paths:
                   message:
                     type: string
                     example: "Listing is not banned"
-        '404':
+        "404":
           description: Listing not found
           content:
             application/json:
@@ -462,7 +464,7 @@ paths:
                   message:
                     type: string
                     example: "Listing not found"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -513,7 +515,7 @@ paths:
             type: number
           description: Maximum floor area
       responses:
-        '200':
+        "200":
           description: Geographic coordinates of the listings
           content:
             application/json:
@@ -534,7 +536,7 @@ paths:
                         label:
                           type: string
                           description: Location label
-        '500':
+        "500":
           description: Error during coordinate retrieval
           content:
             application/json:
@@ -560,7 +562,7 @@ paths:
             type: string
           description: L'ID del listing da recuperare.
       responses:
-        '200':
+        "200":
           description: Coordinate ottenute con successo.
           content:
             application/json:
@@ -579,7 +581,7 @@ paths:
                       label:
                         type: string
                         description: L'etichetta dell'indirizzo convertito.
-        '400':
+        "400":
           description: Listing non trovato.
           content:
             application/json:
@@ -589,7 +591,7 @@ paths:
                   message:
                     type: string
                     example: Listing not found
-        '500':
+        "500":
           description: Errore interno del server.
           content:
             application/json:
@@ -669,13 +671,13 @@ paths:
                 availability:
                   type: string
       responses:
-        '201':
+        "201":
           description: Listing added successfully. Returns newly added listing.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Listing'
-        '400':
+                $ref: "#/components/schemas/Listing"
+        "400":
           description: Invalid input parameters.
           content:
             application/json:
@@ -694,7 +696,7 @@ paths:
                           type: string
                         message:
                           type: string
-        '500':
+        "500":
           description: Internal server error occurred during the listing creation.
 
   /api/users/registration:
@@ -775,7 +777,7 @@ paths:
               required:
                 - token
       responses:
-        '200':
+        "200":
           description: JWT generato con successo.
           content:
             application/json:
@@ -785,7 +787,7 @@ paths:
                   token:
                     type: string
                     description: Il token JWT generato.
-        '500':
+        "500":
           description: Errore interno del server.
           content:
             application/json:
@@ -843,7 +845,7 @@ paths:
               type: string
             example: [non-smoker, early-riser]
       responses:
-        '200':
+        "200":
           description: List of housing seekers retrieved successfully
           content:
             application/json:
@@ -883,7 +885,7 @@ paths:
                               format: date-time
                             banPermanently:
                               type: boolean
-        '401':
+        "401":
           description: Unauthorized - Token is missing or invalid
           content:
             application/json:
@@ -893,7 +895,7 @@ paths:
                   message:
                     type: string
                     example: No token provided
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -937,15 +939,15 @@ paths:
             type: string
           description: Flag to include or exclude profile pictures in the response
       responses:
-        '200':
+        "200":
           description: User details retrieved successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '400':
+                $ref: "#/components/schemas/User"
+        "400":
           description: User not found.
-        '500':
+        "500":
           description: Internal server error occurred.
     put:
       summary: Update user by ID
@@ -970,19 +972,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: "#/components/schemas/User"
       responses:
-        '200':
+        "200":
           description: User details updated successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '400':
+                $ref: "#/components/schemas/User"
+        "400":
           description: Bad request or validation error.
-        '404':
+        "404":
           description: User not found.
-        '500':
+        "500":
           description: Internal server error occurred.
     delete:
       tags:
@@ -998,7 +1000,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User and associated listing (if any) deleted successfully
           content:
             application/json:
@@ -1008,7 +1010,7 @@ paths:
                   message:
                     type: string
                     example: User and associated listing (if any) deleted successfully
-        '404':
+        "404":
           description: User not found
           content:
             application/json:
@@ -1018,7 +1020,7 @@ paths:
                   message:
                     type: string
                     example: User not found
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -1030,7 +1032,7 @@ paths:
                     example: Internal server error
                   error:
                     type: string
-                    example: Error details  
+                    example: Error details
 
   /api/users/ban:
     get:
@@ -1049,7 +1051,7 @@ paths:
                   users:
                     type: array
                     items:
-                      $ref: '#/components/schemas/User'
+                      $ref: "#/components/schemas/User"
                   message:
                     type: string
                     example: Banned users retrieved successfully
@@ -1065,29 +1067,29 @@ paths:
                     example: Error retrieving banned users
                   error:
                     type: string
-                    example: Internal server error details   
+                    example: Internal server error details
   /api/users/forgotpassword:
-   post:
-    summary: Forgot password
-    description: Initiates a password reset process for a user.
-    tags:
-      - Users
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              email:
-                type: string
-    responses:
-      '200':
-        description: Password reset email sent.
-      '404':
-        description: Email not found.
-      '500':
-        description: Internal server error occurred.
+    post:
+      summary: Forgot password
+      description: Initiates a password reset process for a user.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        "200":
+          description: Password reset email sent.
+        "404":
+          description: Email not found.
+        "500":
+          description: Internal server error occurred.
   /resetpassword/{token}:
     put:
       summary: Reset password
@@ -1111,11 +1113,11 @@ paths:
                 password:
                   type: string
       responses:
-        '200':
+        "200":
           description: Password updated successfully.
-        '404':
+        "404":
           description: Invalid or expired token.
-        '500':
+        "500":
           description: Internal server error occurred.
   /api/users/{id}/ban:
     put:
@@ -1150,7 +1152,7 @@ paths:
                   description: The message explaining the reason for the ban
                   example: "Violation of terms"
       responses:
-        '200':
+        "200":
           description: User and associated listing banned successfully
           content:
             application/json:
@@ -1180,7 +1182,7 @@ paths:
                         format: date-time
                       banPermanently:
                         type: boolean
-        '400':
+        "400":
           description: Invalid ban time provided
           content:
             application/json:
@@ -1190,7 +1192,7 @@ paths:
                   message:
                     type: string
                     example: "Invalid ban time provided"
-        '404':
+        "404":
           description: User not found
           content:
             application/json:
@@ -1200,7 +1202,7 @@ paths:
                   message:
                     type: string
                     example: "User not found"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -1228,7 +1230,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User and associated listing unbanned successfully
           content:
             application/json:
@@ -1238,7 +1240,7 @@ paths:
                   message:
                     type: string
                     example: "User and associated listing unbanned successfully"
-        '400':
+        "400":
           description: User is not banned
           content:
             application/json:
@@ -1248,7 +1250,7 @@ paths:
                   message:
                     type: string
                     example: "User is not banned"
-        '404':
+        "404":
           description: User not found
           content:
             application/json:
@@ -1258,7 +1260,7 @@ paths:
                   message:
                     type: string
                     example: "User not found"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -1282,7 +1284,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Match'
+              $ref: "#/components/schemas/Match"
       responses:
         "201":
           description: Match created successfully.
@@ -1313,7 +1315,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Match'
+                  $ref: "#/components/schemas/Match"
         "400":
           description: Invalid user ID.
         "500":
@@ -1341,7 +1343,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Match'
+                  $ref: "#/components/schemas/Match"
         "400":
           description: Invalid user ID.
         "500":
@@ -1369,7 +1371,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Match'
+                  $ref: "#/components/schemas/Match"
         "400":
           description: Invalid user ID.
         "500":
@@ -1461,7 +1463,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Match'
+                $ref: "#/components/schemas/Match"
         "400":
           description: Invalid match ID.
         "500":
@@ -1485,7 +1487,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Match'
+              $ref: "#/components/schemas/Match"
       responses:
         "200":
           description: Match details updated successfully.
@@ -1526,7 +1528,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Notification'
+              $ref: "#/components/schemas/Notification"
       responses:
         "201":
           description: Notification created successfully.
@@ -1557,7 +1559,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Notification'
+                  $ref: "#/components/schemas/Notification"
         "400":
           description: Invalid user ID.
         "500":
@@ -1661,216 +1663,366 @@ paths:
   /api/reports:
     post:
       tags:
-        - "Reports"
-      summary: "Create a new report"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-      parameters:
-        - in: "body"
-          name: "body"
-          description: "Report object to be created"
-          required: true
-          schema:
-            $ref: "#/definitions/ReportInput"
+        - Reports
+      summary: Create a new report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Report"
       responses:
-        201:
-          description: "Report created successfully"
-          schema:
-            $ref: "#/definitions/Report"
-        400:
-          description: "Invalid request"
-        404:
-          description: "Reporter or target not found"
-        500:
-          description: "Internal server error"
+        "201":
+          description: Report created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid request"
+        "404":
+          description: Reporter or target not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Reporter or target not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+
     get:
       tags:
-        - "Reports"
-      summary: "Get all pending reports"
-      produces:
-        - "application/json"
+        - Reports
+      summary: Get all pending reports
       responses:
-        200:
-          description: "Successful operation"
-          schema:
-            $ref: "#/definitions/ReportList"
-        500:
-          description: "Internal server error"
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+
   /api/reports/resolved:
     get:
       tags:
-        - "Reports"
-      summary: "Get all resolved reports"
-      produces:
-        - "application/json"
+        - Reports
+      summary: Get all resolved reports
       responses:
-        200:
-          description: "Successful operation"
-          schema:
-            $ref: "#/definitions/ReportList"
-        500:
-          description: "Internal server error"
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+
   /api/reports/reviewing:
     get:
       tags:
-        - "Reports"
-      summary: "Get all reports currently under review"
-      produces:
-        - "application/json"
+        - Reports
+      summary: Get all reports currently under review
       responses:
-        200:
-          description: "Successful operation"
-          schema:
-            $ref: "#/definitions/ReportList"
-        500:
-          description: "Internal server error"
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+
   /api/reports/review:
     put:
       tags:
-        - "Reports"
-      summary: "Update a report by reviewing it"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-      parameters:
-        - in: "body"
-          name: "body"
-          description: "Report object to be reviewed"
-          required: true
-          schema:
-            $ref: "#/definitions/ReviewInput"
+        - Reports
+      summary: Update a report by reviewing it
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Report"
       responses:
-        200:
-          description: "Report reviewed successfully"
-          schema:
-            $ref: "#/definitions/Report"
-        400:
-          description: "Invalid request"
-        404:
-          description: "Report not found"
-        500:
-          description: "Internal server error"
+        "200":
+          description: Report reviewed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid request"
+        "404":
+          description: Report not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Report not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+
   /api/reports/resolve:
     put:
       tags:
-        - "Reports"
-      summary: "Update a report by resolving it"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-      parameters:
-        - in: "body"
-          name: "body"
-          description: "Report object to be resolved"
-          required: true
-          schema:
-            $ref: "#/definitions/ResolveInput"
+        - Reports
+      summary: Update a report by resolving it
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Report"
       responses:
-        200:
-          description: "Report resolved successfully"
-          schema:
-            $ref: "#/definitions/Report"
-        400:
-          description: "Invalid request"
-        404:
-          description: "Report not found"
-        500:
-          description: "Internal server error"
+        "200":
+          description: Report resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid request"
+        "404":
+          description: Report not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Report not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+
   /api/reports/remove:
     put:
       tags:
-        - "Reports"
-      summary: "Update a report by removing the reviewer and setting the status to pending"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-      parameters:
-        - in: "body"
-          name: "body"
-          description: "Report object to be updated"
-          required: true
-          schema:
-            $ref: "#/definitions/RemoveInput"
+        - Reports
+      summary: Update a report by removing the reviewer and setting the status to pending
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Report"
       responses:
-        200:
-          description: "Report updated successfully"
-          schema:
-            $ref: "#/definitions/Report"
-        400:
-          description: "Invalid request"
-        404:
-          description: "Report not found"
-        500:
-          description: "Internal server error"
+        "200":
+          description: Report updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid request"
+        "404":
+          description: Report not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Report not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+
   /api/reports/reporter/{reporterID}:
     get:
       tags:
-        - "Reports"
-      summary: "Get reports by reporter ID"
-      produces:
-        - "application/json"
+        - Reports
+      summary: Get reports by reporter ID
       parameters:
-        - name: "reporterID"
-          in: "path"
-          description: "ID of the reporter"
+        - name: reporterID
+          in: path
+          description: ID of the reporter
           required: true
-          type: "string"
-      responses:
-        200:
-          description: "Successful operation"
           schema:
-            $ref: "#/definitions/ReportList"
-        500:
-          description: "Internal server error"
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+
   /api/reports/target/{targetID}:
     get:
       tags:
-        - "Reports"
-      summary: "Get reports by target ID"
-      produces:
-        - "application/json"
+        - Reports
+      summary: Get reports by target ID
       parameters:
-        - name: "targetID"
-          in: "path"
-          description: "ID of the target"
+        - name: targetID
+          in: path
+          description: ID of the target
           required: true
-          type: "string"
-      responses:
-        200:
-          description: "Successful operation"
           schema:
-            $ref: "#/definitions/ReportList"
-        500:
-          description: "Internal server error"
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+
   /api/reports/{id}:
     get:
       tags:
-        - "Reports"
-      summary: "Get a single report by ID"
-      produces:
-        - "application/json"
+        - Reports
+      summary: Get a single report by ID
       parameters:
-        - name: "id"
-          in: "path"
-          description: "ID of the report to retrieve"
+        - name: id
+          in: path
+          description: ID of the report to retrieve
           required: true
-          type: "string"
-      responses:
-        200:
-          description: "Successful operation"
           schema:
-            $ref: "#/definitions/Report"
-        404:
-          description: "Report not found"
-        500:
-          description: "Internal server error"
-
-    
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Report not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Report not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
 
 components:
   schemas:
@@ -2090,10 +2242,10 @@ components:
           description: The date when the match was confirmed.
         matchStatus:
           type: string
-          $ref: '#/components/schemas/MatchStatusEnum'
+          $ref: "#/components/schemas/MatchStatusEnum"
         matchType:
           type: string
-          $ref: '#/components/schemas/MatchTypeEnum'
+          $ref: "#/components/schemas/MatchTypeEnum"
         messages:
           type: array
           items:
@@ -2117,13 +2269,13 @@ components:
           description: The ID of the user receiving the notification.
         type:
           type: string
-          $ref: '#/components/schemas/NotificationTypeEnum'
+          $ref: "#/components/schemas/NotificationTypeEnum"
         message:
           type: string
           description: The content of the notification.
         status:
           type: string
-          $ref: '#/components/schemas/NotificationStatusEnum'
+          $ref: "#/components/schemas/NotificationStatusEnum"
         createdAt:
           type: string
           format: date-time
@@ -2135,7 +2287,7 @@ components:
           description: URL or route related to the notification.
         priority:
           type: string
-          $ref: '#/components/schemas/NotificationPriorityEnum'
+          $ref: "#/components/schemas/NotificationPriorityEnum"
 
     Report:
       type: object
@@ -2146,10 +2298,10 @@ components:
           description: The ID of the user who reported the issue.
         reportType:
           type: string
-          $ref: '#/components/schemas/ReportTypeEnum'
+          $ref: "#/components/schemas/ReportTypeEnum"
         reportStatus:
           type: string
-          $ref: '#/components/schemas/ReportStatusEnum'
+          $ref: "#/components/schemas/ReportStatusEnum"
         reportDate:
           type: string
           format: date-time
@@ -2158,6 +2310,10 @@ components:
           type: string
           format: date-time
           description: The date when the report was reviewed.
+        reviewerID:
+          type: string
+          format: uuid
+          description: The ID of the reviewer.
         resolvedDate:
           type: string
           format: date-time
@@ -2168,7 +2324,11 @@ components:
           description: The ID of the target of the report.
         targetModel:
           type: string
-          enum: ['User', 'Listing', 'Match', 'Message']
+          enum:
+            - User
+            - Listing
+            - Match
+            - Message
           description: The model type of the target.
         description:
           type: string

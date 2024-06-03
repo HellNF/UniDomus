@@ -1,4 +1,3 @@
-// /src/components/Navbar.jsx
 import React, { useState, useEffect, Fragment } from 'react';
 import UniDomusLogo from '/UniDomusLogoWhite.png';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
@@ -12,7 +11,7 @@ function classNames(...classes) {
 }
 
 function Navbar({ current }) {
-  const { isLoggedIn, logout, userId ,isAdmin} = useAuth();
+  const { isLoggedIn, logout, userId, isAdmin } = useAuth();
   const [profilePic, setProfilePic] = useState(null);
   const [publisherIDAvailable, setPublisherIDAvailable] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -87,7 +86,7 @@ function Navbar({ current }) {
   };
 
   return (
-    <Disclosure as="nav" className="bg-blue-950 fixed w-full h-navbar top-0 z-50 border-b border-white items-center ">
+    <Disclosure as="nav" className="bg-blue-950 fixed w-full h-16 top-0 z-50 border-b border-white items-center">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -216,11 +215,11 @@ function Navbar({ current }) {
                               <Menu.Item>
                                 {({ active }) => (
                                   <Link
-                                  to="/reports/"
-                                  className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                                >
-                                  Visualizza segnalazioni
-                                </Link>
+                                    to="/reports/"
+                                    className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                                  >
+                                    Visualizza segnalazioni
+                                  </Link>
                                 )}
                               </Menu.Item>
                             )
