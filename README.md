@@ -1,54 +1,146 @@
 # UniDomus
-Progetto per Ingegneria del software UNITN
 
-### Database constraints
-- Users:
-	- usermane: minLength 2 - maxLength 20 - required
-	- name: minLength 2 - maxLength 30 - required
-	- surname: minLength 2 - maxLength 30 - required
-	- email: minLength 5 - maxLength 50 - deve contenere @ - required
-	- password: minLength 8 - deve contenere una maiuscola, una minuscola ed un carattere speciale (@$!%*?&) - required
-	- birthDate: deve essere una data passata
-	- creationDate: default: data attuale
-	- habits: maxLength 20
-	- hobbies: maxLength 20
-	- proPic: maxLength 5
-	- activityStatus: enum validi ['attivo', 'attivo recentemente', 'inattivo'] - default: 'attivo'
-	- active: default: 'attivo'
+UniDomus is a comprehensive platform for real estate listings and roommate matching. This repository contains the source code for both the frontend and backend of the UniDomus application.
 
-- Listings:
-	- address:
-		- street: minLength 3 - maxLength 50 - required
-		- city: minLength 3 - maxLength 50 - required
-		- cap: minLength 5 - maxLength 5 - deve contenere solo cifre - required
-		- houseNum: minLength 1 - maxLength 5 - required
-		- province: minLength 2 - maxLength 2 - required
-		- country: minLength 3 - maxLength 50 - required
-	- photos: maxLength 10
-	- publisherID: required
-	- tenantsID: maxLenght 12
-	- typology: maxLength 30  - required
-	- description: maxLength 1000
-	- price: min 10 - max 10000
-	- floorArea: min 1 - max 10000
-	- publicationDate: default: data attuale - immutabile
+## Table of Contents
 
-- Matches: 
-	- requesterID: required
-	- receiverID: required
-	- requestDate: default: data attuale - immutabile
-	- matchStatus: enum validi ['in attesa', 'accettato', 'rifiutato'] - default: 'in attesa'
-	- matchType: enum validi ['match inquilino', 'match appartamento'] - required
-	messages:
-		- text: required
-		- date: default: data attuale
-		- userID: required
+- [Overview](#overview)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+- [License](#license)
 
-- Tokens: 
-	- userID: required
-	- token: minLength 30 - minLength 30 - required
-	- expirationDate: default: data attuale + 1 ora
+## Overview
 
-**maxLentgh fa riferimento sia ad array che a stringhe
+UniDomus offers a robust solution for managing real estate listings and finding suitable roommates. The application includes features such as:
 
-**max e min fanno riferimento a numeri
+- Listing real estate properties with detailed information.
+- User registration and authentication.
+- Roommate matching based on user preferences.
+- Notifications and messaging system.
+- Administrative functionalities for managing users and listings.
+
+## Project Structure
+
+The project is divided into two main parts: Frontend and Backend.
+
+### Frontend
+
+The frontend part of the project is located in the `FrontEnd` directory and is built with modern JavaScript frameworks and tools.
+
+- **Configuration Files**
+
+  - `.eslintrc.cjs`: Configuration for ESLint.
+  - `postcss.config.js`: Configuration for PostCSS.
+  - `tailwind.config.js`: Configuration for Tailwind CSS.
+  - `vite.config.js`: Configuration for Vite.
+
+- **Public Folder**
+
+  - Contains static assets like images and logos.
+
+- **Source Folder (`src`)**
+  - **assets**: Static files like images and SVGs.
+  - **components**: Reusable UI components like forms, buttons, and layout components.
+  - **context**: React context files for state management.
+  - **hooks**: Custom React hooks for various functionalities.
+  - **pages**: Individual pages of the application.
+  - **sections**: Larger sections of pages, often composed of multiple components.
+  - `App.jsx`: Main application component.
+  - `AuthContext.jsx`: Context for managing authentication.
+  - `index.css`: Global CSS styles.
+  - `main.jsx`: Entry point of the React application.
+
+### Backend
+
+The backend part of the project is located in the `Server/root` directory and is built with Node.js and Express.
+
+- **Configuration Files**
+
+  - `app.js`: Initializes the Express app.
+  - `index.js`: Entry point for the server.
+  - `swagger.yaml`: OpenAPI specification for the API.
+
+- **Source Folder (`src`)**
+  - **controllers**: Logic for handling requests and responses for different routes.
+  - **database**: Database connection and query files.
+  - **middleware**: Custom middleware functions for authentication and other purposes.
+  - **models**: Mongoose models for different data schemas.
+  - **routes**: Route definitions for the API.
+  - **services**: Service files for additional functionalities like email services.
+  - **tests**: Test files for different components of the backend.
+  - **utils**: Utility functions used across the backend.
+  - **validators**: Validation functions for input data.
+
+## Installation
+
+### Prerequisites
+
+- Node.js (v12.x or higher)
+- npm (v6.x or higher) or yarn
+- MongoDB
+
+### Clone the Repository
+
+```sh
+git clone https://github.com/HellNF/UniDomus.git
+cd UniDomus
+```
+
+### Frontend Setup
+
+```sh
+cd FrontEnd
+npm install
+```
+
+### Backend Setup
+
+```sh
+cd Server/root
+npm install
+```
+
+### Environment Variables
+
+Create a `.env` file in the `Server/root` directory and add the necessary environment variables:
+
+```
+MONGODB_URI=mongodb://localhost:27017/unidomus
+JWT_SECRET=your_jwt_secret
+GOOGLE_API_KEY=your_google_api_key
+```
+
+### Start the Application
+
+#### Start Backend Server
+
+```sh
+cd Server/root
+npm start
+```
+
+#### Start Frontend Server
+
+```sh
+cd FrontEnd
+npm run dev
+```
+
+## Usage
+
+After starting both the backend and frontend servers, you can access the application by navigating to `http://localhost:3000` in your web browser.
+
+## API Documentation
+
+The API is documented using OpenAPI 3.0. The documentation can be found in the `swagger.yaml` file located in the `Server/root` directory.
+
+## Contributing
+
+Contributions are welcome! Please create a pull request or open an issue for any changes or additions.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
