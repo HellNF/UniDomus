@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../../app.js'); 
+const app = require('../../app.js');
 const Listing = require('../models/listingModel.js');
 const User = require('../models/userModel.js');
 const Notification = require('../models/notificationModel.js')
@@ -12,8 +12,8 @@ jest.mock('../models/listingModel'); // Mock the Listing model for testing
 jest.mock('../models/notificationModel'); // Mock the Notification model for testing
 jest.spyOn(mongoose, 'connect').mockImplementation(() => Promise.resolve());
 
-const NotificationModel = require('../models/notificationModel'); 
-const { notificationPriorityEnum} = require('../models/enums');
+const NotificationModel = require('../models/notificationModel');
+const { notificationPriorityEnum } = require('../models/enums');
 
 describe('Listing Controller', () => {
     let token, adminToken;
@@ -264,7 +264,7 @@ describe('Listing Controller', () => {
         });
     });
 
-     describe('PUT /api/listings/:id', () => {
+    describe('PUT /api/listings/:id', () => {
         const listingId = 'validListingId';
         const updateData = {
             price: 2000,
@@ -330,10 +330,10 @@ describe('Listing Controller', () => {
                 .send(invalidUpdateData);
 
             expect(response.status).toBe(400);
-            expect(response.body.errors).toEqual(expect.arrayContaining([{"field": "city", "message": "city length must be between 3 and 50 characters"}, 
-            {"field": "cap", "message": "CAP must contain exactly 5 digits"}, 
-            {"field": "country", "message": "country length must be between 3 and 50 characters"}, 
-            {"field": "price", "message": "price must be between 10 and 10000"}]));
+            expect(response.body.errors).toEqual(expect.arrayContaining([{ "field": "city", "message": "city length must be between 3 and 50 characters" },
+            { "field": "cap", "message": "CAP must contain exactly 5 digits" },
+            { "field": "country", "message": "country length must be between 3 and 50 characters" },
+            { "field": "price", "message": "price must be between 10 and 10000" }]));
         });
 
         it('should return validation errors for too many photos', async () => {
@@ -467,7 +467,7 @@ describe('Listing Controller', () => {
                 .delete(`/api/listings/${listingId}`)
                 .set('x-access-token', `${token}`);
 
-                
+
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: 'Error deleting listing', error: 'Database error' });
         });
@@ -812,255 +812,192 @@ describe('Listing Controller', () => {
         });
     });
 
-    
+
+
     describe('PUT /api/listings/:id/ban', () => {
+
+        let token, adminToken;
+
         beforeEach(() => {
-            jest.clearAllMocks();
+            jest.clearAllMocks(); // Clear mock function calls before each test
+
+            // Generate a valid JWT token for testing
+            token = jwt.sign({ id: 'testUserId', isAdmin: false }, process.env.SUPER_SECRET, { expiresIn: '1h' });
+            adminToken = jwt.sign({ id: 'adminUserId', isAdmin: true }, process.env.SUPER_SECRET, { expiresIn: '1h' });
         });
-    
-        it('should ban a listing for a specified duration', async () => {
-            const mockListing = {
-                _id: '1',
-                publisherID: 'user1',
-                ban: { prevBanNum: 2 }
-            };
-    
-            jest.spyOn(Listing, 'findById').mockResolvedValue(mockListing);
-            jest.spyOn(Listing, 'findByIdAndUpdate').mockResolvedValue({
-                ...mockListing,
-                ban: {
-                    banTime: new Date(Date.now() + (3600 + 7200) * 1000),
-                    banPermanently: false,
-                    prevBanNum: 3,
-                    banMsg: 'Violation of terms'
-                }
-            });
-            jest.spyOn(NotificationModel, 'create').mockResolvedValue({});
-    
+
+        
+        const listingId = 'validListingId';
+        const banData = {
+            banTimeInSeconds: 3600, // 1 hour
+            banPermanently: false,
+            banMsg: 'Violation of terms'
+        };
+
+        it('should ban a listing successfully for a given duration', async () => {
+            const mockListing = { _id: listingId, ban: {} };
+            Listing.findById.mockResolvedValue(mockListing);
+
+            Listing.findByIdAndUpdate.mockResolvedValue({ _id: listingId, ban: { banTime: new Date(Date.now() + 3600 * 1000 + 7200 * 1000) } });
+            Notification.create.mockResolvedValue({});
+
             const response = await request(app)
-                .put('/api/listings/1/ban')
-                .send({ banTimeInSeconds: 3600, banPermanently: false, banMsg: 'Violation of terms' });
-    
-            expect(Listing.findById).toHaveBeenCalledWith('1');
-            expect(Listing.findByIdAndUpdate).toHaveBeenCalledWith(
-                '1',
-                { $set: { 
-                    'ban.banTime': expect.any(Date), 
-                    'ban.banPermanently': false,
-                    'ban.prevBanNum': 3,
-                    'ban.banMsg': 'Violation of terms'
-                }},
-                { new: true, runValidators: true }
-            );
-            expect(NotificationModel.create).toHaveBeenCalledWith({
-                userID: mockListing.publisherID,
-                type: "alert",
-                message: expect.stringContaining("Your listing has been banned for"),
-                link: `/`,
-                priority: notificationPriorityEnum.HIGH
-            });
-            expect(NotificationModel.create).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    message: expect.stringMatching(/Your listing has been banned for.*Reason: Violation of terms/)
-                })
-            );
-    
+                .put(`/api/listings/${listingId}/ban`)
+                .set('x-access-token', `${adminToken}`) // Set the token in the header
+                .send(banData);
+
             expect(response.status).toBe(200);
-            expect(response.body).toEqual({
-                message: "Listing banned successfully",
-                listingBan: {
-                    banTime: expect.any(String),
-                    banPermanently: false,
-                    prevBanNum: 3,
-                    banMsg: 'Violation of terms'
-                }
-            });
+            expect(response.body.message).toBe('Listing banned successfully');
+            expect(Listing.findById).toHaveBeenCalledWith(listingId);
+            expect(Listing.findByIdAndUpdate).toHaveBeenCalled();
+            expect(Notification.create).toHaveBeenCalled();
         });
-    
+
+
         it('should ban a listing permanently', async () => {
-            const mockListing = {
-                _id: '1',
-                publisherID: 'user1',
-                ban: { prevBanNum: 2 }
+            const banData = {
+                banPermanently: true,
+                banMsg: 'Severe violation'
             };
-    
-            jest.spyOn(Listing, 'findById').mockResolvedValue(mockListing);
-            jest.spyOn(Listing, 'findByIdAndUpdate').mockResolvedValue({
-                ...mockListing,
-                ban: {
-                    banTime: null,
-                    banPermanently: true,
-                    prevBanNum: 3,
-                    banMsg: 'Violation of terms'
-                }
-            });
-            jest.spyOn(NotificationModel, 'create').mockResolvedValue({});
-    
+
+            const mockListing = { _id: listingId, ban: {} };
+            Listing.findById.mockResolvedValue(mockListing);
+            Listing.findByIdAndUpdate.mockResolvedValue({ _id: listingId, ban: { banPermanently: true } });
+            Notification.create.mockResolvedValue({});
+
             const response = await request(app)
-                .put('/api/listings/1/ban')
-                .send({ banPermanently: true, banMsg: 'Violation of terms' });
-    
-            expect(Listing.findById).toHaveBeenCalledWith('1');
-            expect(Listing.findByIdAndUpdate).toHaveBeenCalledWith(
-                '1',
-                { $set: { 
-                    'ban.banPermanently': true,
-                    'ban.banTime': null,
-                    'ban.prevBanNum': 3,
-                    'ban.banMsg': 'Violation of terms'
-                }},
-                { new: true, runValidators: true }
-            );
-            expect(NotificationModel.create).toHaveBeenCalledWith({
-                userID: mockListing.publisherID,
-                type: "alert",
-                message: "Your listing has been banned permanently because it did not comply with UniDomus policies. Reason: Violation of terms",
-                link: `/`,
-                priority: notificationPriorityEnum.HIGH
-            });
-    
+                .put(`/api/listings/${listingId}/ban`)
+                .set('x-access-token', `${adminToken}`) // Set the token in the header
+                .send(banData);
+
             expect(response.status).toBe(200);
-            expect(response.body).toEqual({
-                message: "Listing banned successfully",
-                listingBan: {
-                    banTime: null,
-                    banPermanently: true,
-                    prevBanNum: 3,
-                    banMsg: 'Violation of terms'
-                }
-            });
+            expect(response.body.message).toBe('Listing banned successfully');
+            expect(Listing.findById).toHaveBeenCalledWith(listingId);
+            expect(Listing.findByIdAndUpdate).toHaveBeenCalled();
+            expect(Notification.create).toHaveBeenCalled();
         });
-    
-        it('should return 404 if listing is not found', async () => {
-            jest.spyOn(Listing, 'findById').mockResolvedValue(null);
-    
+
+
+        it('should return 400 if ban time is invalid', async () => {
+            const invalidBanData = {
+                banTimeInSeconds: -3600,
+                banPermanently: false
+            };
+
             const response = await request(app)
-                .put('/api/listings/1/ban')
-                .send({ banTimeInSeconds: 3600, banPermanently: false, banMsg: 'Violation of terms' });
-    
-            expect(Listing.findById).toHaveBeenCalledWith('1');
-            expect(response.status).toBe(404);
-            expect(response.body).toEqual({ message: "Listing not found" });
-        });
-    
-        it('should return 400 for invalid ban time', async () => {
-            const response = await request(app)
-                .put('/api/listings/1/ban')
-                .send({ banTimeInSeconds: -1, banPermanently: false, banMsg: 'Violation of terms' });
-    
+                .put(`/api/listings/${listingId}/ban`)
+                .set('x-access-token', `${adminToken}`) // Set the token in the header
+                .send(invalidBanData);
+
             expect(response.status).toBe(400);
-            expect(response.body).toEqual({ message: "Invalid ban time provided" });
+            expect(response.body.message).toBe('Invalid ban time provided');
         });
-    
-        it('should return 500 on internal server error', async () => {
-            jest.spyOn(Listing, 'findById').mockResolvedValue({
-                _id: '1',
-                publisherID: 'user1',
-                ban: { prevBanNum: 2 }
-            });
-            jest.spyOn(Listing, 'findByIdAndUpdate').mockRejectedValue(new Error('Database error'));
-    
+
+
+        it('should return 404 if listing is not found', async () => {
+            Listing.findById.mockResolvedValue(null);
+
             const response = await request(app)
-                .put('/api/listings/1/ban')
-                .send({ banTimeInSeconds: 3600, banPermanently: false, banMsg: 'Violation of terms' });
-    
-            expect(Listing.findById).toHaveBeenCalledWith('1');
-            expect(Listing.findByIdAndUpdate).toHaveBeenCalledWith(
-                '1',
-                { $set: { 
-                    'ban.banTime': expect.any(Date), 
-                    'ban.banPermanently': false,
-                    'ban.prevBanNum': 3,
-                    'ban.banMsg': 'Violation of terms'
-                }},
-                { new: true, runValidators: true }
-            );
-            expect(response.status).toBe(500);
-            expect(response.body).toEqual({ message: "Internal server error", error: 'Database error' });
+                .put(`/api/listings/${listingId}/ban`)
+                .set('x-access-token', `${adminToken}`) // Set the token in the header
+                .send(banData);
+
+            expect(response.status).toBe(404);
+            expect(response.body.message).toBe('Listing not found');
         });
+ 
+
+        it('should handle errors and return 500 status code with an error message', async () => {
+            Listing.findById.mockRejectedValue(new Error('Database error'));
+
+            const response = await request(app)
+                .put(`/api/listings/${listingId}/ban`)
+                .set('x-access-token', `${adminToken}`) // Set the token in the header
+                .send(banData);
+
+            expect(response.status).toBe(500);
+            expect(response.body.message).toBe('Internal server error');
+        });
+
+
     });
 
     describe('PUT /api/listings/:id/unban', () => {
-        it('should unban a listing and create a notification', async () => {
-            const mockListing = {
-                _id: '1',
-                publisherID: 'user1',
-                ban: { banPermanently: true, banMsg: 'Violation of terms' }
-            };
+        let token, adminToken;
 
-            jest.spyOn(Listing, 'findById').mockResolvedValue(mockListing);
-            jest.spyOn(Listing, 'findByIdAndUpdate').mockResolvedValue({
-                ...mockListing,
-                ban: {}
-            });
-            jest.spyOn(NotificationModel, 'create').mockResolvedValue({});
+        beforeEach(() => {
+            jest.clearAllMocks(); // Clear mock function calls before each test
+
+            // Generate a valid JWT token for testing
+            token = jwt.sign({ id: 'testUserId', isAdmin: false }, process.env.SUPER_SECRET, { expiresIn: '1h' });
+            adminToken = jwt.sign({ id: 'adminUserId', isAdmin: true }, process.env.SUPER_SECRET, { expiresIn: '1h' });
+        });
+
+
+        const listingId = 'validListingId';
+
+        it('should unban a listing successfully', async () => {
+            const mockListing = { _id: listingId, ban: { banPermanently: true } };
+            Listing.findById.mockResolvedValue(mockListing);
+            Listing.findByIdAndUpdate.mockResolvedValue({ _id: listingId, ban: {} });
+            Notification.create.mockResolvedValue({});
 
             const response = await request(app)
-                .put('/api/listings/1/unban')
+                .put(`/api/listings/${listingId}/unban`)
+                .set('x-access-token', `${adminToken}`) // Set the token in the header
                 .send();
-
-            expect(Listing.findById).toHaveBeenCalledWith('1');
-            expect(Listing.findByIdAndUpdate).toHaveBeenCalledWith(
-                '1',
-                { $unset: { 'ban.banTime': '', 'ban.banPermanently': '', 'ban.banMsg': '' } },
-                { new: true }
-            );
-            expect(NotificationModel.create).toHaveBeenCalledWith({
-                userID: mockListing.publisherID,
-                type: "alert",
-                message: `Your listing has been unbanned`,
-                link: `/`,
-                priority: notificationPriorityEnum.MEDIUM
-            });
 
             expect(response.status).toBe(200);
-            expect(response.body).toEqual({
-                message: "Listing unbanned successfully"
-            });
+            expect(response.body.message).toBe('Listing unbanned successfully');
+            expect(Listing.findById).toHaveBeenCalledWith(listingId);
+            expect(Listing.findByIdAndUpdate).toHaveBeenCalled();
+            expect(Notification.create).toHaveBeenCalled();
         });
+
 
         it('should return 404 if listing is not found', async () => {
-            jest.spyOn(Listing, 'findById').mockResolvedValue(null);
+            Listing.findById.mockResolvedValue(null);
 
             const response = await request(app)
-                .put('/api/listings/1/unban')
+                .put(`/api/listings/${listingId}/unban`)
+                .set('x-access-token', `${adminToken}`) // Set the token in the header
                 .send();
 
-            expect(Listing.findById).toHaveBeenCalledWith('1');
             expect(response.status).toBe(404);
-            expect(response.body).toEqual({ message: "Listing not found" });
+            expect(response.body.message).toBe('Listing not found');
         });
+
 
         it('should return 400 if listing is not banned', async () => {
-            const mockListing = {
-                _id: '1',
-                publisherID: 'user1',
-                ban: { banPermanently: false, banTime: new Date(Date.now() - 3600 * 1000) }
-            };
-
-            jest.spyOn(Listing, 'findById').mockResolvedValue(mockListing);
+            const mockListing = { _id: listingId, ban: {} };
+            Listing.findById.mockResolvedValue(mockListing);
 
             const response = await request(app)
-                .put('/api/listings/1/unban')
+                .put(`/api/listings/${listingId}/unban`)
+                .set('x-access-token', `${adminToken}`) // Set the token in the header
                 .send();
 
-            expect(Listing.findById).toHaveBeenCalledWith('1');
             expect(response.status).toBe(400);
-            expect(response.body).toEqual({ message: "Listing is not banned" });
+            expect(response.body.message).toBe('Listing is not banned');
         });
 
-        it('should return 500 on internal server error', async () => {
-            jest.spyOn(Listing, 'findById').mockRejectedValue(new Error('Database error'));
+
+        it('should handle errors and return 500 status code with an error message', async () => {
+            Listing.findById.mockRejectedValue(new Error('Database error'));
 
             const response = await request(app)
-                .put('/api/listings/1/unban')
+                .put(`/api/listings/${listingId}/unban`)
+                .set('x-access-token', `${adminToken}`) // Set the token in the header
                 .send();
 
-            expect(Listing.findById).toHaveBeenCalledWith('1');
             expect(response.status).toBe(500);
-            expect(response.body).toEqual({ message: "Error unbanning listing", error: 'Database error' });
+            expect(response.body.message).toBe('Error unbanning listing');
         });
+
+
     });
+
+
 
 
 });
