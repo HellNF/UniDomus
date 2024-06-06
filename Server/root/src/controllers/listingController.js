@@ -6,6 +6,7 @@ const { query } = require('express');
 const NotificationModel = require('../models/notificationModel'); 
 const { notificationPriorityEnum} = require('../models/enums');
 const { convertSecondsToDHMS } = require('../utils/dateUtils');
+const jwt = require('jsonwebtoken'); // Make sure to include the jwt package
 
 /**
  * Controller function for retrieving listings with filters.
@@ -16,7 +17,7 @@ async function listings(req, res) {
     try {
         // Step 1: Parse query parameters
         let query = {};
-        const { priceMin, priceMax, typology, city, floorAreaMin, floorAreaMax, banned } = req.query;
+        const { priceMin, priceMax, typology, city, floorAreaMin, floorAreaMax } = req.query;
 
         // Step 2: Construct the query object
         if (priceMin || priceMax) {
@@ -40,25 +41,45 @@ async function listings(req, res) {
             query['address.city'] = city;
         }
 
-        // Step 3: Add the ban filter to the query based on the banned parameter
-        const currentTime = new Date();
-        const twoHoursLater = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000); 
+        let isAdmin = false;
+        // Check if the user is authenticated
+        const token = req.headers['x-access-token'];
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.SUPER_SECRET);
+                req.loggedUser = decoded;
+                isAdmin = req.loggedUser.isAdmin;
+            } catch (err) {
+                console.error("Failed to authenticate token:", err);
+                // If token verification fails, continue without isAdmin privileges
+            }
+        } else {
+            console.log("No token provided");
+        }
 
-        if (banned === 'true') {
-            query.$or = [
-                { 'ban.banPermanently': true },
-                { 'ban.banTime': { $gt: twoHoursLater } }
-            ];
-        } else if (banned === 'false') {
-            query.$or = [
-                { 'ban.banPermanently': { $ne: true } },
-                { 'ban.banTime': { $lte: twoHoursLater } },
-                { 'ban': { $exists: false } }
+        const currentTime = new Date();
+        const twoHoursLater = new Date(currentTime.getTime() + 2 * 60 * 60 * 1000);
+
+        if (!isAdmin) {
+            // Exclude banned listings if the user is not an administrator
+            query.$and = [
+                {
+                    $or: [
+                        { 'ban.banPermanently': { $ne: true } },
+                        { 'ban.banPermanently': { $exists: false } }
+                    ]
+                },
+                {
+                    $or: [
+                        { 'ban.banTime': { $lte: twoHoursLater } },
+                        { 'ban.banTime': { $exists: false } }
+                    ]
+                }
             ];
         }
 
-        // Step 4: Execute the query with filters
-        let listings = await Listing.find(query);
+        // Step 3: Execute the query with filters
+        const listings = await Listing.find(query);
 
         if (!listings.length) {
             console.log("Filtered query returned no listings.");

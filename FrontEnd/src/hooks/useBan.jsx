@@ -7,12 +7,16 @@
 import { useState } from 'react';
 import { API_BASE_URL } from '../constant';
 import { useAuth } from './../AuthContext';
+import { useLoadContext } from '../context/LoadContext';
+//import { useBanContext } from '../context/BanContext';
 
 const useBan = () => {
-    
+
+    //const { reload, setReload } = useBanContext();
     const [showPopupBan, setShowPopupBan] = useState(false);
     const [targetBan, setTargetBan] = useState('');
     const [currentTargetBanID, setCurrentTargetBanID] = useState('');
+    const { load, setLoad } = useLoadContext();
   
     const handleButtonClickBan = (target,targetBanID) => {
         setTargetBan(target)
@@ -48,13 +52,14 @@ const useBan = () => {
             });
 
             if (response.ok) {
-                console.log('Report submitted successfully');
+                console.log('Ban submitted successfully');
+                setLoad(!load);
                 setShowPopup(false);
             } else {
-                console.error('Failed to submit report');
+                console.error('Failed to submit ban');
             }
         } catch (error) {
-            console.error('Error submitting report:', error);
+            console.error('Error submitting ban:', error);
         }
     };
 
