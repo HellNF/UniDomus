@@ -11,9 +11,15 @@ import signInSVG from "../assets/signIn.svg";
 import signUpSVG from "../assets/signUp.svg";
 import hearthSVG from "../assets/hearth.svg";
 import userSVG from "../assets/user.svg"
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../constant";
+
+
 
 export default function HomePage() {
-  const { isLoggedIn } = useAuth();
+  const [user, setUser] = useState(null);
+  const { isLoggedIn,userId } = useAuth();
 
   const images = {
     user: userSVG,
@@ -25,6 +31,21 @@ export default function HomePage() {
     signUp: signUpSVG,
     hearth: hearthSVG
   };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  async function fetchUserData() {
+    try {
+      const response = await fetch(`${API_BASE_URL}users/${userId}?proPic=False`);
+      const data = await response.json();
+      setUser(data.user);
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  }
 
 
   return (
@@ -58,7 +79,17 @@ export default function HomePage() {
                 .map((section) => (
                   <button
                     key={section.title}
-                    onClick={() => window.location.href = section.link}
+                    onClick={() => {
+                      if (section.title === "La tua inserzione") {
+                        if (user && user.listingID) {
+                          window.location.href = `${section.link}/${user.listingID}`;
+                        } else {
+                          window.location.href = "/AddListing";
+                        }
+                      } else {
+                        window.location.href = section.link;
+                      }
+                    }}
                     className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg shadow hover:shadow-lg transition-shadow duration-300 ease-in-out"
                   >
                     <img height="40px" width="40px" src={images[section.image]} alt="unban" />

@@ -1,13 +1,8 @@
 // /src/sections/homePage.jsx
 import React from "react";
-import findUser from "../assets/findUser.svg";
-import findHouse from "../assets/findHouse.svg";
-import flat from "../assets/flat.svg";
-import chats from "../assets/chats.svg";
-import signIn from "../assets/signIn.svg";
-import signUp from "../assets/signUp.svg";
-import hearth from "../assets/hearth.svg";
-import user from "../assets/user.svg"
+
+import { useAuth } from './../AuthContext';
+const { userId } = useAuth();
 
 const sections = [
   {
@@ -85,7 +80,7 @@ const sections = [
   {
     title: "La tua inserzione",
     description: "Diventa inserzionista e pubblica il tuo appartamento con noi",
-    link: "/addListing",
+    link: "/findaflat",
     image: "flat",
     svg: (
       <svg
