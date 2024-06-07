@@ -569,7 +569,7 @@ export default function ListingDetails() {
                         ) : (
                           <></>
                         )}
-                        {isLoggedIn && userCurrent && !isListingBanned && listing.publisherID !== userId && (
+                        {isLoggedIn && userCurrent && !isListingBanned && listing.publisherID !== userId && userCurrent.isAdmin && (
                           <button
                             className="bg-white font-bold text-blue-950 p-2 rounded-md m-2"
                             onClick={() =>
@@ -594,7 +594,7 @@ export default function ListingDetails() {
                             <img height="30px" width="30px" src={deleteListing} alt="deleteListing" />
                           </button>
                         )}
-                        {isLoggedIn && userCurrent && !isListingBanned && listing.publisherID !== userId && (
+                        {isLoggedIn && userCurrent && !isListingBanned && listing.publisherID !== userId && userCurrent.isAdmin && (
                           <button
                             className="bg-white font-bold text-blue-950 p-2 rounded-md m-2"
                             onClick={handleLikeButtonClick}
