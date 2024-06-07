@@ -5,7 +5,7 @@ import ScaleIcon from '@heroicons/react/24/solid/ScaleIcon.jsx'
 import CheckIcon from '@heroicons/react/24/solid/CheckIcon.jsx'
 import XMarkIcon from '@heroicons/react/24/solid/XMarkIcon.jsx'
 import ReportDetails from '../components/ReportDetails';
-
+import { API_BASE_URL } from '../constant';
 const ViewReports = () => {
     const {isLoggedIn, isAdmin,sessionToken, userId} = useAuth();
     const [reports, setReports] = useState([]);
@@ -25,7 +25,7 @@ const ViewReports = () => {
     }, [viewResolved]);
     const fetchRewiewReports = async () => {
         try {
-            const response = await fetch(`http://localhost:5050/api/reports/reviewing/${userId}`, {
+            const response = await fetch(`${API_BASE_URL}reports/reviewing/${userId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ const ViewReports = () => {
     };
     const fetchReports = async () => {
         try {
-            const response = await fetch('http://localhost:5050/api/reports/', {
+            const response = await fetch('${API_BASE_URL}reports/', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const ViewReports = () => {
     };
     const fetchResolvedReports = async () => {
         try {
-            const response = await fetch('http://localhost:5050/api/reports/resolved', {
+            const response = await fetch('${API_BASE_URL}reports/resolved', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ const ViewReports = () => {
     const handleResolve = async (reportID) => {
         
         try {
-            const response = await fetch('http://localhost:5050/api/reports/resolve', {
+            const response = await fetch('${API_BASE_URL}reports/resolve', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ const ViewReports = () => {
     const handleRemove = async (reportID) => {
         
         try {
-            const response = await fetch('http://localhost:5050/api/reports/remove', {
+            const response = await fetch('${API_BASE_URL}reports/remove', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ const ViewReports = () => {
     }
     const handleReview = async (reportID) => {
         try {
-            const response = await fetch('http://localhost:5050/api/reports/review', {
+            const response = await fetch('${API_BASE_URL}reports/review', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
