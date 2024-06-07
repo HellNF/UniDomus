@@ -11,4 +11,8 @@ export default defineConfig({
     // Exclude specific folders like node_modules or cache
     exclude: ['node_modules', '.cache'],
   },
+  server:{
+    host: true,
+    port: 5173,
+  }
 })
