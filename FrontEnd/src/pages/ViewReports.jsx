@@ -46,7 +46,7 @@ const ViewReports = () => {
     };
     const fetchReports = async () => {
         try {
-            const response = await fetch('${API_BASE_URL}reports/', {
+            const response = await fetch(`${API_BASE_URL}reports/`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const ViewReports = () => {
     };
     const fetchResolvedReports = async () => {
         try {
-            const response = await fetch('${API_BASE_URL}reports/resolved', {
+            const response = await fetch(`${API_BASE_URL}reports/resolved`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ const ViewReports = () => {
     const handleResolve = async (reportID) => {
         
         try {
-            const response = await fetch('${API_BASE_URL}reports/resolve', {
+            const response = await fetch(`${API_BASE_URL}reports/resolve`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ const ViewReports = () => {
     const handleRemove = async (reportID) => {
         
         try {
-            const response = await fetch('${API_BASE_URL}reports/remove', {
+            const response = await fetch(`${API_BASE_URL}reports/remove`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ const ViewReports = () => {
     }
     const handleReview = async (reportID) => {
         try {
-            const response = await fetch('${API_BASE_URL}reports/review', {
+            const response = await fetch(`${API_BASE_URL}reports/review`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
