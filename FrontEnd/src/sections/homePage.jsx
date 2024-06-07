@@ -1,11 +1,20 @@
 // /src/sections/homePage.jsx
 import React from "react";
+import findUser from "../assets/findUser.svg";
+import findHouse from "../assets/findHouse.svg";
+import flat from "../assets/flat.svg";
+import chats from "../assets/chats.svg";
+import signIn from "../assets/signIn.svg";
+import signUp from "../assets/signUp.svg";
+import hearth from "../assets/hearth.svg";
+import user from "../assets/user.svg"
 
 const sections = [
   {
-    title: "Find an Apartment",
-    description: "Browse through our listings to find the perfect apartment.",
+    title: "Trova un Appartamento",
+    description: "Sfoglia i nostri annunci per trovare l'appartamento perfetto",
     link: "/findaflat",
+    image: "findHouse",
     svg: (
       <svg
         className="h-8 w-8 text-blue-600"
@@ -24,9 +33,10 @@ const sections = [
     ),
   },
   {
-    title: "Find a Roommate",
-    description: "Connect with people looking for roommates.",
+    title: "Trova un Coinquilino",
+    description: "Entra in contatto con persone che cercano casa",
     link: "/findatenant",
+    image: "findUser",
     svg: (
       <svg
         className="h-8 w-8 text-green-600"
@@ -51,9 +61,10 @@ const sections = [
     ),
   },
   {
-    title: "List Your Property",
-    description: "Become a landlord and list your property with us.",
-    link: "/addListing",
+    title: "Il tuo profilo",
+    description: "Modifica il profilo affinchè gli altri utenti possano conoscerti al meglio",
+    link: "/editprofile",
+    image: "user",
     svg: (
       <svg
         className="h-8 w-8 text-red-600"
@@ -72,9 +83,32 @@ const sections = [
     ),
   },
   {
-    title: "View Matches",
-    description: "Check your match requests and accept or decline them.",
+    title: "La tua inserzione",
+    description: "Diventa inserzionista e pubblica il tuo appartamento con noi",
+    link: "/addListing",
+    image: "flat",
+    svg: (
+      <svg
+        className="h-8 w-8 text-red-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M12 14l6-6M6 18V6a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H8a2 2 0 01-2-2v-2H4a2 2 0 01-2-2v-8a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-2"
+        />
+      </svg>
+    ),
+  },
+  {
+    title: "Matches",
+    description: "Controlla le tue richieste di Match, accettale o rifiutale",
     link: "/matches/index",
+    image: "hearth",
     svg: (
       <svg
         className="h-8 w-8 text-pink-600"
@@ -92,6 +126,74 @@ const sections = [
       </svg>
     ),
   },
+  {
+    title: "Chats",
+    description: "Entra in contatto diretto con i tuoi Match e scambiatevi informazioni",
+    link: "/chat/index",
+    image: "chats",
+    svg: (
+      <svg
+        className="h-8 w-8 text-blue-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M3 7l1.38-1.38a4 4 0 015.66 0L12 7l1.96-1.96a4 4 0 015.66 0L21 7m-9 2a4 4 0 014 4v5a4 4 0 01-4 4H8a4 4 0 01-4-4v-5a4 4 0 014-4h4z"
+        />
+      </svg>
+    ),
+  }
+  ,
+  {
+    title: "Registrati",
+    description: "Registrati alla nostra piattaforma per accedere a tutte le funzionzlità",
+    link: "/registration",
+    image: "signUp",
+    svg: (
+      <svg
+        className="h-8 w-8 text-blue-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M3 7l1.38-1.38a4 4 0 015.66 0L12 7l1.96-1.96a4 4 0 015.66 0L21 7m-9 2a4 4 0 014 4v5a4 4 0 01-4 4H8a4 4 0 01-4-4v-5a4 4 0 014-4h4z"
+        />
+      </svg>
+    ),
+  }
+  ,
+  {
+    title: "Loggin",
+    description: "Sei già registrato?\nAccedi al tuo account",
+    link: "/login",
+    image: "signIn",
+    svg: (
+      <svg
+        className="h-8 w-8 text-blue-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M3 7l1.38-1.38a4 4 0 015.66 0L12 7l1.96-1.96a4 4 0 015.66 0L21 7m-9 2a4 4 0 014 4v5a4 4 0 01-4 4H8a4 4 0 01-4-4v-5a4 4 0 014-4h4z"
+        />
+      </svg>
+    ),
+  }
 ];
 
 export default sections;
