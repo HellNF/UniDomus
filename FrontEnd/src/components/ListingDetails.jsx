@@ -36,6 +36,7 @@ export default function ListingDetails() {
   const [searchResult, setSearchResult] = useState([]);
   const { load, setLoad } = useLoadContext();
   const [isListingBanned, setIsListingBanned] = useState(false);
+  const [isUserBanned, setIsUserBanned] = useState(false);
   const [formData, setFormData] = useState({
     address: {
       street: "",
@@ -274,6 +275,10 @@ export default function ListingDetails() {
             : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
           username: userData.username
         });
+        const currentTime = new Date();
+        currentTime.setHours(currentTime.getHours() + 2);
+        console.log(data.user)
+        setIsUserBanned(data.user.ban.banPermanently || (data.user.ban.banTime && new Date(data.user.ban.banTime) > currentTime));
       })
       .catch((error) => {
         console.error("Error fetching user data:", error);
@@ -584,7 +589,7 @@ export default function ListingDetails() {
                             <img height="28px" width="28px" src={judge} alt="judge" />
                           </button>
                         )}
-                        {isLoggedIn && userCurrent && isListingBanned && listing.publisherID !== userId && userCurrent.isAdmin && (
+                        {isLoggedIn && userCurrent && isListingBanned && !isUserBanned && listing.publisherID !== userId && userCurrent.isAdmin && (
                           <button onClick={() => handleUnban()} className="bg-green-600 font-bold text-white p-2 rounded-md m-2" >
                             <img height="30px" width="30px" src={unban} alt="unban" />
                           </button>
