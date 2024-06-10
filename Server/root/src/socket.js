@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const initializeSocket = (server) => {
   const io = socketIo(server, {
     cors: {
-      origin: "http://localhost:5173", // Update the origin to your frontend URL
+      origin: "https://unidomusfe.onrender.com", // Update the origin to your frontend URL
       methods: ["GET", "POST"],
       allowedHeaders: ["content-type"],
       credentials: true
