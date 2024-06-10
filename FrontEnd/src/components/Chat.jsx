@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './../AuthContext';
 import { API_BASE_URL } from '../constant';
 import useMatches from '../hooks/useMatches';
-import { API_BASE_URL } from '../constant';
+
 import {
   MinChatUiProvider,
   MainContainer,
