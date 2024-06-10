@@ -173,7 +173,11 @@ function Navbar({ current }) {
                           <span className="sr-only">Open user menu</span>
                           <img
                             className="h-8 w-8 rounded-full"
-                            src={profilePic || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'}
+                            src={profilePic.includes("http") ||
+                              profilePic.includes("data:image/png;base64,") ||
+                              profilePic.includes("data:image/jpeg;base64,")
+                              ? profilePic
+                              : `data:image/png;base64,${profilePic}`}
                             alt=""
                           />
                         </Menu.Button>
