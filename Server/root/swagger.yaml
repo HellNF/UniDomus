@@ -385,8 +385,6 @@ paths:
                         type: boolean
                       prevBanNum:
                         type: integer
-                      banMsg:
-                        type: string
         "400":
           description: Invalid ban time provided
           content:
@@ -1119,6 +1117,7 @@ paths:
           description: Invalid or expired token.
         "500":
           description: Internal server error occurred.
+
   /api/users/{id}/ban:
     put:
       summary: Ban a user and their associated listing
@@ -1172,16 +1171,6 @@ paths:
                         type: boolean
                       prevBanNum:
                         type: integer
-                      banMsg:
-                        type: string
-                  listingBan:
-                    type: object
-                    properties:
-                      banTime:
-                        type: string
-                        format: date-time
-                      banPermanently:
-                        type: boolean
         "400":
           description: Invalid ban time provided
           content:

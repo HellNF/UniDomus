@@ -591,8 +591,7 @@ async function banListingById(req, res) {
             listingUpdateData = {
                 'ban.banPermanently': true,
                 'ban.banTime': null,
-                'ban.prevBanNum': prevBanNum,
-                'ban.banMsg': banMsg // Add ban message for listing
+                'ban.prevBanNum': prevBanNum
             };
             banDuration = 'permanently';
         } else {
@@ -607,8 +606,7 @@ async function banListingById(req, res) {
             listingUpdateData = {
                 'ban.banTime': banExpirationDate,
                 'ban.banPermanently': false,
-                'ban.prevBanNum': prevBanNum,
-                'ban.banMsg': banMsg // Add ban message for listing
+                'ban.prevBanNum': prevBanNum
             };
             banDuration = convertSecondsToDHMS(banTimeInSeconds);
         }

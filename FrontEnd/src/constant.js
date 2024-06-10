@@ -4,7 +4,7 @@
 export const API_BASE_URL = "https://unidomus.onrender.com/api/";
 export const SOCKET_URL = "https://unidomus.onrender.com";
 export const notificationStatusEnum = {
-    SEEN: 'visto',
+    SEEN: 'visto', 
     NOT_SEEN: 'non visto',
 };
 export const matchStatusEnum = {
