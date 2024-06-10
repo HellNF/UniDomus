@@ -569,7 +569,7 @@ export default function ListingDetails() {
                         ) : (
                           <></>
                         )}
-                        {isLoggedIn && userCurrent && !isListingBanned && listing.publisherID !== userId && userCurrent.isAdmin && (
+                        {isLoggedIn && userCurrent && !isListingBanned && listing.publisherID !== userId &&  (
                           <button
                             className="bg-white font-bold text-blue-950 p-2 rounded-md m-2"
                             onClick={() =>
