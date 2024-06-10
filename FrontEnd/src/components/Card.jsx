@@ -80,7 +80,7 @@ function Card({ listing }) {
             <div className="flex flex-col h-full w-9/12 rounded-lg text-black p-7 space-y-2 object-contain">
                 <div className="flex flex-row justify-evenly font-bold text-xs sm:text-base xl:text-xl 2xl:text-2xl">
                     <h1 className="hover:underline"><p>{listing.price}€</p></h1>
-                    <Link to='/' className="flex flex-row space-x-2 items-center">
+                    <Link to={`/findatenant/${listing.publisherID}`} className="flex flex-row space-x-2 items-center">
                         <img className="h-8 w-8 rounded-full" src={publisher.img.includes("http") || publisher.img.includes("data:image/png;base64,") ? publisher.img : `data:image/png;base64,${publisher.img}`} alt="propic" />
                         <h2 className={`hover:underline text-xs sm:text-base xl:text-xl 2xl:text-2xl ${isUserBanned ? 'text-red-600' : 'text-black'}`}>
                             <p>{publisher.username}</p>
