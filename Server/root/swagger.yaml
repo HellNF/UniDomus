@@ -385,8 +385,6 @@ paths:
                         type: boolean
                       prevBanNum:
                         type: integer
-                      banMsg:
-                        type: string
         "400":
           description: Invalid ban time provided
           content:

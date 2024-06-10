@@ -815,18 +815,6 @@ describe('Listing Controller', () => {
 
 
     describe('PUT /api/listings/:id/ban', () => {
-
-        let token, adminToken;
-
-        beforeEach(() => {
-            jest.clearAllMocks(); // Clear mock function calls before each test
-
-            // Generate a valid JWT token for testing
-            token = jwt.sign({ id: 'testUserId', isAdmin: false }, process.env.SUPER_SECRET, { expiresIn: '1h' });
-            adminToken = jwt.sign({ id: 'adminUserId', isAdmin: true }, process.env.SUPER_SECRET, { expiresIn: '1h' });
-        });
-
-        
         const listingId = 'validListingId';
         const banData = {
             banTimeInSeconds: 3600, // 1 hour
@@ -836,10 +824,16 @@ describe('Listing Controller', () => {
 
         it('should ban a listing successfully for a given duration', async () => {
             const mockListing = { _id: listingId, ban: {} };
-            Listing.findById.mockResolvedValue(mockListing);
-
-            Listing.findByIdAndUpdate.mockResolvedValue({ _id: listingId, ban: { banTime: new Date(Date.now() + 3600 * 1000 + 7200 * 1000) } });
-            Notification.create.mockResolvedValue({});
+            jest.spyOn(Listing, 'findById').mockResolvedValue(mockListing);
+            jest.spyOn(Listing, 'findByIdAndUpdate').mockResolvedValue({
+                _id: listingId, 
+                ban: { 
+                    banTime: new Date(Date.now() + 3600 * 1000 + 7200 * 1000),
+                    banPermanently: false,
+                    prevBanNum: 3
+                }
+            });
+            jest.spyOn(NotificationModel, 'create').mockResolvedValue({});
 
             const response = await request(app)
                 .put(`/api/listings/${listingId}/ban`)
@@ -850,9 +844,8 @@ describe('Listing Controller', () => {
             expect(response.body.message).toBe('Listing banned successfully');
             expect(Listing.findById).toHaveBeenCalledWith(listingId);
             expect(Listing.findByIdAndUpdate).toHaveBeenCalled();
-            expect(Notification.create).toHaveBeenCalled();
+            expect(NotificationModel.create).toHaveBeenCalled();
         });
-
 
         it('should ban a listing permanently', async () => {
             const banData = {
@@ -861,9 +854,16 @@ describe('Listing Controller', () => {
             };
 
             const mockListing = { _id: listingId, ban: {} };
-            Listing.findById.mockResolvedValue(mockListing);
-            Listing.findByIdAndUpdate.mockResolvedValue({ _id: listingId, ban: { banPermanently: true } });
-            Notification.create.mockResolvedValue({});
+            jest.spyOn(Listing, 'findById').mockResolvedValue(mockListing);
+            jest.spyOn(Listing, 'findByIdAndUpdate').mockResolvedValue({
+                _id: listingId, 
+                ban: { 
+                    banTime: null,
+                    banPermanently: true,
+                    prevBanNum: 3
+                }
+            });
+            jest.spyOn(NotificationModel, 'create').mockResolvedValue({});
 
             const response = await request(app)
                 .put(`/api/listings/${listingId}/ban`)
@@ -874,9 +874,8 @@ describe('Listing Controller', () => {
             expect(response.body.message).toBe('Listing banned successfully');
             expect(Listing.findById).toHaveBeenCalledWith(listingId);
             expect(Listing.findByIdAndUpdate).toHaveBeenCalled();
-            expect(Notification.create).toHaveBeenCalled();
+            expect(NotificationModel.create).toHaveBeenCalled();
         });
-
 
         it('should return 400 if ban time is invalid', async () => {
             const invalidBanData = {
@@ -893,9 +892,8 @@ describe('Listing Controller', () => {
             expect(response.body.message).toBe('Invalid ban time provided');
         });
 
-
         it('should return 404 if listing is not found', async () => {
-            Listing.findById.mockResolvedValue(null);
+            jest.spyOn(Listing, 'findById').mockResolvedValue(null);
 
             const response = await request(app)
                 .put(`/api/listings/${listingId}/ban`)
@@ -905,10 +903,9 @@ describe('Listing Controller', () => {
             expect(response.status).toBe(404);
             expect(response.body.message).toBe('Listing not found');
         });
- 
 
         it('should handle errors and return 500 status code with an error message', async () => {
-            Listing.findById.mockRejectedValue(new Error('Database error'));
+            jest.spyOn(Listing, 'findById').mockRejectedValue(new Error('Database error'));
 
             const response = await request(app)
                 .put(`/api/listings/${listingId}/ban`)
@@ -918,8 +915,6 @@ describe('Listing Controller', () => {
             expect(response.status).toBe(500);
             expect(response.body.message).toBe('Internal server error');
         });
-
-
     });
 
     describe('PUT /api/listings/:id/unban', () => {
