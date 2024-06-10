@@ -1,8 +1,8 @@
 // constants.js
 
 
-export const API_BASE_URL = "http://localhost:5050/api/";
-export const SOCKET_URL = "http://localhost:5050";
+export const API_BASE_URL = "https://unidomusbe.onrender.com/api/";
+export const SOCKET_URL = "https://unidomusbe.onrender.com";
 export const notificationStatusEnum = {
     SEEN: 'visto', 
     NOT_SEEN: 'non visto',
