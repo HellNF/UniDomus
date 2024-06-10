@@ -464,7 +464,6 @@ async function banUserById(req, res) {
                 'ban.banPermanently': true,
                 'ban.banTime': null,
                 'ban.prevBanNum': prevBanNum,
-                'ban.banMsg': banMsg // Add ban message for user
             };
             listingUpdateData = {
                 'ban.banPermanently': true,
@@ -487,7 +486,6 @@ async function banUserById(req, res) {
                 'ban.banTime': banExpirationDate,
                 'ban.banPermanently': false,
                 'ban.prevBanNum': prevBanNum,
-                'ban.banMsg': banMsg // Add ban message for user
             };
             listingUpdateData = {
                 'ban.banTime': banExpirationDate,

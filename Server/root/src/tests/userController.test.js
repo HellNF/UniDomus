@@ -684,8 +684,7 @@ describe('UserController', () => {
                 ban: {
                     banTime: new Date(Date.now() + (3600 + 7200) * 1000),
                     banPermanently: false,
-                    prevBanNum: 3,
-                    banMsg: 'Violation of terms'
+                    prevBanNum: 3
                 }
             });
     
@@ -708,8 +707,7 @@ describe('UserController', () => {
                 { $set: { 
                     'ban.banTime': expect.any(Date), 
                     'ban.banPermanently': false,
-                    'ban.prevBanNum': 3,
-                    'ban.banMsg': 'Violation of terms'
+                    'ban.prevBanNum': 3
                 }},
                 { new: true, runValidators: true }
             );
@@ -737,8 +735,7 @@ describe('UserController', () => {
                 userBan: {
                     banTime: expect.any(String),
                     banPermanently: false,
-                    prevBanNum: 3,
-                    banMsg: 'Violation of terms'
+                    prevBanNum: 3
                 },
                 listingBan: {
                     banTime: expect.any(String),
@@ -766,8 +763,7 @@ describe('UserController', () => {
                 ban: {
                     banTime: null,
                     banPermanently: true,
-                    prevBanNum: 3,
-                    banMsg: 'Violation of terms'
+                    prevBanNum: 3
                 }
             });
     
@@ -790,8 +786,7 @@ describe('UserController', () => {
                 { $set: { 
                     'ban.banPermanently': true,
                     'ban.banTime': null,
-                    'ban.prevBanNum': 3,
-                    'ban.banMsg': 'Violation of terms'
+                    'ban.prevBanNum': 3
                 }},
                 { new: true, runValidators: true }
             );
@@ -819,8 +814,7 @@ describe('UserController', () => {
                 userBan: {
                     banTime: null,
                     banPermanently: true,
-                    prevBanNum: 3,
-                    banMsg: 'Violation of terms'
+                    prevBanNum: 3
                 },
                 listingBan: {
                     banTime: null,
