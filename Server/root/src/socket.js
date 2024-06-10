@@ -1,10 +1,11 @@
 // src/socket.js
 const socketIo = require('socket.io');
+require('dotenv').config({ path: '../.env' });
 
 const initializeSocket = (server) => {
   const io = socketIo(server, {
     cors: {
-      origin: "https://unidomusfe.onrender.com", // Update the origin to your frontend URL
+      origin: `${process.env.FRONTEND_BASE}`, // Update the origin to your frontend URL
       methods: ["GET", "POST"],
       allowedHeaders: ["content-type"],
       credentials: true

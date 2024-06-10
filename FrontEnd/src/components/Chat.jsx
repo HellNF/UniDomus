@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './../AuthContext';
 import { API_BASE_URL } from '../constant';
 import useMatches from '../hooks/useMatches';
+import { API_BASE_URL } from '../constant';
 import {
   MinChatUiProvider,
   MainContainer,
@@ -15,7 +16,7 @@ import {
 import sendIcon from '../assets/send.svg';
 
 
-const socket = io('http://localhost:5050', { transports: ['websocket'] });
+const socket = io(`${API_BASE_URL}`, { transports: ['websocket'] });
 
 const Chat = () => {
   const { matchID } = useParams();
