@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './../AuthContext';
-import { API_BASE_URL } from '../constant';
+import { API_BASE_URL,SOCKET_URL } from '../constant';
 import useMatches from '../hooks/useMatches';
 
 import {
@@ -16,7 +16,7 @@ import {
 import sendIcon from '../assets/send.svg';
 
 
-const socket = io(`${API_BASE_URL}`, { transports: ['websocket'] });
+const socket = io(`${SOCKET_URL}`, { transports: ['websocket'] });
 
 const Chat = () => {
   const { matchID } = useParams();

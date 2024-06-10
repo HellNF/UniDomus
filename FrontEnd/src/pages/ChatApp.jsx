@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import { useAuth } from '../AuthContext';
 import UniDomusLogo from "/UniDomusLogoWhite.png";
-import { API_BASE_URL, matchStatusEnum } from '../constant';
+import { API_BASE_URL, matchStatusEnum ,SOCKET_URL} from '../constant';
 import useReport from '../hooks/useReport';
 import ReportPopup from '../components/ReportPopup';
 import reportIcon from '../assets/report.svg';
@@ -19,7 +19,7 @@ import {
 } from '@chatscope/chat-ui-kit-react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 
-const socket = io('http://localhost:5050', { transports: ['websocket'] });
+const socket = io(`${SOCKET_URL}`, { transports: ['websocket'] });
 
 const ChatApp = () => {
   const { matchID } = useParams();

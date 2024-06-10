@@ -3,9 +3,9 @@ import io from 'socket.io-client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from './../AuthContext';
 import UniDomusLogo from "/UniDomusLogoWhite.png";
-import { API_BASE_URL } from '../constant';
+import { API_BASE_URL, SOCKET_URL } from '../constant';
 
-const socket = io('http://localhost:5050', { transports: ['websocket'] }); // Ensure this URL matches your backend server
+const socket = io(`${SOCKET_URL}`, { transports: ['websocket'] }); // Ensure this URL matches your backend server
 
 const Chat = () => {
   const { matchID } = useParams();
