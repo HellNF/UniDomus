@@ -445,7 +445,10 @@ export default function ListingDetails() {
   return (
     <>
       <div className="flex flex-col  bg-blue-950 to-75% items-center h-full">
-        <div className="flex flex-col my-16 items-center bg-white w-5/6 h-fit p-4 rounded-md border-2 shadow overflow-x-hidden overflow-hidden ">
+      <div className="flex flex-col items-center space-y-3 pt-10 pb-4">
+            <h1 className="text-4xl font-semibold leading-7 text-white">Inserzione</h1>
+      </div>
+        <div className="flex flex-col items-center bg-white w-5/6 h-fit p-4 rounded-md border-2 shadow overflow-x-hidden overflow-hidden ">
           {!modifyMode ? (
             <>
               <div className="max-w-3xl h-96 object-cover p-4 ">

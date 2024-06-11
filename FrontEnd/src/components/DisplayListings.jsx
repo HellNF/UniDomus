@@ -11,10 +11,10 @@ import { API_BASE_URL } from "../constant";
 
 function DisplayListings() {
     const priceMin = 10
-    const priceMax = 10000
+    const priceMax = 1000
     const [prices, setPrices] = useState([priceMin, priceMax]);
     const floorAreaMin = 10
-    const floorAreaMax = 10000
+    const floorAreaMax = 500
     const [floorArea, setFloorArea] = useState([floorAreaMin, floorAreaMax]);
     const [typology, setTypology] = useState("")
     const [listings, setListings] = useState([]);
@@ -97,7 +97,7 @@ function DisplayListings() {
                 <div className="h-filter w-full bg-gray-300   flex flex-row items-center  justify-center">
 
                     <form onSubmit={handleSubmit} className="flex items-center space-x-12 text-sm justify-between">
-                        <h1 className="text-xl font-bold">Filters:</h1>
+                        <h1 className="text-xl font-bold">Filtri:</h1>
                         <select id="typology" name="typology" onChange={handleChangeTypology} value={typology} className="block w-30 text- rounded-md border-0 h-8 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-950 sm:max-w-xs sm:text-sm sm:leading-6">
                             <option></option>
                             <option>Camera singola</option>

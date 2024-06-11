@@ -163,9 +163,8 @@ export default function TenantDetails() {
   return (
     <div>
       <form onSubmit={(e) => e.preventDefault()}>
-        <div className="bg-blue-950 min-h-screen flex flex-col items-center p-8 pt-20">
-          <div className="flex flex-col items-center space-y-3">
-            <img className="h-28 w-auto" src={UniDomusLogo} alt="Unidomus" />
+        <div className="bg-blue-950 min-h-screen flex flex-col items-center p-8 pt-10">
+          <div className="flex flex-col items-center">
             <h1 className="text-4xl font-semibold leading-7 text-white">Profilo</h1>
           </div>
 
