@@ -490,7 +490,7 @@ describe('UserController', () => {
             expect(response.body).toEqual({ message: 'Internal server error', error: 'Database error' });
         });
 
-        it('should handle errors during listing deletion but still delete the user', async () => {
+        it('should handle errors during listing deletion', async () => {
             const mockUser = {
                 _id: '1',
                 email: 'test@example.com',

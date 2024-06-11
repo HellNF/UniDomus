@@ -173,8 +173,8 @@ const sections = [
   }
   ,
   {
-    title: "Loggin",
-    description: "Sei già registrato?\nAccedi al tuo account",
+    title: "Login",
+    description: "Sei già registrato? Accedi al tuo account con le tue credenziali",
     link: "/login",
     image: "signIn",
     svg: (
