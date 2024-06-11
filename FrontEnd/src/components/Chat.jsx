@@ -191,11 +191,11 @@ const Chat = () => {
                     );
                   })
                 ) : (
-                  <p className="text-gray-500">No accepted matches found.</p>
+                  <p className="text-gray-500">Nessun match accettato</p>
                 )}
               </div>
               <button onClick={handleGoBack} className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 m-4">
-                Go Back
+                Indietro
               </button>
             </div>
             {
@@ -217,7 +217,7 @@ const Chat = () => {
                       <div className="flex mt-2">
                         <input
                           type="text"
-                          placeholder="Type a message"
+                          placeholder="Scrivi un messaggio"
                           value={message}
                           onChange={(e) => setMessage(e.target.value)}
                           onKeyPress={handleKeyPress}

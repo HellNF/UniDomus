@@ -309,7 +309,7 @@ const ViewReports = () => {
 
                 }
             </div>
-            {!viewResolved && <button type="button" className='bg-blue-950 p-3 rounded-md hover:bg-blue-800 hover:scale-105 text-white font-bold ' onClick={()=>setViewResolved(true)}>View resolved</button> }
+            {!viewResolved && <button type="button" className='bg-blue-950 p-3 rounded-md hover:bg-blue-800 hover:scale-105 text-white font-bold ' onClick={()=>setViewResolved(true)}>Visualizza risolte</button> }
             {viewResolved && (<div className='w-full flex flex-col space-y-4 items-center  px-8 mb-10'>
                 <div className='w-full'>
                     <h1 className='text-xl font-bold text-black'>Risolte:</h1>

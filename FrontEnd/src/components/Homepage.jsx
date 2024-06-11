@@ -50,7 +50,7 @@ export default function HomePage() {
                   if (!isLoggedIn && (section.title === "Il tuo profilo" || section.title === "La tua inserzione" || section.title === "Matches" || section.title === "Chats")) {
                     return false;
                   }
-                  if (isLoggedIn && (section.title === "Loggin" || section.title === "Registrati")) {
+                  if (isLoggedIn && (section.title === "Login" || section.title === "Registrati")) {
                     return false;
                   }
                   return true;
